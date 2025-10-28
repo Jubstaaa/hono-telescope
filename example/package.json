@@ -1,0 +1,20 @@
+{
+  "name": "hono-telescope-example",
+  "version": "1.0.0",
+  "description": "Example application demonstrating Hono Telescope",
+  "main": "index.js",
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "build": "bun build src/index.ts --outdir dist --target bun",
+    "start": "bun dist/index.js",
+    "test-routes": "curl -s http://localhost:3000/api/test-all | bun -e 'const data = JSON.parse(await Bun.stdin.text()); console.log(\"\\n🧪 Route Test Sonuçları:\"); console.log(\"═══════════════════════════\"); console.log(`✅ Başarılı: ${data.summary.successful}/${data.summary.total}`); console.log(`❌ Başarısız: ${data.summary.failed}/${data.summary.total}`); console.log(`⏱️  Toplam Süre: ${data.summary.totalDuration}`); console.log(\"\\n📋 Detaylar:\"); data.results.forEach(r => console.log(`${r.success ? \"✅\" : \"❌\"} ${r.method.padEnd(6)} ${r.path.padEnd(25)} ${r.status} (${r.duration})`)); console.log(\"\\n\");'"
+  },
+  "dependencies": {
+    "hono": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "name": "@hono/telescope",
+  "version": "0.1.0-beta.1",
+  "description": "A powerful debugging and monitoring tool for Hono applications, inspired by Laravel Telescope",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "bun run build:core && bun run build:dashboard && cp -r dashboard-react/dist/* dist/dashboard/",
+    "build:core": "bun run tsc",
+    "build:dashboard": "cd dashboard-react && bun run build",
+    "dev": "cd example && bun run dev",
+    "test": "bun test",
+    "test:ui": "vitest --ui",
+    "example": "cd example && bun run test-routes",
+    "prepublishOnly": "bun run build",
+    "publish:beta": "npm publish --tag beta"
+  },
+  "keywords": [
+    "hono",
+    "debugging",
+    "monitoring",
+    "telescope",
+    "middleware",
+    "observability",
+    "performance",
+    "typescript",
+    "bun",
+    "nodejs"
+  ],
+  "author": {
+    "name": "İlker Balcılar",
+    "email": "ilkerbalcilartr@gmail.com"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@types/lodash": "^4.17.20",
+    "hono": "^4.0.0",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0",
+    "@vitest/ui": "^1.0.0"
+  },
+  "peerDependencies": {
+    "hono": ">=3.0.0"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Jubstaaa/hono-telescope.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Jubstaaa/hono-telescope/issues"
+  },
+  "homepage": "https://github.com/Jubstaaa/hono-telescope#readme",
+  "engines": {
+    "node": ">=18.0.0",
+    "bun": ">=1.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
