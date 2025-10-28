@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1-beta.2] - 2025-01-28
+
+### ✨ Added
+- **Zero-Config Axios Support** - Improved automatic detection of Axios instances without requiring global configuration
+- **Custom Axios Instance Test** - Added example demonstrating zero-config usage with custom Axios instances
+
+### 🔧 Technical Improvements
+- Enhanced HTTP interceptor to better detect Axios through multiple methods (globalThis, require, dynamic import)
+- Improved documentation for zero-config Axios setup
+- Added test example for custom Axios instances
+
+### 📚 Documentation
+- Updated README with zero-config approach examples
+- Added guidance for custom Axios instance usage
+
 ## [0.1.0-beta.2] - 2025-10-28
 
 ### ✨ Added
