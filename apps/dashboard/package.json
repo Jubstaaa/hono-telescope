@@ -1,5 +1,5 @@
 {
-  "name": "hono-telescope-react-dashboard",
+  "name": "@hono-telescope/dashboard",
   "version": "1.0.0",
   "description": "React-based dashboard for Hono Telescope",
   "main": "dist/index.js",
@@ -19,7 +19,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-redux": "^9.2.0",
-    "react-router-dom": "^7.9.4"
+    "react-router-dom": "^7.9.4",
+    "@hono-telescope/types": "*"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",

@@ -120,9 +120,11 @@ public
 .yarn/install-state.gz
 .pnp.*
 
-# Build outputs
+# Build outputs - all app and package dist folders
 dist/
 build/
+apps/*/dist/
+packages/*/dist/
 *.d.ts.map
 
 # IDE files
@@ -166,13 +168,19 @@ package-lock.json
 yarn.lock
 
 # Example app database
-example/*.db
-example/*.db-*
-example/dist/
+apps/example/*.db
+apps/example/*.db-*
+apps/example/dist/
 
 # Telescope dashboard build artifacts
-dashboard-react/dist/
-dashboard-react/.vite/
+apps/dashboard/dist/
+apps/dashboard/.vite/
+
+# Vite build cache
+.vite/
 
 # TypeScript incremental compilation
 *.tsbuildinfo
+
+# Turbo
+.turbo/

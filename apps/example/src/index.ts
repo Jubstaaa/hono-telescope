@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { getDatabase, User } from './database';
 import { filter, reduce } from 'lodash';
-import { setupTelescope, startLogWatcher, startExceptionWatcher } from "../../dist"
+import { setupTelescope, startLogWatcher, startExceptionWatcher } from "@hono-telescope/core"
 import axios from 'axios';
 
 // Make axios available globally for the interceptor

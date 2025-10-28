@@ -1,0 +1,16 @@
+{
+  "name": "@hono-telescope/types",
+  "version": "0.1.1-beta.2",
+  "description": "Shared types for Hono Telescope",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "type-check": "tsc --noEmit"
+  },
+  "files": [
+    "dist",
+    "package.json"
+  ]
+}

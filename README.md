@@ -8,6 +8,8 @@
 
 A powerful debugging and monitoring tool for Hono applications, inspired by Laravel Telescope. Monitor HTTP requests, exceptions, logs, and database queries with a beautiful web dashboard.
 
+> 📚 **Monorepo Structure**: This project uses Turborepo! For detailed workspace information, see [MONOREPO.md](./MONOREPO.md).
+
 ## ✨ Features
 
 - 🔍 **HTTP Request Monitoring** - Track all incoming and outgoing requests

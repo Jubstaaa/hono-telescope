@@ -10,20 +10,8 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "declaration": true,
-    "outDir": "./dist",
-    "rootDir": "./src",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": false,
     "lib": ["ES2022", "DOM"]
-  },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "example",
-    "src/dashboard/assets/**/*"
-  ]
+  }
 }

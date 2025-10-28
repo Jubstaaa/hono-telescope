@@ -1,5 +1,5 @@
 {
-  "name": "hono-telescope-example",
+  "name": "@hono-telescope/example",
   "version": "1.0.0",
   "description": "Example application demonstrating Hono Telescope",
   "main": "index.js",
@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "hono": "^4.0.0",
-    "axios": "^1.6.0"
+    "axios": "^1.6.0",
+    "@hono-telescope/core": "*"
   },
   "devDependencies": {
     "@types/bun": "latest",

@@ -1,18 +1,30 @@
 {
-  "name": "hono-telescope",
+  "name": "@hono-telescope/core",
   "version": "0.1.1-beta.2",
   "description": "A powerful debugging and monitoring tool for Hono applications, inspired by Laravel Telescope",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "private": false,
+  "main": "apps/core/dist/index.js",
+  "types": "apps/core/dist/index.d.ts",
+  "packageManager": "bun@1.3.1",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "build": "bun run build:core && bun run build:dashboard && cp -r dashboard-react/dist/* dist/dashboard/",
-    "build:core": "bun run tsc",
-    "build:dashboard": "cd dashboard-react && bun run build",
-    "dev": "cd example && bun run dev",
-    "test": "bun test",
-    "test:ui": "vitest --ui",
-    "prepublishOnly": "bun run build",
-    "publish:beta": "npm publish --tag beta"
+    "build": "turbo run build",
+    "build:core": "turbo run build --filter=@hono-telescope/core",
+    "build:dashboard": "turbo run build --filter=@hono-telescope/dashboard",
+    "dev": "turbo run dev",
+    "dev:core": "turbo run dev --filter=@hono-telescope/core",
+    "dev:example": "turbo run dev --filter=@hono-telescope/example",
+    "dev:dashboard": "turbo run dev --filter=@hono-telescope/dashboard",
+    "test": "turbo run test",
+    "test:ui": "turbo run test:ui",
+    "type-check": "turbo run type-check",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
+    "clean": "turbo clean && rm -rf node_modules",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "hono",
@@ -31,22 +43,8 @@
     "email": "ilkerbalcilartr@gmail.com"
   },
   "license": "MIT",
-  "dependencies": {
-    "@types/lodash": "^4.17.20",
-    "hono": "^4.0.0",
-    "lodash": "^4.17.21"
-  },
-  "devDependencies": {
-    "@types/node": "^20.0.0",
-    "typescript": "^5.0.0",
-    "vitest": "^1.0.0",
-    "@vitest/ui": "^1.0.0"
-  },
-  "peerDependencies": {
-    "hono": ">=3.0.0"
-  },
   "files": [
-    "dist",
+    "apps/core/dist",
     "README.md",
     "CHANGELOG.md",
     "LICENSE"
@@ -59,6 +57,14 @@
     "url": "https://github.com/jubstaaa/hono-telescope/issues"
   },
   "homepage": "https://github.com/jubstaaa/hono-telescope#readme",
+  "devDependencies": {
+    "turbo": "latest",
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
+  },
+  "peerDependencies": {
+    "hono": ">=3.0.0"
+  },
   "engines": {
     "node": ">=18.0.0",
     "bun": ">=1.0.0"
