@@ -2,7 +2,7 @@
   "lockfileVersion": 1,
   "workspaces": {
     "": {
-      "name": "@hono/telescope",
+      "name": "hono-telescope",
       "dependencies": {
         "@types/lodash": "^4.17.20",
         "hono": "^4.0.0",

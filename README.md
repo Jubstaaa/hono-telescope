@@ -1,4 +1,4 @@
-# @hono/telescope
+# hono-telescope
 
 [![npm version](https://badge.fury.io/js/@hono%2Ftelescope.svg)](https://badge.fury.io/js/@hono%2Ftelescope)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -25,16 +25,16 @@ A powerful debugging and monitoring tool for Hono applications, inspired by Lara
 
 ```bash
 # Using npm
-npm install @hono/telescope
+npm install hono-telescope
 
 # Using yarn
-yarn add @hono/telescope
+yarn add hono-telescope
 
 # Using pnpm
-pnpm add @hono/telescope
+pnpm add hono-telescope
 
 # Using bun
-bun add @hono/telescope
+bun add hono-telescope
 ```
 
 ## Quick Start
@@ -131,6 +131,26 @@ recordDatabaseQuery(
   'main' // connection name
 );
 ```
+
+### Axios Interceptor
+
+To monitor outgoing HTTP requests made with Axios, you need to make Axios globally accessible:
+
+```typescript
+import axios from 'axios';
+import { setupTelescope } from 'hono-telescope';
+
+// Make axios globally accessible for the interceptor
+(globalThis as any).axios = axios;
+
+// Setup Telescope - this will automatically detect and intercept Axios requests
+setupTelescope(app);
+
+// Your Axios requests will now be captured in Telescope
+const response = await axios.get('https://api.example.com/users');
+```
+
+**Important**: The Axios interceptor requires Axios to be available in the global scope. Make sure to assign your Axios instance to `globalThis.axios` before calling `setupTelescope()`.
 
 ## Dashboard Features
 

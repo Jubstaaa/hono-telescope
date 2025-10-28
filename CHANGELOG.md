@@ -5,11 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.0-beta.2] - 2025-10-28
+
+### ✨ Added
+- **Axios Interceptor Support** - Automatic interception of outgoing HTTP requests made with Axios
+- **Enhanced HTTP Monitoring** - Now captures both incoming requests (via Hono middleware) and outgoing requests (via Axios interceptor)
+
+### 📚 Documentation
+- Added comprehensive Axios setup instructions to README.md
+- Documented requirement for making Axios globally accessible via `globalThis.axios`
+
+### 🔧 Technical Improvements
+- Enhanced HTTP interceptor to detect and hook into Axios instances
+- Added debug logging for Axios interceptor setup
+- Improved error handling in HTTP interceptor
+
 ## [0.1.0-beta.1] - 2024-12-27
 
 ### 🎉 Initial Beta Release
 
-This is the first beta release of `@hono/telescope`, a powerful debugging and monitoring tool for Hono applications inspired by Laravel Telescope.
+This is the first beta release of `hono-telescope`, a powerful debugging and monitoring tool for Hono applications inspired by Laravel Telescope.
 
 ### ✨ Added
 
@@ -67,7 +82,7 @@ interface TelescopeConfig {
 
 ### 📦 Package Information
 
-- **Package Name**: `@hono/telescope`
+- **Package Name**: `hono-telescope`
 - **Version**: `0.1.0-beta.1`
 - **License**: MIT
 - **Author**: İlker Balcılar
@@ -84,12 +99,12 @@ This is a beta release, which means:
 ### 🚀 Getting Started
 
 ```bash
-npm install @hono/telescope
+npm install hono-telescope
 ```
 
 ```typescript
 import { Hono } from 'hono'
-import { setupTelescope } from '@hono/telescope'
+import { setupTelescope } from 'hono-telescope'
 
 const app = new Hono()
 setupTelescope(app)

@@ -7,10 +7,11 @@
     "dev": "bun --watch src/index.ts",
     "build": "bun build src/index.ts --outdir dist --target bun",
     "start": "bun dist/index.js",
-    "test-routes": "curl -s http://localhost:3000/api/test-all | bun -e 'const data = JSON.parse(await Bun.stdin.text()); console.log(\"\\n🧪 Route Test Sonuçları:\"); console.log(\"═══════════════════════════\"); console.log(`✅ Başarılı: ${data.summary.successful}/${data.summary.total}`); console.log(`❌ Başarısız: ${data.summary.failed}/${data.summary.total}`); console.log(`⏱️  Toplam Süre: ${data.summary.totalDuration}`); console.log(\"\\n📋 Detaylar:\"); data.results.forEach(r => console.log(`${r.success ? \"✅\" : \"❌\"} ${r.method.padEnd(6)} ${r.path.padEnd(25)} ${r.status} (${r.duration})`)); console.log(\"\\n\");'"
+    "test-routes": "curl -s http://localhost:3000/api/test-all | bun -e 'const data = JSON.parse(await Bun.stdin.text()); console.log(\"\\n🧪 Route Test Results:\"); console.log(\"════════════════════════\"); console.log(`✅ Successful: ${data.summary.successful}/${data.summary.total}`); console.log(`❌ Failed: ${data.summary.failed}/${data.summary.total}`); console.log(`⏱️  Total Time: ${data.summary.totalDuration}`); console.log(\"\\n📋 Details:\"); data.results.forEach(r => console.log(`${r.success ? \"✅\" : \"❌\"} ${r.method.padEnd(6)} ${r.path.padEnd(25)} ${r.status} (${r.duration})`)); console.log(\"\\n\");'"
   },
   "dependencies": {
-    "hono": "^4.0.0"
+    "hono": "^4.0.0",
+    "axios": "^1.6.0"
   },
   "devDependencies": {
     "@types/bun": "latest",

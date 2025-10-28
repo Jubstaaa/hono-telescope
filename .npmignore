@@ -1,0 +1,102 @@
+# Development files
+*.log
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# Source files (we only want dist)
+src/
+tsconfig.json
+tsconfig.*.json
+
+# Development dependencies and configs
+.eslintrc*
+.prettierrc*
+jest.config.*
+vitest.config.*
+vite.config.*
+
+# Testing
+__tests__/
+*.test.*
+*.spec.*
+coverage/
+.nyc_output/
+
+# Development tools
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Git
+.git/
+.gitignore
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+.circleci/
+
+# Documentation (keep README and CHANGELOG)
+docs/
+*.md
+!README.md
+!CHANGELOG.md
+
+# Example and demo files
+example/
+examples/
+demo/
+demos/
+
+# Dashboard React source (we'll include built version)
+dashboard-react/src/
+dashboard-react/node_modules/
+dashboard-react/.vscode/
+dashboard-react/dist/
+dashboard-react/build/
+
+# Lock files (let users manage their own)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+bun.lockb
+
+# Environment files
+.env*
+!.env.example
+
+# Temporary directories
+tmp/
+temp/
+.tmp/
+.temp/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Build artifacts we don't want to publish
+*.tsbuildinfo
+.build/
+build/
+!dist/

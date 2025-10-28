@@ -2,6 +2,10 @@ import { Hono } from 'hono';
 import { getDatabase, User } from './database';
 import { filter, reduce } from 'lodash';
 import { setupTelescope, startLogWatcher, startExceptionWatcher } from "../../dist"
+import axios from 'axios';
+
+// Make axios available globally for the interceptor
+(globalThis as any).axios = axios;
 
 const app = new Hono();
 const db = getDatabase();
@@ -208,78 +212,6 @@ app.delete('/api/users/:id', async (c) => {
   }
 });
 
-// 🧪 Test all routes endpoint
-app.get('/api/test-all', async (c) => {
-  const baseUrl = `http://localhost:3000`;
-  const testResults = [];
-
-  const routes = [
-    { method: 'GET', path: '/', description: 'Homepage' },
-    { method: 'GET', path: '/api/users', description: 'List all users' },
-    { method: 'GET', path: '/api/users/1', description: 'Get user with ID=1' },
-    { method: 'POST', path: '/api/users', description: 'Create new user', body: { name: 'Test User', email: 'test@example.com', username: 'testuser' } },
-    { method: 'GET', path: '/api/error', description: 'Error test' },
-    { method: 'GET', path: '/api/slow', description: 'Slow endpoint test' },
-    { method: 'POST', path: '/api/import-users', description: 'Import users' },
-    { method: 'GET', path: '/telescope', description: 'Telescope Dashboard' },
-    { method: 'GET', path: '/telescope/api/stats', description: 'Telescope Stats API' }
-  ];
-
-  for (const route of routes) {
-    try {
-      const startTime = Date.now();
-      const options: RequestInit = {
-        method: route.method,
-        headers: { 'Content-Type': 'application/json' }
-      };
-      
-      if (route.body) {
-        options.body = JSON.stringify(route.body);
-      }
-
-      const response = await fetch(`${baseUrl}${route.path}`, options);
-      const endTime = Date.now();
-      const duration = endTime - startTime;
-
-      testResults.push({
-        method: route.method,
-        path: route.path,
-        description: route.description,
-        status: response.status,
-        statusText: response.statusText,
-        duration: `${duration}ms`,
-        success: response.ok,
-        timestamp: new Date().toISOString()
-      });
-    } catch (error) {
-      testResults.push({
-        method: route.method,
-        path: route.path,
-        description: route.description,
-        status: 'ERROR',
-        statusText: error instanceof Error ? error.message : 'Unknown error',
-        duration: '0ms',
-        success: false,
-        timestamp: new Date().toISOString()
-      });
-    }
-  }
-
-  const summary = {
-    total: testResults.length,
-    successful: filter(testResults, r => r.success).length,
-    failed: filter(testResults, r => !r.success).length,
-    totalDuration: reduce(testResults, (sum, r) => sum + parseInt(r.duration), 0) + 'ms'
-  };
-
-  return c.json({
-    success: true,
-    message: 'All route tests completed',
-    summary,
-    results: testResults,
-    timestamp: new Date().toISOString()
-  });
-});
 
 app.post('/api/import-users', async (c) => {
   try {
@@ -344,6 +276,125 @@ app.get('/api/slow', async (c) => {
     duration: '2 seconds',
     userCount: users.length
   });
+});
+
+// 🌐 Axios test endpoints
+app.get('/api/axios-test', async (c) => {
+  try {
+    console.log('🔍 Testing axios outgoing requests...');
+    
+    // Test 1: GET request with axios
+    const getResponse = await axios.get('https://jsonplaceholder.typicode.com/posts/1');
+    
+    // Test 2: POST request with axios
+    const postResponse = await axios.post('https://jsonplaceholder.typicode.com/posts', {
+      title: 'Hono Telescope Test',
+      body: 'Testing axios interceptor functionality',
+      userId: 1
+    });
+    
+    // Test 3: Error handling with axios
+    let errorResponse = null;
+    try {
+      await axios.get('https://jsonplaceholder.typicode.com/posts/999999');
+    } catch (error: any) {
+      errorResponse = {
+        message: error.message,
+        status: error.response?.status || 'No response'
+      };
+    }
+    
+    return c.json({
+      success: true,
+      message: 'Axios tests completed',
+      results: {
+        get: {
+          status: getResponse.status,
+          title: getResponse.data.title,
+          dataSize: JSON.stringify(getResponse.data).length
+        },
+        post: {
+          status: postResponse.status,
+          id: postResponse.data.id,
+          title: postResponse.data.title
+        },
+        error: errorResponse
+      },
+      note: 'Check Telescope dashboard for outgoing request logs'
+    });
+  } catch (error) {
+    return c.json({
+      success: false,
+      error: 'Axios test failed',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, 500);
+  }
+});
+
+// 🔄 Mixed HTTP clients test
+app.get('/api/mixed-clients-test', async (c) => {
+  try {
+    console.log('🔍 Testing mixed HTTP clients (fetch + axios)...');
+    
+    const results = [];
+    
+    // Test with native fetch
+    const fetchStart = Date.now();
+    const fetchResponse = await fetch('https://jsonplaceholder.typicode.com/users/1');
+    const fetchData = await fetchResponse.json();
+    const fetchDuration = Date.now() - fetchStart;
+    
+    results.push({
+      client: 'fetch',
+      method: 'GET',
+      url: 'https://jsonplaceholder.typicode.com/users/1',
+      status: fetchResponse.status,
+      duration: `${fetchDuration}ms`,
+      dataPreview: fetchData.name
+    });
+    
+    // Test with axios
+    const axiosStart = Date.now();
+    const axiosResponse = await axios.get('https://jsonplaceholder.typicode.com/users/2');
+    const axiosDuration = Date.now() - axiosStart;
+    
+    results.push({
+      client: 'axios',
+      method: 'GET',
+      url: 'https://jsonplaceholder.typicode.com/users/2',
+      status: axiosResponse.status,
+      duration: `${axiosDuration}ms`,
+      dataPreview: axiosResponse.data.name
+    });
+    
+    // Test axios POST
+    const axiosPostResponse = await axios.post('https://httpbin.org/post', {
+      message: 'Testing axios POST with Hono Telescope',
+      timestamp: new Date().toISOString()
+    });
+    
+    results.push({
+      client: 'axios',
+      method: 'POST',
+      url: 'https://httpbin.org/post',
+      status: axiosPostResponse.status,
+      duration: 'N/A',
+      dataPreview: 'POST data sent successfully'
+    });
+    
+    return c.json({
+      success: true,
+      message: 'Mixed HTTP clients test completed',
+      results,
+      note: 'Check Telescope dashboard to see both fetch and axios requests tracked separately'
+    });
+  } catch (error) {
+    return c.json({
+      success: false,
+      error: 'Mixed clients test failed',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, 500);
+  }
 });
 
 

@@ -1,6 +1,6 @@
 {
-  "name": "@hono/telescope",
-  "version": "0.1.0-beta.1",
+  "name": "hono-telescope",
+  "version": "0.1.0-beta.2",
   "description": "A powerful debugging and monitoring tool for Hono applications, inspired by Laravel Telescope",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -11,7 +11,6 @@
     "dev": "cd example && bun run dev",
     "test": "bun test",
     "test:ui": "vitest --ui",
-    "example": "cd example && bun run test-routes",
     "prepublishOnly": "bun run build",
     "publish:beta": "npm publish --tag beta"
   },
@@ -54,12 +53,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Jubstaaa/hono-telescope.git"
+    "url": "https://github.com/jubstaa/hono-telescope.git"
   },
   "bugs": {
-    "url": "https://github.com/Jubstaaa/hono-telescope/issues"
+    "url": "https://github.com/jubstaa/hono-telescope/issues"
   },
-  "homepage": "https://github.com/Jubstaaa/hono-telescope#readme",
+  "homepage": "https://github.com/jubstaa/hono-telescope#readme",
   "engines": {
     "node": ">=18.0.0",
     "bun": ">=1.0.0"
