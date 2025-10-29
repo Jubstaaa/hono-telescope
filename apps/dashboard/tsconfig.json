@@ -12,6 +12,6 @@
     "outDir": "./dist",
     "skipLibCheck": true
   },
-  "include": ["src", "index.html"],
+"include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
 }
