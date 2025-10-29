@@ -1,6 +1,7 @@
 {
   "name": "hono-telescope",
   "version": "0.1.2-beta.1",
+  "type": "module",
   "author": {
     "name": "İlker Balcılar",
     "email": "ilkerbalcilartr@gmail.com"
@@ -11,9 +12,16 @@
   },
   "main": "./dist/index.js",
   "devDependencies": {
+    "@eslint/js": "^9.38.0",
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
+    "@typescript-eslint/parser": "^8.46.2",
+    "eslint": "^9.38.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
     "turbo": "latest",
     "typescript": "^5.0.0",
-    "@types/node": "^20.0.0"
+    "typescript-eslint": "^8.46.2"
   },
   "peerDependencies": {
     "hono": ">=3.0.0"
@@ -59,7 +67,9 @@
     "test": "turbo run test",
     "clean": "turbo clean && rm -rf node_modules dist",
     "prepublishOnly": "npm run build",
-    "type-check": "turbo run type-check"
+    "type-check": "turbo run type-check",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix"
   },
   "types": "./dist/index.d.ts",
   "workspaces": [
