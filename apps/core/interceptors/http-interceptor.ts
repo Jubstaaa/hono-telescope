@@ -1,5 +1,5 @@
 import { Telescope } from '../telescope';
-import { EntryType } from '../types';
+import { EntryType } from '@hono-telescope/types';
 import { formatDuration, getMemoryUsage } from '../utils';
 import { ContextManager } from '../context-manager';
 
@@ -129,7 +129,7 @@ export class HttpInterceptor {
       // Record the outgoing HTTP request
       const requestId = contextManager.getCurrentRequestId();
       
-      await telescope.record(EntryType.OUTGOING_REQUEST, {
+      await telescope.recordOutgoingRequest({
         method,
         uri: url,
         headers: sanitizeHeaders(headers),
@@ -140,14 +140,8 @@ export class HttpInterceptor {
         duration,
         memory: memoryUsed,
         ip_address: 'outgoing',
-        user_agent: 'hono-telescope-interceptor'
-      }, [
-        `outgoing:true`,
-        `status:${response.status}`,
-        `method:${method}`,
-        `duration:${formatDuration(duration)}`,
-        ...(error ? ['error:true'] : [])
-      ], undefined, requestId);
+        parent_id: requestId || 'unknown'
+      });
 
       if (error) {
         throw error;
@@ -328,7 +322,7 @@ export class HttpInterceptor {
 
       const requestId = this.contextManager.getCurrentRequestId();
       
-      await this.telescope.record(EntryType.OUTGOING_REQUEST, {
+      await this.telescope.recordOutgoingRequest({
         method,
         uri: url,
         headers: this.sanitizeHeaders(config.headers || {}),
@@ -339,15 +333,8 @@ export class HttpInterceptor {
         duration,
         memory: memoryUsed,
         ip_address: 'outgoing',
-        user_agent: 'axios-via-hono-telescope'
-      }, [
-        `outgoing:true`,
-        `status:${responseStatus}`,
-        `method:${method}`,
-        `duration:${formatDuration(duration)}`,
-        `client:axios`,
-        ...(error ? ['error:true'] : [])
-      ], undefined, requestId);
+        parent_id: requestId || 'unknown'
+      });
     } catch (recordError) {
       // Silently fail to avoid breaking the application
       console.warn('Failed to record axios request:', recordError);

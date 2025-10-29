@@ -1,34 +1,18 @@
 import React from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Card, Typography, Space, Button, Tag, Descriptions, Alert, Spin, theme, Table, Flex } from 'antd'
+import { Card, Typography, Spin, Alert, Descriptions, Tag, Button, Space, theme, Table, Flex, Tabs } from 'antd'
 import { ArrowLeftOutlined, ReloadOutlined } from '@ant-design/icons'
-import { formatTimestamp, formatDuration, getStatusColor } from '../../utils/tableUtils'
 import { useGetIncomingRequestQuery } from '../../api/telescopeApi'
+import { formatDate, formatDuration } from '../../utils/tableUtils'
+import { isIncomingRequest, type IncomingRequestEntry } from '@hono-telescope/types'
 
 const { Title, Text } = Typography
-
-const getMethodColor = (method: string): string => {
-  const colors: Record<string, string> = {
-    GET: 'blue',
-    POST: 'green',
-    PUT: 'orange',
-    DELETE: 'red',
-    PATCH: 'purple'
-  }
-  return colors[method] || 'default'
-}
 
 export const IncomingRequestDetailView: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { token } = theme.useToken()
-  
-  const {
-    data: response,
-    isLoading,
-    error,
-    refetch
-  } = useGetIncomingRequestQuery(id || '', { skip: !id })
+  const { data: response, isLoading, error, refetch } = useGetIncomingRequestQuery(id || '', { skip: !id })
 
   if (isLoading) {
     return (
@@ -40,25 +24,20 @@ export const IncomingRequestDetailView: React.FC = () => {
 
   if (error || !response) {
     return (
-      <div className="p-6">
-        <Alert
-          message="Error loading request details"
-          description="The requested entry could not be found or loaded."
-          type="error"
-          showIcon
-          action={
-            <Button size="small" onClick={() => refetch()}>
-              Try Again
-            </Button>
-          }
-        />
-      </div>
+      <Alert
+        message="Error"
+        description="Failed to load incoming request details"
+        type="error"
+        showIcon
+      />
     )
   }
 
-  const entry = response.request
-  const children = response.children || []
-  const content = entry.content || {}
+  const entry = response as IncomingRequestEntry
+  const logs = (entry as any).relation_entries?.logs || []
+  const queries = (entry as any).relation_entries?.queries || []
+  const exceptions = (entry as any).relation_entries?.exceptions || []
+  const outgoingRequests = (entry as any).relation_entries?.outgoingRequests || []
 
   // Prepare children data for table
   const childrenColumns = [
@@ -74,35 +53,53 @@ export const IncomingRequestDetailView: React.FC = () => {
       title: 'Time',
       dataIndex: 'created_at',
       key: 'created_at',
-      render: (time: string) => formatTimestamp(time),
+      render: (time: string) => formatDate(time),
     },
     {
-      title: 'Content',
-      dataIndex: 'content',
-      key: 'content',
-      render: (content: any) => (
-        <Text ellipsis style={{ maxWidth: 300 }}>
-          {typeof content === 'object' ? JSON.stringify(content) : String(content)}
-        </Text>
-      ),
-    },
+      title: 'Details',
+      dataIndex: 'message',
+      key: 'message',
+      render: (_: any, record: any) => {
+        if (record.type === 'log') return record.message || '-'
+        if (record.type === 'query') return (record as any).query?.substring(0, 50) || '-'
+        if (record.type === 'exception') return record.message || '-'
+        return '-'
+      },
+    }
   ]
+
+  const getMethodColor = (method: string) => {
+    const colors: Record<string, string> = {
+      GET: 'blue',
+      POST: 'green',
+      PUT: 'orange',
+      DELETE: 'red',
+      PATCH: 'cyan',
+    }
+    return colors[method] || 'default'
+  }
+
+  const getStatusColor = (status: number) => {
+    if (status < 300) return 'green'
+    if (status < 400) return 'blue'
+    if (status < 500) return 'orange'
+    return 'red'
+  }
 
   return (
     <>
       <div className="flex justify-between items-center mb-6">
-        <Title level={2} style={{ color: token.colorText }}>Request Details</Title>
+        <Title level={2} style={{ color: token.colorText }}>Incoming Request Details</Title>
         <Space>
           <Button 
             icon={<ArrowLeftOutlined />} 
             onClick={() => navigate('/incoming-requests')}
           >
-            Back to Requests
+            Back
           </Button>
           <Button 
             icon={<ReloadOutlined />} 
             onClick={() => refetch()}
-            loading={isLoading}
           >
             Refresh
           </Button>
@@ -111,95 +108,142 @@ export const IncomingRequestDetailView: React.FC = () => {
 
       <Flex vertical gap="large">
 
-          <Descriptions bordered column={2}>
-            <Descriptions.Item label="Method" span={1}>
-              <Tag color={getMethodColor(content.method)}>
-                {content.method || 'GET'}
-              </Tag>
-            </Descriptions.Item>
-            <Descriptions.Item label="Status" span={1}>
-              <Tag color={getStatusColor(content.status)}>
-                {content.status || '-'}
-              </Tag>
-            </Descriptions.Item>
-            <Descriptions.Item label="Path" span={2}>
-              <Text code style={{ color: token.colorText }}>
-                {content.uri || content.path || '/'}
-              </Text>
-            </Descriptions.Item>
-            <Descriptions.Item label="Duration" span={1}>
-              {formatDuration(content.duration)}
-            </Descriptions.Item>
-            <Descriptions.Item label="Time" span={1}>
-              {formatTimestamp(entry.created_at || '')}
-            </Descriptions.Item>
-          </Descriptions>
+      <Card className="mb-4" style={{ backgroundColor: token.colorBgContainer }}>
+        <Descriptions bordered column={2}>
+          <Descriptions.Item label="Method" span={1}>
+            <Tag color={getMethodColor(entry.method)}>
+              {entry.method || 'GET'}
+            </Tag>
+          </Descriptions.Item>
+          <Descriptions.Item label="Status" span={1}>
+            <Tag color={getStatusColor(entry.response_status)}>
+              {entry.response_status || '-'}
+            </Tag>
+          </Descriptions.Item>
+          <Descriptions.Item label="Path" span={2}>
+            <Text code style={{ color: token.colorText }}>
+              {entry.uri || '/'}
+            </Text>
+          </Descriptions.Item>
+          <Descriptions.Item label="Duration" span={1}>
+            {formatDuration(entry.duration)}
+          </Descriptions.Item>
+          <Descriptions.Item label="Time" span={1}>
+            {formatDate(entry.created_at || '')}
+          </Descriptions.Item>
+        </Descriptions>
+      </Card>
 
-          {content.headers && (
-            <Card title="Headers" size="small" style={{ backgroundColor: token.colorBgContainer }}>
-              <pre 
-                style={{ 
-                  fontSize: '12px', 
-                  backgroundColor: token.colorBgLayout, 
-                  color: token.colorText,
-                  padding: '16px', 
-                  borderRadius: '6px', 
-                  overflow: 'auto' 
-                }}
-              >
-                {JSON.stringify(content.headers, null, 2)}
-              </pre>
-            </Card>
-          )}
+      {entry.headers && (
+        <Card title="Headers" size="small" style={{ backgroundColor: token.colorBgContainer }}>
+          <pre 
+            style={{ 
+              fontSize: '12px',
+              backgroundColor: token.colorBgLayout,
+              color: token.colorText,
+              padding: '16px', 
+              borderRadius: '6px', 
+              overflow: 'auto' 
+            }}
+          >
+            {JSON.stringify(entry.headers, null, 2)}
+          </pre>
+        </Card>
+      )}
 
-          {content.body && (
-            <Card title="Request Body" size="small" style={{ backgroundColor: token.colorBgContainer }}>
-              <pre 
-                style={{ 
-                  fontSize: '12px', 
-                  backgroundColor: token.colorBgLayout, 
-                  color: token.colorText,
-                  padding: '16px', 
-                  borderRadius: '6px', 
-                  overflow: 'auto' 
-                }}
-              >
-                {typeof content.body === 'string' ? content.body : JSON.stringify(content.body, null, 2)}
-              </pre>
-            </Card>
-          )}
+      {entry.payload && (
+        <Card title="Request Body" size="small" style={{ backgroundColor: token.colorBgContainer }}>
+          <pre 
+            style={{ 
+              fontSize: '12px',
+              backgroundColor: token.colorBgLayout,
+              color: token.colorText,
+              padding: '16px', 
+              borderRadius: '6px', 
+              overflow: 'auto' 
+            }}
+          >
+            {typeof entry.payload === 'string' ? entry.payload : JSON.stringify(entry.payload, null, 2)}
+          </pre>
+        </Card>
+      )}
 
-          {content.response && (
-            <Card title="Response" size="small" style={{ backgroundColor: token.colorBgContainer }}>
-              <pre 
-                style={{ 
-                  fontSize: '12px', 
-                  backgroundColor: token.colorBgLayout, 
-                  color: token.colorText,
-                  padding: '16px', 
-                  borderRadius: '6px', 
-                  overflow: 'auto' 
-                }}
-              >
-                {typeof content.response === 'string' ? content.response : JSON.stringify(content.response, null, 2)}
-              </pre>
-            </Card>
-          )}
+      {entry.response && (
+        <Card title="Response" size="small" style={{ backgroundColor: token.colorBgContainer }}>
+          <pre 
+            style={{ 
+              fontSize: '12px',
+              backgroundColor: token.colorBgLayout,
+              color: token.colorText,
+              padding: '16px', 
+              borderRadius: '6px', 
+              overflow: 'auto' 
+            }}
+          >
+            {typeof entry.response === 'string' ? entry.response : JSON.stringify(entry.response, null, 2)}
+          </pre>
+        </Card>
+      )}
 
-          {children.length > 0 && (
-            <Card title={`Related Entries (${children.length})`} size="small" style={{ backgroundColor: token.colorBgContainer }}>
-              <Table
-                columns={childrenColumns}
-                dataSource={children}
-                rowKey="id"
-                pagination={false}
-                size="small"
-              />
-            </Card>
-          )}
-        </Flex>
+      <Card style={{ backgroundColor: token.colorBgContainer }}>
+        <Tabs
+          items={[
+            {
+              key: 'logs',
+              label: `Logs (${logs.length})`,
+              children: (
+                <Table
+                  columns={childrenColumns}
+                  dataSource={logs}
+                  rowKey="id"
+                  pagination={{ pageSize: 10 }}
+                  size="small"
+                />
+              )
+            },
+            {
+              key: 'queries',
+              label: `Queries (${queries.length})`,
+              children: (
+                <Table
+                  columns={childrenColumns}
+                  dataSource={queries}
+                  rowKey="id"
+                  pagination={{ pageSize: 10 }}
+                  size="small"
+                />
+              )
+            },
+            {
+              key: 'exceptions',
+              label: `Exceptions (${exceptions.length})`,
+              children: (
+                <Table
+                  columns={childrenColumns}
+                  dataSource={exceptions}
+                  rowKey="id"
+                  pagination={{ pageSize: 10 }}
+                  size="small"
+                />
+              )
+            },
+            {
+              key: 'outgoingRequests',
+              label: `Outgoing Requests (${outgoingRequests.length})`,
+              children: (
+                <Table
+                  columns={childrenColumns}
+                  dataSource={outgoingRequests}
+                  rowKey="id"
+                  pagination={{ pageSize: 10 }}
+                  size="small"
+                />
+              )
+            }
+          ]}
+        />
+      </Card>
+      </Flex>
     </>
   )
 }
-
-export default IncomingRequestDetailView

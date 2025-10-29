@@ -1,6 +1,7 @@
 import { Telescope } from '../telescope';
-import { EntryType } from '../types';
+import { EntryType } from '@hono-telescope/types';
 import { some, map } from 'lodash';
+import { ContextManager } from '../context-manager';
 
 class QueryWatcher {
   private isWatching = false;
@@ -42,29 +43,19 @@ class QueryWatcher {
 
   private recordQuery(sql: string) {
     const telescope = Telescope.getInstance();
+    const contextManager = ContextManager.getInstance();
     
     if (!telescope.getConfig().enabled) return;
 
-    const startTime = Date.now();
+    const parentId = contextManager.getCurrentRequestId();
     
-    // Extract basic query information
-    const queryType = this.extractQueryType(sql);
-    const tables = this.extractTables(sql);
-
-    telescope.record(EntryType.QUERY, {
+    telescope.recordQuery({
       connection: 'default',
       bindings: [],
-      sql: sql.trim(),
+      query: sql.trim(),
       time: 0, // We can't measure actual execution time without hooking into the DB driver
-      slow: false,
-      file: this.getCallerFile(),
-      line: this.getCallerLine(),
-      hash: this.generateQueryHash(sql)
-    }, [
-      'query',
-      queryType.toLowerCase(),
-      ...map(tables, table => `table:${table}`)
-    ]);
+      parent_id: parentId || undefined
+    });
   }
 
   private extractQueryType(sql: string): string {
@@ -161,33 +152,21 @@ export function stopQueryWatcher() {
 }
 
 // Helper function to manually record database queries
-export function recordDatabaseQuery(
-  sql: string,
-  bindings: any[] = [],
-  executionTime: number = 0,
-  connection: string = 'default'
-) {
+export function recordDatabaseQuery(sql: string, connection: string = 'default', bindings: any[] = [], executionTime: number = 0): void {
   const telescope = Telescope.getInstance();
+  const contextManager = ContextManager.getInstance();
   
   if (!telescope.getConfig().enabled) return;
 
-  const queryType = sql.trim().match(/^(\w+)/i)?.[1]?.toUpperCase() || 'UNKNOWN';
-  const isSlowQuery = executionTime > 1000; // Consider queries over 1s as slow
+  const parentId = contextManager.getCurrentRequestId();
 
-  telescope.record(EntryType.QUERY, {
+  telescope.recordQuery({
     connection,
     bindings,
-    sql: sql.trim(),
+    query: sql.trim(),
     time: executionTime,
-    slow: isSlowQuery,
-    file: 'manual',
-    line: 0,
-    hash: generateQueryHash(sql)
-  }, [
-    'query',
-    queryType.toLowerCase(),
-    ...(isSlowQuery ? ['slow'] : [])
-  ]);
+    parent_id: parentId || undefined
+  });
 }
 
 function generateQueryHash(sql: string): string {

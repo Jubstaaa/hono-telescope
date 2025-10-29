@@ -1,5 +1,5 @@
 import { Telescope } from '../telescope';
-import { EntryType } from '../types';
+import { EntryType, EXCEPTION_CLASSES } from '@hono-telescope/types';
 import { ContextManager } from '../context-manager';
 import { map } from 'lodash';
 
@@ -59,14 +59,27 @@ class ExceptionWatcher {
 
     // Get current request context
     const requestId = this.contextManager.getCurrentRequestId();
+    
+    // Map error class name to EXCEPTION_CLASSES enum
+    const getExceptionClassCode = (errorName: string): number => {
+      switch (errorName) {
+        case 'TypeError': return EXCEPTION_CLASSES.TYPE_ERROR;
+        case 'SyntaxError': return EXCEPTION_CLASSES.SYNTAX_ERROR;
+        case 'ReferenceError': return EXCEPTION_CLASSES.REFERENCE_ERROR;
+        case 'RangeError': return EXCEPTION_CLASSES.RANGE_ERROR;
+        case 'ValidationError': return EXCEPTION_CLASSES.VALIDATION_ERROR;
+        default: return EXCEPTION_CLASSES.ERROR;
+      }
+    };
 
-    telescope.record(EntryType.EXCEPTION, {
-       class: error.constructor.name,
+    telescope.recordException({
+       class: getExceptionClassCode(error.constructor.name),
        file,
        line,
        message: error.message,
-       trace: map(stack.split('\n').slice(1), line => line.trim())
-     }, ['exception', error.constructor.name.toLowerCase()], undefined, requestId);
+       trace: map(stack.split('\n').slice(1), line => line.trim()),
+       parent_id: requestId || undefined
+     });
   }
 
   private extractFileInfo(stack: string): { file: string; line: number } {

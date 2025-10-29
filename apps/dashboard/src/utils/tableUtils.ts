@@ -10,38 +10,12 @@ import {
   CheckCircleOutlined,
   CodeOutlined
 } from '@ant-design/icons'
+import dayjs from 'dayjs'
+import localizedFormat from 'dayjs/plugin/localizedFormat'
+import prettyMs from 'pretty-ms'
 
-export const getEntryIcon = (type: string): React.ReactNode => {
-  const icons: Record<string, React.ReactNode> = {
-    request: React.createElement(GlobalOutlined),
-    exception: React.createElement(ExclamationCircleOutlined),
-    query: React.createElement(DatabaseOutlined),
-    log: React.createElement(FileTextOutlined),
-    job: React.createElement(ThunderboltOutlined),
-    mail: React.createElement(LinkOutlined),
-    notification: React.createElement(WarningOutlined),
-    cache: React.createElement(CheckCircleOutlined),
-    dump: React.createElement(CodeOutlined),
-    view: React.createElement(FileTextOutlined)
-  }
-  return icons[type] || React.createElement(FileTextOutlined)
-}
+dayjs.extend(localizedFormat)
 
-export const getEntryTypeColor = (type: string): string => {
-  const colors: Record<string, string> = {
-    request: 'blue',
-    exception: 'red',
-    query: 'green',
-    log: 'orange',
-    job: 'purple',
-    mail: 'cyan',
-    notification: 'magenta',
-    cache: 'lime',
-    dump: 'gold',
-    view: 'geekblue'
-  }
-  return colors[type] || 'default'
-}
 
 export const getStatusColor = (status?: number): string => {
   if (!status) return 'default'
@@ -51,12 +25,46 @@ export const getStatusColor = (status?: number): string => {
   return 'default'
 }
 
+
 export const formatDuration = (duration?: number): string => {
   if (!duration) return '-'
-  if (duration < 1000) return `${duration}ms`
-  return `${(duration / 1000).toFixed(2)}s`
+  
+  return prettyMs(duration)
 }
 
-export const formatTimestamp = (timestamp: string): string => {
-  return new Date(timestamp).toLocaleString()
+export const formatDate = (createdAt: string): string => {
+  return dayjs(createdAt).format('LLLL')
+}
+
+export const getLevelName = (level: number): string => {
+  const levels: Record<number, string> = {
+    0: 'DEBUG',
+    1: 'INFO',
+    2: 'NOTICE',
+    3: 'WARNING',
+    4: 'ERROR',
+    5: 'CRITICAL',
+    6: 'ALERT',
+    7: 'EMERGENCY'
+  }
+  return levels[level] || 'UNKNOWN'
+}
+
+export const getExceptionClassName = (classNum: number): string => {
+  const classes: Record<number, string> = {
+    0: 'Error',
+    1: 'Exception',
+    2: 'RuntimeError',
+    3: 'TypeError',
+    4: 'SyntaxError',
+    5: 'ReferenceError',
+    6: 'RangeError',
+    7: 'ValidationError',
+    8: 'NotFound',
+    9: 'Unauthorized',
+    10: 'Forbidden',
+    11: 'BadRequest',
+    12: 'InternalServerError'
+  }
+  return classes[classNum] || 'Unknown'
 }

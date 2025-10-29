@@ -6,12 +6,8 @@ import {
   ExceptionOutlined,
   DatabaseOutlined,
   FileTextOutlined,
-  GlobalOutlined,
-  ThunderboltOutlined,
-  MailOutlined,
-  BellOutlined,
-  InboxOutlined,
-  CodeOutlined
+  DownloadOutlined,
+  UploadOutlined
 } from '@ant-design/icons'
 
 const menuItems = [
@@ -23,12 +19,12 @@ const menuItems = [
   { 
     key: 'incoming-requests', 
     label: 'Incoming Requests', 
-    icon: <GlobalOutlined />
+    icon: <DownloadOutlined />
   },
   { 
     key: 'outgoing-requests', 
     label: 'Outgoing Requests', 
-    icon: <GlobalOutlined />
+    icon: <UploadOutlined />
   },
   { 
     key: 'queries', 
@@ -44,40 +40,6 @@ const menuItems = [
     key: 'logs', 
     label: 'Logs', 
     icon: <FileTextOutlined />
-  },
-  { 
-    key: 'jobs', 
-    label: 'Jobs', 
-    icon: <ThunderboltOutlined />,
-    disabled:true
-  },
-  { 
-    key: 'mail', 
-    label: 'Mail', 
-    icon: <MailOutlined />,
-    disabled:true
-
-  },
-  { 
-    key: 'notifications', 
-    label: 'Notifications', 
-    icon: <BellOutlined />,
-    disabled:true
-
-  },
-  { 
-    key: 'cache', 
-    label: 'Cache', 
-    icon: <InboxOutlined />,
-    disabled:true
-
-  },
-  { 
-    key: 'dumps', 
-    label: 'Dumps', 
-    icon: <CodeOutlined />,
-    disabled:true
-
   }
 ]
 

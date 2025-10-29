@@ -1,8 +1,8 @@
 import React from 'react'
 import { Table, Tag, theme } from 'antd'
 import { useNavigate } from 'react-router-dom'
-import { TelescopeEntry } from '../../types'
-import { formatTimestamp } from '../../utils/tableUtils'
+import { TelescopeEntry } from '@hono-telescope/types'
+import { formatDate, getExceptionClassName } from '../../utils/tableUtils'
 
 interface ExceptionTableProps {
   entries: TelescopeEntry[]
@@ -16,33 +16,33 @@ export const ExceptionTable: React.FC<ExceptionTableProps> = ({ entries, loading
   const columns = [
     {
       title: 'Exception',
-      dataIndex: 'content',
+      dataIndex: 'class',
       key: 'class',
       width: 200,
-      render: (content: any) => (
+      render: (classNum: number) => (
         <Tag color="red">
-          {content?.class || 'Exception'}
+          {getExceptionClassName(classNum)}
         </Tag>
       )
     },
     {
       title: 'Message',
-      dataIndex: 'content',
+      dataIndex: 'message',
       key: 'message',
-      render: (content: any) => (
+      render: (message: string) => (
         <span style={{ fontSize: '14px' }}>
-          {content?.message || 'No message available'}
+          {message || 'No message available'}
         </span>
       )
     },
     {
       title: 'File',
-      dataIndex: 'content',
+      dataIndex: 'file',
       key: 'file',
       width: 200,
-      render: (content: any) => (
+      render: (file: string, record: TelescopeEntry) => (
         <span style={{ fontFamily: 'monospace', fontSize: '12px', color: token.colorTextSecondary }}>
-          {content?.file ? `${content.file}:${content.line || '?'}` : 'Unknown'}
+          {file ? `${file}:${(record as any).line || '?'}` : 'Unknown'}
         </span>
       )
     },
@@ -51,9 +51,9 @@ export const ExceptionTable: React.FC<ExceptionTableProps> = ({ entries, loading
       dataIndex: 'created_at',
       key: 'created_at',
       width: 180,
-      render: (timestamp: string) => (
+      render: (created_at: string) => (
         <span style={{ color: token.colorTextSecondary, fontSize: '14px' }}>
-          {formatTimestamp(timestamp)}
+          {formatDate(created_at)}
         </span>
       )
     }

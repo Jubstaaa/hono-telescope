@@ -1,26 +1,26 @@
 import React from 'react'
 import { Table, Tag, theme } from 'antd'
 import { useNavigate } from 'react-router-dom'
-import { TelescopeEntry } from '../../types'
-import { formatTimestamp } from '../../utils/tableUtils'
+import { TelescopeEntry } from '@hono-telescope/types'
+import { formatDate, getLevelName } from '../../utils/tableUtils'
 
 interface LogTableProps {
   entries: TelescopeEntry[]
   loading?: boolean
 }
 
-const getLevelColor = (level: string): string => {
-  const colors: Record<string, string> = {
-    debug: 'gray',
-    info: 'blue',
-    notice: 'cyan',
-    warning: 'orange',
-    error: 'red',
-    critical: 'red',
-    alert: 'red',
-    emergency: 'red'
+const getLevelColor = (level: number): string => {
+  const colors: Record<number, string> = {
+    0: 'gray',    // debug
+    1: 'blue',    // info
+    2: 'cyan',    // notice
+    3: 'orange',  // warning
+    4: 'red',     // error
+    5: 'red',     // critical
+    6: 'red',     // alert
+    7: 'red'      // emergency
   }
-  return colors[level?.toLowerCase()] || 'default'
+  return colors[level] || 'default'
 }
 
 export const LogTable: React.FC<LogTableProps> = ({ entries, loading }) => {
@@ -30,18 +30,18 @@ export const LogTable: React.FC<LogTableProps> = ({ entries, loading }) => {
   const columns = [
     {
       title: 'Level',
-      dataIndex: ['content', 'level'],
+      dataIndex: 'level',
       key: 'level',
       width: 100,
-      render: (level: string) => (
+      render: (level: number) => (
         <Tag color={getLevelColor(level)}>
-          {level?.toUpperCase()}
+          {getLevelName(level)}
         </Tag>
       ),
     },
     {
       title: 'Message',
-      dataIndex: ['content', 'message'],
+      dataIndex: 'message',
       key: 'message',
       ellipsis: true,
       render: (message: string) => (
@@ -52,12 +52,12 @@ export const LogTable: React.FC<LogTableProps> = ({ entries, loading }) => {
     },
     {
       title: 'Time',
-      dataIndex: 'timestamp',
-      key: 'timestamp',
+      dataIndex: 'created_at',
+      key: 'created_at',
       width: 180,
-      render: (timestamp: number) => (
+      render: (created_at: string) => (
         <span style={{ color: token.colorTextSecondary }}>
-          {formatTimestamp(timestamp.toString())}
+          {formatDate(created_at)}
         </span>
       ),
     },

@@ -12,6 +12,10 @@
     "declaration": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "lib": ["ES2022", "DOM"]
+    "lib": ["ES2022", "DOM"],
+    "baseUrl": ".",
+    "paths": {
+      "@hono-telescope/types": ["packages/types/index.ts"]
+    }
   }
 }

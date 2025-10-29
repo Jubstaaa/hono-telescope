@@ -1,6 +1,6 @@
 import { telescope } from './middleware/telescope-middleware';
 import { TelescopeRoutes } from './routes/telescope-routes';
-import { EntryType } from './types';
+import { EntryType, EXCEPTION_CLASSES } from '@hono-telescope/types';
 
 export { telescope } from './middleware/telescope-middleware';
 export { Telescope } from './telescope';
@@ -11,8 +11,6 @@ export { TelescopeRoutes } from './routes/telescope-routes';
 export { startExceptionWatcher, stopExceptionWatcher } from './watchers/exception-watcher';
 export { startLogWatcher, stopLogWatcher } from './watchers/log-watcher';
 export { startQueryWatcher, stopQueryWatcher, recordDatabaseQuery } from './watchers/query-watcher';
-export * from './types';
-export * from './utils';
 
 // Helper function to setup telescope with routes
 export function setupTelescope(app: any, config?: any) {
@@ -45,8 +43,19 @@ export function setupTelescope(app: any, config?: any) {
       headers = {};
     }
     
+    const getExceptionClassCode = (errorName: string): number => {
+      switch (errorName) {
+        case 'TypeError': return EXCEPTION_CLASSES.TYPE_ERROR;
+        case 'SyntaxError': return EXCEPTION_CLASSES.SYNTAX_ERROR;
+        case 'ReferenceError': return EXCEPTION_CLASSES.REFERENCE_ERROR;
+        case 'RangeError': return EXCEPTION_CLASSES.RANGE_ERROR;
+        case 'ValidationError': return EXCEPTION_CLASSES.VALIDATION_ERROR;
+        default: return EXCEPTION_CLASSES.ERROR;
+      }
+    };
+    
     const exceptionData = {
-      class: error?.constructor?.name || 'Error',
+      class: getExceptionClassCode(error?.constructor?.name || 'Error'),
       file: 'unknown',
       line: 0,
       message: error?.message || 'Unknown error',
@@ -60,7 +69,7 @@ export function setupTelescope(app: any, config?: any) {
     
     console.log('Recording exception with data:', JSON.stringify(exceptionData, null, 2));
     
-    telescopeInstance.record(EntryType.EXCEPTION, exceptionData).catch((recordError: any) => {
+    telescopeInstance.recordException(exceptionData).catch((recordError: any) => {
       console.error('Failed to record exception:', recordError);
     });
     
@@ -74,7 +83,6 @@ export function setupTelescope(app: any, config?: any) {
   app.get('/telescope', routes.getDashboard.bind(routes));
   app.get('/telescope/assets/*', routes.getAsset.bind(routes));
   app.get('/telescope/api/stats', routes.getStats.bind(routes));
-  app.post('/telescope/api/clear', routes.clearEntries.bind(routes));
   
   // === INCOMING REQUESTS (with hierarchical support) ===
   app.get('/telescope/api/incoming-requests', routes.getIncomingRequests.bind(routes));
@@ -96,28 +104,11 @@ export function setupTelescope(app: any, config?: any) {
   app.get('/telescope/api/logs', routes.getLogs.bind(routes));
   app.get('/telescope/api/logs/:id', routes.getLog.bind(routes));
   
-  // === JOBS ===
-  app.get('/telescope/api/jobs', routes.getJobs.bind(routes));
-  app.get('/telescope/api/jobs/:id', routes.getJob.bind(routes));
-  
-  // === CACHE ===
-  app.get('/telescope/api/cache', routes.getCacheEntries.bind(routes));
-  app.get('/telescope/api/cache/:id', routes.getCacheEntry.bind(routes));
-  
-  // === MAIL ===
-  app.get('/telescope/api/mail', routes.getMailEntries.bind(routes));
-  app.get('/telescope/api/mail/:id', routes.getMailEntry.bind(routes));
-  
-  // === NOTIFICATIONS ===
-  app.get('/telescope/api/notifications', routes.getNotifications.bind(routes));
-  app.get('/telescope/api/notifications/:id', routes.getNotification.bind(routes));
-  
-  // === DUMPS ===
-  app.get('/telescope/api/dumps', routes.getDumps.bind(routes));
-  app.get('/telescope/api/dumps/:id', routes.getDump.bind(routes));
+  // === ADMIN ===
+  app.post('/telescope/api/admin/clear', routes.clearData.bind(routes));
   
   // Fallback route for React Router - redirect all /telescope/* paths to main dashboard
-    app.get('/telescope/*', routes.getDashboard.bind(routes));
+  app.get('/telescope/*', routes.getDashboard.bind(routes));
   
   return app;
 }

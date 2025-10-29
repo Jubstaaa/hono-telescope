@@ -1,40 +1,43 @@
 import React, { useEffect, useState } from 'react'
 import { Card, Row, Col, Statistic, Typography, Alert, Button, Flex } from 'antd'
+import { useNavigate } from 'react-router-dom'
 import { 
-  GlobalOutlined,
+  DownloadOutlined,
+  UploadOutlined,
   ExclamationCircleOutlined,
   DatabaseOutlined,
-  FileTextOutlined,
-  ThunderboltOutlined,
-  LinkOutlined,
-  WarningOutlined,
-  CheckCircleOutlined
+  FileTextOutlined
 } from '@ant-design/icons'
 import { map } from 'lodash'
 
 const { Title } = Typography
 
 interface DashboardStats {
-  requests: number
-  exceptions: number
-  queries: number
-  logs: number
-  jobs: number
-  mail: number
-  notifications: number
-  cache: number
+  incomingRequests: {
+    total: number
+  }
+  outgoingRequests: {
+    total: number
+  }
+  exceptions: {
+    total: number
+  }
+  queries: {
+    total: number
+  }
+  logs: {
+    total: number
+  }
 }
 
 export const DashboardView: React.FC = () => {
+  const navigate = useNavigate()
   const [stats, setStats] = useState<DashboardStats>({
-    requests: 0,
-    exceptions: 0,
-    queries: 0,
-    logs: 0,
-    jobs: 0,
-    mail: 0,
-    notifications: 0,
-    cache: 0
+    incomingRequests: { total: 0 },
+    outgoingRequests: { total: 0 },
+    exceptions: { total: 0 },
+    queries: { total: 0 },
+    logs: { total: 0 }
   })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -44,22 +47,11 @@ export const DashboardView: React.FC = () => {
       setLoading(true)
       setError(null)
 
-      // Fetch stats from the API
       const statsResponse = await fetch('/telescope/api/stats')
       if (!statsResponse.ok) throw new Error('Failed to fetch stats')
       const statsData = await statsResponse.json()
       
-      // Map the API response to our stats format
-      setStats({
-        requests: statsData.requests?.total || 0,
-        exceptions: statsData.exceptions?.total || 0,
-        queries: 0, // Will be calculated from entries if needed
-        logs: 0,
-        jobs: 0,
-        mail: 0,
-        notifications: 0,
-        cache: 0
-      })
+      setStats(statsData)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch dashboard data')
     } finally {
@@ -74,14 +66,41 @@ export const DashboardView: React.FC = () => {
   }, [])
 
   const statsCards = [
-    { title: 'Requests', value: stats.requests, icon: <GlobalOutlined />, color: '#1890ff' },
-    { title: 'Exceptions', value: stats.exceptions, icon: <ExclamationCircleOutlined />, color: '#ff4d4f' },
-    { title: 'Queries', value: stats.queries, icon: <DatabaseOutlined />, color: '#52c41a' },
-    { title: 'Logs', value: stats.logs, icon: <FileTextOutlined />, color: '#fa8c16' },
-    { title: 'Jobs', value: stats.jobs, icon: <ThunderboltOutlined />, color: '#722ed1' },
-    { title: 'Mail', value: stats.mail, icon: <LinkOutlined />, color: '#13c2c2' },
-    { title: 'Notifications', value: stats.notifications, icon: <WarningOutlined />, color: '#eb2f96' },
-    { title: 'Cache', value: stats.cache, icon: <CheckCircleOutlined />, color: '#a0d911' },
+    { 
+      title: 'Incoming Requests', 
+      value: stats.incomingRequests.total, 
+      icon: <DownloadOutlined />, 
+      color: '#1890ff',
+      path: '/incoming-requests'
+    },
+    { 
+      title: 'Outgoing Requests', 
+      value: stats.outgoingRequests.total, 
+      icon: <UploadOutlined />, 
+      color: '#13c2c2',
+      path: '/outgoing-requests'
+    },
+    { 
+      title: 'Exceptions', 
+      value: stats.exceptions.total, 
+      icon: <ExclamationCircleOutlined />, 
+      color: '#ff4d4f',
+      path: '/exceptions'
+    },
+    { 
+      title: 'Queries', 
+      value: stats.queries.total, 
+      icon: <DatabaseOutlined />, 
+      color: '#52c41a',
+      path: '/queries'
+    },
+    { 
+      title: 'Logs', 
+      value: stats.logs.total, 
+      icon: <FileTextOutlined />, 
+      color: '#fa8c16',
+      path: '/logs'
+    }
   ]
 
   if (error) {
@@ -108,8 +127,13 @@ export const DashboardView: React.FC = () => {
         {/* Stats Cards */}
         <Row gutter={[16, 16]}>
           {map(statsCards, (stat) => (
-            <Col xs={12} sm={8} md={6} lg={3} key={stat.title}>
-              <Card loading={loading}>
+            <Col xs={12} sm={8} md={6} lg={5} key={stat.title}>
+              <Card 
+                loading={loading}
+                hoverable
+                onClick={() => navigate(stat.path)}
+                style={{ cursor: 'pointer' }}
+              >
                 <Statistic
                   title={stat.title}
                   value={stat.value}

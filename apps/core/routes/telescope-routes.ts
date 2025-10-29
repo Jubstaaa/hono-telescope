@@ -31,16 +31,6 @@ export class TelescopeRoutes {
     }
   }
 
-  // Clear functionality
-  async clearEntries(c: Context) {
-    try {
-      const result = await this.dashboard.clearEntries();
-      return c.json(result);
-    } catch (error) {
-      return c.json({ error: 'Failed to clear entries' }, 500);
-    }
-  }
-
   // React dashboard asset'lerini serve et
   async getAsset(c: Context) {
     const fullPath = c.req.path;
@@ -69,7 +59,7 @@ export class TelescopeRoutes {
     const limit = parseInt(c.req.query('limit') || '50');
     
     try {
-      const entries = await this.dashboard.getEntries('incoming_request', limit);
+      const entries = await this.dashboard.getAllIncomingRequests(limit);
       return c.json(entries);
     } catch (error) {
       return c.json({ error: 'Failed to fetch incoming requests' }, 500);
@@ -84,13 +74,13 @@ export class TelescopeRoutes {
     }
     
     try {
-      const result = await this.dashboard.getIncomingRequestWithChildren(id);
+      const result = await this.dashboard.getIncomingRequest(id);
       if (!result) {
         return c.json({ error: 'Request not found' }, 404);
       }
       return c.json(result);
     } catch (error) {
-      return c.json({ error: 'Failed to fetch request with children' }, 500);
+      return c.json({ error: 'Failed to fetch request' }, 500);
     }
   }
 
@@ -99,7 +89,7 @@ export class TelescopeRoutes {
     const limit = parseInt(c.req.query('limit') || '50');
     
     try {
-      const entries = await this.dashboard.getEntries('outgoing_request', limit);
+      const entries = await this.dashboard.getAllOutgoingRequests(limit);
       return c.json(entries);
     } catch (error) {
       return c.json({ error: 'Failed to fetch outgoing requests' }, 500);
@@ -114,7 +104,7 @@ export class TelescopeRoutes {
     }
     
     try {
-      const entry = await this.dashboard.getEntry(id);
+      const entry = await this.dashboard.getOutgoingRequest(id);
       if (!entry) {
         return c.json({ error: 'Request not found' }, 404);
       }
@@ -129,7 +119,7 @@ export class TelescopeRoutes {
     const limit = parseInt(c.req.query('limit') || '50');
     
     try {
-      const entries = await this.dashboard.getEntries('exception', limit);
+      const entries = await this.dashboard.getAllExceptions(limit);
       return c.json(entries);
     } catch (error) {
       return c.json({ error: 'Failed to fetch exceptions' }, 500);
@@ -144,7 +134,7 @@ export class TelescopeRoutes {
     }
     
     try {
-      const entry = await this.dashboard.getEntry(id);
+      const entry = await this.dashboard.getException(id);
       if (!entry) {
         return c.json({ error: 'Exception not found' }, 404);
       }
@@ -159,7 +149,7 @@ export class TelescopeRoutes {
     const limit = parseInt(c.req.query('limit') || '50');
     
     try {
-      const entries = await this.dashboard.getEntries('query', limit);
+      const entries = await this.dashboard.getAllQueries(limit);
       return c.json(entries);
     } catch (error) {
       return c.json({ error: 'Failed to fetch queries' }, 500);
@@ -174,7 +164,7 @@ export class TelescopeRoutes {
     }
     
     try {
-      const entry = await this.dashboard.getEntry(id);
+      const entry = await this.dashboard.getQuery(id);
       if (!entry) {
         return c.json({ error: 'Query not found' }, 404);
       }
@@ -189,7 +179,7 @@ export class TelescopeRoutes {
     const limit = parseInt(c.req.query('limit') || '50');
     
     try {
-      const entries = await this.dashboard.getEntries('log', limit);
+      const entries = await this.dashboard.getAllLogs(limit);
       return c.json(entries);
     } catch (error) {
       return c.json({ error: 'Failed to fetch logs' }, 500);
@@ -204,7 +194,7 @@ export class TelescopeRoutes {
     }
     
     try {
-      const entry = await this.dashboard.getEntry(id);
+      const entry = await this.dashboard.getLog(id);
       if (!entry) {
         return c.json({ error: 'Log not found' }, 404);
       }
@@ -214,153 +204,22 @@ export class TelescopeRoutes {
     }
   }
 
-  // === JOBS ===
-  async getJobs(c: Context) {
-    const limit = parseInt(c.req.query('limit') || '50');
-    
+  // === ADMIN ===
+  async clearData(c: Context) {
     try {
-      const entries = await this.dashboard.getEntries('job', limit);
-      return c.json(entries);
-    } catch (error) {
-      return c.json({ error: 'Failed to fetch jobs' }, 500);
-    }
-  }
-
-  async getJob(c: Context) {
-    const id = c.req.param('id');
-    
-    if (!id) {
-      return c.json({ error: 'Job ID is required' }, 400);
-    }
-    
-    try {
-      const entry = await this.dashboard.getEntry(id);
-      if (!entry) {
-        return c.json({ error: 'Job not found' }, 404);
+      // Clear all entries from storage
+      const telescope = this.dashboard['telescope'] || (await import('../telescope')).Telescope.getInstance();
+      
+      // Access repository to clear data
+      const repository = telescope['repository'];
+      if (repository && repository.clear) {
+        await repository.clear();
+        return c.json({ success: true, message: 'All telescope data cleared' });
       }
-      return c.json(entry);
+      
+      return c.json({ error: 'Cannot clear data' }, 500);
     } catch (error) {
-      return c.json({ error: 'Failed to fetch job' }, 500);
-    }
-  }
-
-  // === CACHE ===
-  async getCacheEntries(c: Context) {
-    const limit = parseInt(c.req.query('limit') || '50');
-    
-    try {
-      const entries = await this.dashboard.getEntries('cache', limit);
-      return c.json(entries);
-    } catch (error) {
-      return c.json({ error: 'Failed to fetch cache entries' }, 500);
-    }
-  }
-
-  async getCacheEntry(c: Context) {
-    const id = c.req.param('id');
-    
-    if (!id) {
-      return c.json({ error: 'Cache entry ID is required' }, 400);
-    }
-    
-    try {
-      const entry = await this.dashboard.getEntry(id);
-      if (!entry) {
-        return c.json({ error: 'Cache entry not found' }, 404);
-      }
-      return c.json(entry);
-    } catch (error) {
-      return c.json({ error: 'Failed to fetch cache entry' }, 500);
-    }
-  }
-
-  // === MAIL ===
-  async getMailEntries(c: Context) {
-    const limit = parseInt(c.req.query('limit') || '50');
-    
-    try {
-      const entries = await this.dashboard.getEntries('mail', limit);
-      return c.json(entries);
-    } catch (error) {
-      return c.json({ error: 'Failed to fetch mail entries' }, 500);
-    }
-  }
-
-  async getMailEntry(c: Context) {
-    const id = c.req.param('id');
-    
-    if (!id) {
-      return c.json({ error: 'Mail entry ID is required' }, 400);
-    }
-    
-    try {
-      const entry = await this.dashboard.getEntry(id);
-      if (!entry) {
-        return c.json({ error: 'Mail entry not found' }, 404);
-      }
-      return c.json(entry);
-    } catch (error) {
-      return c.json({ error: 'Failed to fetch mail entry' }, 500);
-    }
-  }
-
-  // === NOTIFICATIONS ===
-  async getNotifications(c: Context) {
-    const limit = parseInt(c.req.query('limit') || '50');
-    
-    try {
-      const entries = await this.dashboard.getEntries('notification', limit);
-      return c.json(entries);
-    } catch (error) {
-      return c.json({ error: 'Failed to fetch notifications' }, 500);
-    }
-  }
-
-  async getNotification(c: Context) {
-    const id = c.req.param('id');
-    
-    if (!id) {
-      return c.json({ error: 'Notification ID is required' }, 400);
-    }
-    
-    try {
-      const entry = await this.dashboard.getEntry(id);
-      if (!entry) {
-        return c.json({ error: 'Notification not found' }, 404);
-      }
-      return c.json(entry);
-    } catch (error) {
-      return c.json({ error: 'Failed to fetch notification' }, 500);
-    }
-  }
-
-  // === DUMPS ===
-  async getDumps(c: Context) {
-    const limit = parseInt(c.req.query('limit') || '50');
-    
-    try {
-      const entries = await this.dashboard.getEntries('dump', limit);
-      return c.json(entries);
-    } catch (error) {
-      return c.json({ error: 'Failed to fetch dumps' }, 500);
-    }
-  }
-
-  async getDump(c: Context) {
-    const id = c.req.param('id');
-    
-    if (!id) {
-      return c.json({ error: 'Dump ID is required' }, 400);
-    }
-    
-    try {
-      const entry = await this.dashboard.getEntry(id);
-      if (!entry) {
-        return c.json({ error: 'Dump not found' }, 404);
-      }
-      return c.json(entry);
-    } catch (error) {
-      return c.json({ error: 'Failed to fetch dump' }, 500);
+      return c.json({ error: 'Failed to clear data' }, 500);
     }
   }
 }

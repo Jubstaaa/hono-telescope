@@ -1,6 +1,6 @@
 import type { Context, Next, MiddlewareHandler } from 'hono';
 import { Telescope } from '../telescope';
-import { EntryType, IncomingRequestEntry, TelescopeConfig } from '../types';
+import { EntryType, IncomingRequestEntry, TelescopeConfig } from '@hono-telescope/types';
 import { formatDuration, getMemoryUsage, sanitizeHeaders } from '../utils';
 import { ContextManager } from '../context-manager';
 import { HttpInterceptor } from '../interceptors/http-interceptor';
@@ -73,9 +73,7 @@ export function telescope(config?: Partial<TelescopeConfig>): MiddlewareHandler 
     // Run the request processing within the context
     return await contextManager.run(requestContext, async () => {
       try {
-        console.log('Before calling next()'); // Debug log
         await next();
-        console.log('After calling next() - no error'); // Debug log
         
         // Capture response data
         responseStatus = c.res.status;
@@ -99,31 +97,28 @@ export function telescope(config?: Partial<TelescopeConfig>): MiddlewareHandler 
           // Ignore response body capture errors
         }
       } catch (error: any) {
-        console.log('Caught error in middleware:', error?.message); // Debug log
         // Handle errors during request processing
         hasError = true;
         errorDetails = error;
         responseStatus = 500;
         responseBody = { error: 'Internal Server Error' };
         
-        // Record the exception immediately
+        // Record the exception immediately with incoming request as parent
         try {
-          console.log('Recording exception:', error?.message); // Debug log
-          await telescopeInstance.record(EntryType.EXCEPTION, {
+          await telescopeInstance.recordException({
             class: error?.constructor?.name || 'Error',
-            file: 'unknown',
+            file: 'middleware',
             line: 0,
             message: error?.message || 'Unknown error',
             trace: error?.stack?.split('\n') || [],
             context: {
               method: requestData.method,
-              uri: requestData.uri,
-              headers: requestData.headers
-            }
+              uri: requestData.uri
+            },
+            parent_id: requestId
           });
-          console.log('Exception recorded successfully'); // Debug log
-        } catch (recordError) {
-          console.error('Failed to record exception:', recordError);
+        } catch (recordError: any) {
+          // Silently fail
         }
       } finally {
         // Calculate metrics
@@ -132,26 +127,21 @@ export function telescope(config?: Partial<TelescopeConfig>): MiddlewareHandler 
         const endMemory = getMemoryUsage();
         const memoryUsed = endMemory - startMemory;
 
-        // Create request entry
-        const requestEntry: IncomingRequestEntry = {
-          ...requestData,
+        // Record the incoming request with the pre-generated ID
+        const incomingRequestId = await telescopeInstance.recordIncomingRequest({
+          method: requestData.method,
+          uri: requestData.uri,
+          headers: requestData.headers,
           payload: requestBody,
           response_status: responseStatus,
-          response_headers: sanitizeHeaders(responseHeaders),
+          response_headers: responseHeaders,
           response: responseBody,
           duration,
-          memory: memoryUsed
-        };
+          memory: memoryUsed,
+          ip_address: requestData.ip_address,
+          user_agent: requestData.user_agent
+        }, requestId);
 
-        // Record the incoming request with the pre-generated ID
-        await telescopeInstance.record(EntryType.INCOMING_REQUEST, requestEntry, [
-          `status:${responseStatus}`,
-          `method:${requestData.method}`,
-          `duration:${formatDuration(duration)}`
-        ], undefined, undefined, requestId);
-
-        // Request context already has the correct requestId
-        
         // If there was an error, return error response
         if (hasError) {
           return c.text('Internal Server Error', 500);

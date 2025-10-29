@@ -1,8 +1,8 @@
 import { Telescope } from '../telescope';
-import { EntryType } from '../types';
+import { EntryType } from '@hono-telescope/types';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { filter, reduce } from 'lodash';
+import { filter } from 'lodash';
 
 export class TelescopeDashboard {
   private telescope: Telescope;
@@ -11,79 +11,91 @@ export class TelescopeDashboard {
     this.telescope = Telescope.getInstance();
   }
 
-  async getEntries(type?: string, limit: number = 50) {
-    return this.telescope.getEntries(type as EntryType, limit);
+  // === INCOMING REQUESTS ===
+  async getAllIncomingRequests(limit: number = 50) {
+    return this.telescope.getAllIncomingRequests(limit);
   }
 
-  async getEntry(id: string) {
-    return this.telescope.getEntry(id);
-  }
-
-  // New hierarchical methods
-  async getIncomingRequestWithChildren(requestId: string) {
-    return this.telescope.getIncomingRequestWithChildren(requestId);
-  }
-
-  async getChildEntries(parentId: string, type?: string, limit: number = 50) {
-    return this.telescope.getChildEntries(parentId, type as EntryType, limit);
-  }
-
-  async clearEntries() {
-    return this.telescope.clearEntries();
-  }
-
-  async getStats() {
-    const entries = await this.telescope.getEntries();
-    const requests = filter(entries, e => e.type === EntryType.INCOMING_REQUEST);
-    const exceptions = filter(entries, e => e.type === EntryType.EXCEPTION);
-
+  async getIncomingRequest(id: string) {
+    const entry = await this.telescope.getIncomingRequest(id);
+    if (!entry) return null;
+    
+    // Get child entries organized by type
+    const childResult = await this.telescope.getIncomingRequestWithChildren(id);
+    const allChildren = childResult?.children || [];
+    
     return {
-      total_entries: entries.length,
-      requests: {
-        total: requests.length,
-        by_status: this.groupByStatus(requests),
-        by_method: this.groupByMethod(requests),
-        avg_duration: this.calculateAverageDuration(requests)
-      },
-      exceptions: {
-        total: exceptions.length,
-        by_class: this.groupByExceptionClass(exceptions)
+      ...entry,
+      relation_entries: {
+        logs: allChildren.filter(e => e.type === EntryType.LOG),
+        queries: allChildren.filter(e => e.type === EntryType.QUERY),
+        exceptions: allChildren.filter(e => e.type === EntryType.EXCEPTION),
+        outgoingRequests: allChildren.filter(e => e.type === EntryType.OUTGOING_REQUEST)
       }
     };
   }
 
-  private groupByStatus(requests: any[]) {
-    const grouped: Record<string, number> = {};
-    requests.forEach(entry => {
-      const status = Math.floor(entry.content.status / 100) * 100;
-      const key = `${status}xx`;
-      grouped[key] = (grouped[key] || 0) + 1;
-    });
-    return grouped;
+  // === OUTGOING REQUESTS ===
+  async getAllOutgoingRequests(limit: number = 50) {
+    return this.telescope.getAllOutgoingRequests(limit);
   }
 
-  private groupByMethod(requests: any[]) {
-    const grouped: Record<string, number> = {};
-    requests.forEach(entry => {
-      const method = entry.content.method;
-      grouped[method] = (grouped[method] || 0) + 1;
-    });
-    return grouped;
+  async getOutgoingRequest(id: string) {
+    return this.telescope.getOutgoingRequest(id);
   }
 
-  private calculateAverageDuration(requests: any[]) {
-    if (requests.length === 0) return 0;
-    const totalDuration = reduce(requests, (sum, entry) => sum + entry.content.duration, 0);
-    return Math.round(totalDuration / requests.length);
+  // === EXCEPTIONS ===
+  async getAllExceptions(limit: number = 50) {
+    return this.telescope.getAllExceptions(limit);
   }
 
-  private groupByExceptionClass(exceptions: any[]) {
-    const grouped: Record<string, number> = {};
-    exceptions.forEach(entry => {
-      const className = entry.content.class;
-      grouped[className] = (grouped[className] || 0) + 1;
-    });
-    return grouped;
+  async getException(id: string) {
+    return this.telescope.getException(id);
+  }
+
+  // === QUERIES ===
+  async getAllQueries(limit: number = 50) {
+    return this.telescope.getAllQueries(limit);
+  }
+
+  async getQuery(id: string) {
+    const entry = await this.telescope.getQuery(id);
+    if (!entry) return null;
+    
+    // Query entries don't have child entries, return as-is
+    return entry;
+  }
+
+  // === LOGS ===
+  async getAllLogs(limit: number = 50) {
+    return this.telescope.getAllLogs(limit);
+  }
+
+  async getLog(id: string) {
+    return this.telescope.getLog(id);
+  }
+
+  // === STATS ===
+  async getStats() {
+    const allIncoming = await this.telescope.getAllIncomingRequests();
+    const allOutgoing = await this.telescope.getAllOutgoingRequests();
+    const allExceptions = await this.telescope.getAllExceptions();
+    const allLogs = await this.telescope.getAllLogs();
+    const allQueries = await this.telescope.getAllQueries();
+
+    return {
+      incomingRequests: {total: allIncoming.length},
+      outgoingRequests: {total: allOutgoing.length},
+      exceptions: {
+        total: allExceptions.length
+      },
+      queries: {
+        total: allQueries.length
+      },
+      logs: {
+        total: allLogs.length
+      }
+    };
   }
 
   // New methods to serve React Dashboard

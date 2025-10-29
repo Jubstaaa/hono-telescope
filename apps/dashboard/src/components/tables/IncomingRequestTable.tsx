@@ -2,8 +2,8 @@ import React from 'react'
 import { Table, Tag, Space, theme } from 'antd'
 import { useNavigate } from 'react-router-dom'
 import { ClockCircleOutlined } from '@ant-design/icons'
-import { TelescopeEntry } from '../../types'
-import { getStatusColor, formatDuration, formatTimestamp } from '../../utils/tableUtils'
+import { TelescopeEntry } from '@hono-telescope/types'
+import { getStatusColor, formatDuration, formatDate } from '../../utils/tableUtils'
 
 interface IncomingRequestTableProps {
   entries: TelescopeEntry[]
@@ -28,45 +28,45 @@ export const IncomingRequestTable: React.FC<IncomingRequestTableProps> = ({ entr
   const columns = [
     {
       title: 'Method',
-      dataIndex: 'content',
+      dataIndex: 'method',
       key: 'method',
       width: 80,
-      render: (content: any) => (
-        <Tag color={getMethodColor(content?.method)}>
-          {content?.method || 'GET'}
+      render: (method: string) => (
+        <Tag color={getMethodColor(method)}>
+          {method || 'GET'}
         </Tag>
       )
     },
     {
       title: 'Path',
-      dataIndex: 'content',
-      key: 'path',
-      render: (content: any) => (
+      dataIndex: 'uri',
+      key: 'uri',
+      render: (uri: string) => (
         <span className="font-mono text-sm">
-          {content?.uri || content?.path || '/'}
+          {uri || '/'}
         </span>
       )
     },
     {
       title: 'Status',
-      dataIndex: 'content',
-      key: 'status',
+      dataIndex: 'response_status',
+      key: 'response_status',
       width: 80,
-      render: (content: any) => (
-        <Tag color={getStatusColor(content?.status)}>
-          {content?.status || '-'}
+      render: (status: number) => (
+        <Tag color={getStatusColor(status)}>
+          {status || '-'}
         </Tag>
       )
     },
     {
       title: 'Duration',
-      dataIndex: 'content',
+      dataIndex: 'duration',
       key: 'duration',
       width: 100,
-      render: (content: any) => (
+      render: (duration: number) => (
         <Space>
           <ClockCircleOutlined />
-          <span>{formatDuration(content?.duration)}</span>
+          <span>{formatDuration(duration)}</span>
         </Space>
       )
     },
@@ -75,9 +75,9 @@ export const IncomingRequestTable: React.FC<IncomingRequestTableProps> = ({ entr
       dataIndex: 'created_at',
       key: 'created_at',
       width: 180,
-      render: (timestamp: string) => (
+      render: (created_at: string) => (
         <span style={{ color: token.colorTextSecondary, fontSize: '14px' }}>
-          {formatTimestamp(timestamp)}
+          {formatDate(created_at)}
         </span>
       )
     }

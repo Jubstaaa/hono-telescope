@@ -8,9 +8,9 @@ import { OutgoingRequestListView } from './views/outgoing-requests/OutgoingReque
 import { QueryListView } from './views/queries/QueryListView'
 import { ExceptionListView } from './views/exceptions/ExceptionListView'
 import { LogListView } from './views/logs/LogListView'
-import IncomingRequestDetailView from './views/incoming-requests/IncomingRequestDetailView'
-import OutgoingRequestDetailView from './views/outgoing-requests/OutgoingRequestDetailView'
-import QueryDetailView from './views/queries/QueryDetailView'
+import { IncomingRequestDetailView } from './views/incoming-requests/IncomingRequestDetailView'
+import { OutgoingRequestDetailView } from './views/outgoing-requests/OutgoingRequestDetailView'
+import { QueryDetailView } from './views/queries/QueryDetailView'
 import { ExceptionDetailView } from './views/exceptions/ExceptionDetailView'
 import { LogDetailView } from './views/logs/LogDetailView'
 

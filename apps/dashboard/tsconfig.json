@@ -10,7 +10,7 @@
     "resolveJsonModule": true,
     "declaration": true,
     "outDir": "./dist",
-    "rootDir": "./"
+    "skipLibCheck": true
   },
   "include": ["src", "index.html"],
   "exclude": ["node_modules", "dist"]

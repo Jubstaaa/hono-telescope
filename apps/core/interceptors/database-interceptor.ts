@@ -1,5 +1,5 @@
 import { Telescope } from '../telescope';
-import { EntryType } from '../types';
+import { EntryType } from '@hono-telescope/types';
 import { formatDuration, getMemoryUsage } from '../utils';
 import { ContextManager } from '../context-manager';
 
@@ -58,23 +58,46 @@ export class DatabaseInterceptor {
 
   private wrapPrismaClient(PrismaClient: any): void {
     const telescope = this.telescope;
+    const contextManager = this.contextManager;
     
     const originalQuery = PrismaClient.prototype.$queryRaw;
     const originalExecuteRaw = PrismaClient.prototype.$executeRaw;
 
     if (originalQuery) {
       PrismaClient.prototype.$queryRaw = async function(query: any, ...args: any[]) {
-        return await telescope.recordQuery(async () => {
+        const startTime = Date.now();
+        try {
           return await originalQuery.call(this, query, ...args);
-        }, query.toString(), args, 'prisma');
+        } finally {
+          const duration = Date.now() - startTime;
+          const parentId = contextManager.getCurrentRequestId();
+          telescope.recordQuery({
+            query: query.toString(),
+            bindings: args,
+            time: duration,
+            connection: 'prisma',
+            parent_id: parentId || undefined
+          });
+        }
       };
     }
 
     if (originalExecuteRaw) {
       PrismaClient.prototype.$executeRaw = async function(query: any, ...args: any[]) {
-        return await telescope.recordQuery(async () => {
+        const startTime = Date.now();
+        try {
           return await originalExecuteRaw.call(this, query, ...args);
-        }, query.toString(), args, 'prisma');
+        } finally {
+          const duration = Date.now() - startTime;
+          const parentId = contextManager.getCurrentRequestId();
+          telescope.recordQuery({
+            query: query.toString(),
+            bindings: args,
+            time: duration,
+            connection: 'prisma',
+            parent_id: parentId || undefined
+          });
+        }
       };
     }
   }
@@ -93,14 +116,26 @@ export class DatabaseInterceptor {
 
   private wrapSequelize(Sequelize: any): void {
     const telescope = this.telescope;
+    const contextManager = this.contextManager;
     
     const originalQuery = Sequelize.prototype.query;
     
     if (originalQuery) {
       Sequelize.prototype.query = async function(sql: string, options?: any) {
-        return await telescope.recordQuery(async () => {
+        const startTime = Date.now();
+        try {
           return await originalQuery.call(this, sql, options);
-        }, sql, options?.bind || [], 'sequelize');
+        } finally {
+          const duration = Date.now() - startTime;
+          const parentId = contextManager.getCurrentRequestId();
+          telescope.recordQuery({
+            query: sql,
+            bindings: options?.bind || [],
+            time: duration,
+            connection: 'sequelize',
+            parent_id: parentId || undefined
+          });
+        }
       };
     }
   }
@@ -119,22 +154,35 @@ export class DatabaseInterceptor {
 
   private wrapMongoDB(mongodb: any): void {
     const telescope = this.telescope;
+    const contextManager = this.contextManager;
     
     // This is a simplified MongoDB interception
     const originalFind = mongodb.Collection?.prototype?.find;
-    const originalInsertOne = mongodb.Collection?.prototype?.insertOne;
-    const originalUpdateOne = mongodb.Collection?.prototype?.updateOne;
-    const originalDeleteOne = mongodb.Collection?.prototype?.deleteOne;
 
     if (originalFind) {
       mongodb.Collection.prototype.find = function(query?: any, options?: any) {
         const result = originalFind.call(this, query, options);
-        telescope.recordQuery(
-          async () => result.toArray(),
-          `db.${this.collectionName}.find(${JSON.stringify(query || {})})`,
-          [],
-          'mongodb'
-        );
+        const startTime = Date.now();
+        const baseResult = result;
+        
+        // Intercept toArray to measure query execution time
+        const originalToArray = result.toArray;
+        result.toArray = async function() {
+          try {
+            return await originalToArray.call(this);
+          } finally {
+            const duration = Date.now() - startTime;
+            const parentId = contextManager.getCurrentRequestId();
+            telescope.recordQuery({
+              query: `db.${baseResult.collectionName}.find(${JSON.stringify(query || {})})`,
+              bindings: [],
+              time: duration,
+              connection: 'mongodb',
+              parent_id: parentId || undefined
+            });
+          }
+        };
+        
         return result;
       };
     }
@@ -165,6 +213,7 @@ export class DatabaseInterceptor {
   private wrapBunSQLiteDatabase(OriginalDatabase: any, telescope: any): void {
     // Store original methods
     const originalPrepare = OriginalDatabase.prototype.prepare;
+    const contextManager = this.contextManager;
     
     if (originalPrepare) {
       OriginalDatabase.prototype.prepare = function(sql: string) {
@@ -180,14 +229,15 @@ export class DatabaseInterceptor {
             const startTime = Date.now();
             const result = originalGet.apply(this, bindings);
             const duration = Date.now() - startTime;
+            const parentId = contextManager.getCurrentRequestId();
             
-            telescope.record(EntryType.QUERY, {
-              sql,
+            telescope.recordQuery({
+              query: sql,
               bindings,
               time: duration,
-              connection_name: 'bun:sqlite',
-              type: 'SELECT'
-            }, [`connection:bun:sqlite`, `duration:${duration}ms`]);
+              connection: 'bun:sqlite',
+              parent_id: parentId || undefined
+            });
             
             return result;
           };
@@ -198,14 +248,15 @@ export class DatabaseInterceptor {
             const startTime = Date.now();
             const result = originalAll.apply(this, bindings);
             const duration = Date.now() - startTime;
+            const parentId = contextManager.getCurrentRequestId();
             
-            telescope.record(EntryType.QUERY, {
-              sql,
+            telescope.recordQuery({
+              query: sql,
               bindings,
               time: duration,
-              connection_name: 'bun:sqlite',
-              type: 'SELECT'
-            }, [`connection:bun:sqlite`, `duration:${duration}ms`]);
+              connection: 'bun:sqlite',
+              parent_id: parentId || undefined
+            });
             
             return result;
           };
@@ -216,14 +267,15 @@ export class DatabaseInterceptor {
             const startTime = Date.now();
             const result = originalRun.apply(this, bindings);
             const duration = Date.now() - startTime;
+            const parentId = contextManager.getCurrentRequestId();
             
-            telescope.record(EntryType.QUERY, {
-              sql,
+            telescope.recordQuery({
+              query: sql,
               bindings,
               time: duration,
-              connection_name: 'bun:sqlite',
-              type: sql.trim().split(' ')[0].toUpperCase()
-            }, [`connection:bun:sqlite`, `duration:${duration}ms`]);
+              connection: 'bun:sqlite',
+              parent_id: parentId || undefined
+            });
             
             return result;
           };
@@ -246,13 +298,8 @@ export class DatabaseInterceptor {
       if (typeof message === 'string' && 
           /\b(SELECT|INSERT|UPDATE|DELETE|CREATE|ALTER|DROP)\b/i.test(message)) {
         
-        telescope.record(EntryType.QUERY, {
-          sql: message,
-          bindings: [],
-          time: 0,
-          connection_name: 'console',
-          type: 'generic'
-        }, ['console:true', 'type:generic']);
+        // TODO: Implement proper query recording without parent context
+        // For now, skip console SQL logging as it requires proper context
       }
       
       return originalLog.apply(console, args);
@@ -286,44 +333,15 @@ export class DatabaseInterceptor {
       // Get current request context
       const requestId = this.contextManager.getCurrentRequestId();
 
-      await this.telescope.record(EntryType.QUERY, {
-        sql: sql.length > 1000 ? sql.substring(0, 1000) + '...' : sql,
+      await this.telescope.recordQuery({
+        query: sql.length > 1000 ? sql.substring(0, 1000) + '...' : sql,
         bindings: bindings.length > 10 ? bindings.slice(0, 10) : bindings,
         time: duration,
-        connection_name: connectionName,
-        memory: memoryUsed,
-        ...(error && { error: error.message })
-      }, [
-        `connection:${connectionName}`,
-        `duration:${formatDuration(duration)}`,
-        ...(error ? ['error:true'] : ['success:true'])
-      ], undefined, requestId);
+        connection: connectionName,
+        parent_id: requestId
+      });
     }
 
     return result!;
   }
 }
-
-// Extend Telescope class with recordQuery method
-declare module '../telescope' {
-  interface Telescope {
-    recordQuery<T>(
-      queryFn: () => Promise<T>,
-      sql: string,
-      bindings?: any[],
-      connectionName?: string
-    ): Promise<T>;
-  }
-}
-
-// Add the method to Telescope prototype
-const { Telescope: TelescopeClass } = require('../telescope');
-
-(TelescopeClass.prototype as any).recordQuery = async function<T>(
-  queryFn: () => Promise<T>,
-  sql: string,
-  bindings: any[] = [],
-  connectionName: string = 'default'
-): Promise<T> {
-  return await DatabaseInterceptor.getInstance().recordQuery(queryFn, sql, bindings, connectionName);
-};

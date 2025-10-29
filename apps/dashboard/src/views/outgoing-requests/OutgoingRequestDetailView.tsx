@@ -1,9 +1,10 @@
 import React from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Card, Typography, Space, Button, Tag, Descriptions, Alert, Spin, theme, Flex } from 'antd'
+import { Card, Typography, Spin, Alert, Descriptions, Tag, Button, Space, theme, Flex, Tabs, Table } from 'antd'
 import { ArrowLeftOutlined, ReloadOutlined } from '@ant-design/icons'
-import { formatTimestamp, formatDuration, getStatusColor } from '../../utils/tableUtils'
 import { useGetOutgoingRequestQuery } from '../../api/telescopeApi'
+import { getStatusColor, formatDuration, formatDate } from '../../utils/tableUtils'
+import { isOutgoingRequest, type OutgoingRequestEntry } from '@hono-telescope/types'
 
 const { Title, Text } = Typography
 
@@ -21,7 +22,7 @@ export const OutgoingRequestDetailView: React.FC = () => {
     )
   }
 
-  if (error || !entry) {
+  if (error || !entry || !isOutgoingRequest(entry)) {
     return (
       <Alert
         message="Error"
@@ -32,7 +33,7 @@ export const OutgoingRequestDetailView: React.FC = () => {
     )
   }
 
-  const content = entry.content
+  const request = entry as OutgoingRequestEntry
 
   return (
     <>
@@ -59,28 +60,28 @@ export const OutgoingRequestDetailView: React.FC = () => {
       <Card className="mb-4" style={{ backgroundColor: token.colorBgContainer }}>
         <Descriptions title="Request Information" bordered>
           <Descriptions.Item label="Method" span={1}>
-            <Tag color="blue">{content.method}</Tag>
+            <Tag color="blue">{request.method}</Tag>
           </Descriptions.Item>
           <Descriptions.Item label="Status" span={1}>
-            <Tag color={getStatusColor(content.status)}>
-              {content.status}
+            <Tag color={getStatusColor(request.response_status)}>
+              {request.response_status}
             </Tag>
           </Descriptions.Item>
           <Descriptions.Item label="URL" span={2}>
             <Text code style={{ color: token.colorText }}>
-              {content.uri || content.url}
+              {request.uri}
             </Text>
           </Descriptions.Item>
           <Descriptions.Item label="Duration" span={1}>
-            {formatDuration(content.duration)}
+            {formatDuration(request.duration)}
           </Descriptions.Item>
           <Descriptions.Item label="Time" span={1}>
-            {formatTimestamp(entry.created_at || '')}
+            {formatDate(request.created_at)}
           </Descriptions.Item>
         </Descriptions>
       </Card>
 
-      {content.headers && (
+      {request.headers && (
         <Card title="Headers" className="mb-4" style={{ backgroundColor: token.colorBgContainer }}>
           <pre style={{ 
             fontSize: '14px',
@@ -90,12 +91,12 @@ export const OutgoingRequestDetailView: React.FC = () => {
             overflow: 'auto',
             color: token.colorText
           }}>
-            {JSON.stringify(content.headers, null, 2)}
+            {JSON.stringify(request.headers, null, 2)}
           </pre>
         </Card>
       )}
 
-      {content.body && (
+      {request.payload && (
         <Card title="Request Body" className="mb-4" style={{ backgroundColor: token.colorBgContainer }}>
           <pre style={{ 
             fontSize: '14px',
@@ -105,12 +106,12 @@ export const OutgoingRequestDetailView: React.FC = () => {
             overflow: 'auto',
             color: token.colorText
           }}>
-            {typeof content.body === 'string' ? content.body : JSON.stringify(content.body, null, 2)}
+            {typeof request.payload === 'string' ? request.payload : JSON.stringify(request.payload, null, 2)}
           </pre>
         </Card>
       )}
 
-      {content.response && (
+      {request.response && (
         <Card title="Response" className="mb-4" style={{ backgroundColor: token.colorBgContainer }}>
           <pre style={{ 
             fontSize: '14px',
@@ -120,8 +121,68 @@ export const OutgoingRequestDetailView: React.FC = () => {
             overflow: 'auto',
             color: token.colorText
           }}>
-            {typeof content.response === 'string' ? content.response : JSON.stringify(content.response, null, 2)}
+            {typeof request.response === 'string' ? request.response : JSON.stringify(request.response, null, 2)}
           </pre>
+        </Card>
+      )}
+
+      {((entry as any).relation_entries?.logs?.length > 0 || (entry as any).relation_entries?.exceptions?.length > 0 || (entry as any).relation_entries?.queries?.length > 0) && (
+        <Card style={{ backgroundColor: token.colorBgContainer }}>
+          <Tabs
+            items={[
+              {
+                key: 'logs',
+                label: `Logs (${(entry as any).relation_entries?.logs?.length || 0})`,
+                children: (
+                  <Table
+                    columns={[
+                      { title: 'Level', dataIndex: 'level', key: 'level', width: 100 },
+                      { title: 'Message', dataIndex: 'message', key: 'message' },
+                      { title: 'Time', dataIndex: 'created_at', key: 'created_at', render: formatDate, width: 180 }
+                    ]}
+                    dataSource={(entry as any).relation_entries?.logs || []}
+                    rowKey="id"
+                    pagination={{ pageSize: 10 }}
+                    size="small"
+                  />
+                )
+              },
+              {
+                key: 'exceptions',
+                label: `Exceptions (${(entry as any).relation_entries?.exceptions?.length || 0})`,
+                children: (
+                  <Table
+                    columns={[
+                      { title: 'Class', dataIndex: 'class', key: 'class' },
+                      { title: 'Message', dataIndex: 'message', key: 'message' },
+                      { title: 'Time', dataIndex: 'created_at', key: 'created_at', render: formatDate, width: 180 }
+                    ]}
+                    dataSource={(entry as any).relation_entries?.exceptions || []}
+                    rowKey="id"
+                    pagination={{ pageSize: 10 }}
+                    size="small"
+                  />
+                )
+              },
+              {
+                key: 'queries',
+                label: `Queries (${(entry as any).relation_entries?.queries?.length || 0})`,
+                children: (
+                  <Table
+                    columns={[
+                      { title: 'Connection', dataIndex: 'connection', key: 'connection', width: 120 },
+                      { title: 'Query', dataIndex: 'query', key: 'query' },
+                      { title: 'Time', dataIndex: 'created_at', key: 'created_at', render: formatDate, width: 180 }
+                    ]}
+                    dataSource={(entry as any).relation_entries?.queries || []}
+                    rowKey="id"
+                    pagination={{ pageSize: 10 }}
+                    size="small"
+                  />
+                )
+              }
+            ]}
+          />
         </Card>
       )}
       </Flex>

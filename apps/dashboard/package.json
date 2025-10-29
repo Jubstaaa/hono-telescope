@@ -11,16 +11,18 @@
   },
   "dependencies": {
     "@ant-design/icons": "^6.1.0",
+    "@hono-telescope/types": "*",
     "@reduxjs/toolkit": "^2.9.2",
     "@types/lodash": "^4.17.20",
     "antd": "^5.27.6",
     "clsx": "^2.0.0",
+    "dayjs": "^1.11.18",
     "lodash": "^4.17.21",
+    "pretty-ms": "^9.3.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-redux": "^9.2.0",
-    "react-router-dom": "^7.9.4",
-    "@hono-telescope/types": "*"
+    "react-router-dom": "^7.9.4"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",
