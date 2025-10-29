@@ -1,6 +1,5 @@
 import { Telescope } from '../telescope';
-import { EntryType } from '@hono-telescope/types';
-import { some, map } from 'lodash';
+import { some } from 'lodash';
 import { ContextManager } from '../context-manager';
 
 class QueryWatcher {
@@ -16,8 +15,6 @@ class QueryWatcher {
     
     this.isWatching = true;
 
-    // This is a basic implementation that watches for SQL-like patterns in console logs
-    // In a real implementation, you would hook into your ORM or database driver
     console.log = (...args: any[]) => {
       this.originalConsoleLog.apply(console, args);
       
@@ -44,95 +41,15 @@ class QueryWatcher {
   private recordQuery(sql: string) {
     const telescope = Telescope.getInstance();
     const contextManager = ContextManager.getInstance();
-    
-    if (!telescope.getConfig().enabled) return;
-
     const parentId = contextManager.getCurrentRequestId();
     
     telescope.recordQuery({
       connection: 'default',
       bindings: [],
       query: sql.trim(),
-      time: 0, // We can't measure actual execution time without hooking into the DB driver
+      time: 0,
       parent_id: parentId || undefined
     });
-  }
-
-  private extractQueryType(sql: string): string {
-    const match = sql.trim().match(/^(\w+)/i);
-    return match ? match[1].toUpperCase() : 'UNKNOWN';
-  }
-
-  private extractTables(sql: string): string[] {
-    const tables: string[] = [];
-    
-    // Basic table extraction - this is simplified
-    const fromMatch = sql.match(/FROM\s+([`"]?)(\w+)\1/gi);
-    if (fromMatch) {
-      fromMatch.forEach(match => {
-        const tableMatch = match.match(/FROM\s+([`"]?)(\w+)\1/i);
-        if (tableMatch) {
-          tables.push(tableMatch[2]);
-        }
-      });
-    }
-
-    const joinMatch = sql.match(/JOIN\s+([`"]?)(\w+)\1/gi);
-    if (joinMatch) {
-      joinMatch.forEach(match => {
-        const tableMatch = match.match(/JOIN\s+([`"]?)(\w+)\1/i);
-        if (tableMatch) {
-          tables.push(tableMatch[2]);
-        }
-      });
-    }
-
-    return [...new Set(tables)]; // Remove duplicates
-  }
-
-  private generateQueryHash(sql: string): string {
-    // Simple hash generation for grouping similar queries
-    const normalized = sql
-      .replace(/\d+/g, '?')
-      .replace(/'[^']*'/g, '?')
-      .replace(/\s+/g, ' ')
-      .trim();
-    
-    let hash = 0;
-    for (let i = 0; i < normalized.length; i++) {
-      const char = normalized.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash; // Convert to 32-bit integer
-    }
-    return Math.abs(hash).toString(16);
-  }
-
-  private getCallerFile(): string {
-    const stack = new Error().stack;
-    if (!stack) return 'unknown';
-    
-    const lines = stack.split('\n');
-    for (let i = 3; i < lines.length; i++) {
-      const match = lines[i].match(/at .* \((.+):(\d+):\d+\)/);
-      if (match && !match[1].includes('query-watcher')) {
-        return match[1];
-      }
-    }
-    return 'unknown';
-  }
-
-  private getCallerLine(): number {
-    const stack = new Error().stack;
-    if (!stack) return 0;
-    
-    const lines = stack.split('\n');
-    for (let i = 3; i < lines.length; i++) {
-      const match = lines[i].match(/at .* \((.+):(\d+):\d+\)/);
-      if (match && !match[1].includes('query-watcher')) {
-        return parseInt(match[2], 10);
-      }
-    }
-    return 0;
   }
 }
 
@@ -151,13 +68,9 @@ export function stopQueryWatcher() {
   }
 }
 
-// Helper function to manually record database queries
 export function recordDatabaseQuery(sql: string, connection: string = 'default', bindings: any[] = [], executionTime: number = 0): void {
   const telescope = Telescope.getInstance();
   const contextManager = ContextManager.getInstance();
-  
-  if (!telescope.getConfig().enabled) return;
-
   const parentId = contextManager.getCurrentRequestId();
 
   telescope.recordQuery({
@@ -167,20 +80,4 @@ export function recordDatabaseQuery(sql: string, connection: string = 'default',
     time: executionTime,
     parent_id: parentId || undefined
   });
-}
-
-function generateQueryHash(sql: string): string {
-  const normalized = sql
-    .replace(/\d+/g, '?')
-    .replace(/'[^']*'/g, '?')
-    .replace(/\s+/g, ' ')
-    .trim();
-  
-  let hash = 0;
-  for (let i = 0; i < normalized.length; i++) {
-    const char = normalized.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash;
-  }
-  return Math.abs(hash).toString(16);
 }

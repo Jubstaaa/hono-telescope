@@ -1,7 +1,7 @@
 import React from 'react'
-import { Layout, Button, Space, Typography, theme } from 'antd'
-import { Outlet } from 'react-router-dom'
-import { BulbOutlined, BulbFilled } from '@ant-design/icons'
+import { Layout, Button, Space, Typography, theme, Switch, } from 'antd'
+import { Outlet, useNavigate, useLocation } from 'react-router-dom'
+import {  ArrowLeftOutlined } from '@ant-design/icons'
 import { useTheme } from '../contexts/ThemeContext'
 import { Sidebar } from '../components/Sidebar'
 
@@ -11,6 +11,11 @@ const { Title } = Typography
 export const MainLayout: React.FC = () => {
   const { isDark, toggleTheme } = useTheme()
   const { token } = theme.useToken()
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  const isDashboard = location.pathname === '/dashboard' || location.pathname === '/'
+  const canGoBack = !isDashboard
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -38,23 +43,27 @@ export const MainLayout: React.FC = () => {
           borderBottom: `1px solid ${token.colorBorder}`,
           backgroundColor: token.colorBgContainer
         }}>
-          <div />
+          <Button
+            icon={<ArrowLeftOutlined />}
+            onClick={() => navigate(-1)}
+            disabled={!canGoBack}
+            style={{ color: token.colorText }}
+          />
           <Space>
-            <Button
-              type="text"
-              icon={isDark ? <BulbFilled /> : <BulbOutlined />}
-              onClick={toggleTheme}
-              style={{ color: token.colorText }}
-            >
-              {isDark ? 'Light' : 'Dark'} Mode
-            </Button>
+            <Switch
+          checked={isDark}  
+          onChange={toggleTheme}
+          checkedChildren="🌙"
+          unCheckedChildren="☀️"
+        />
           </Space>
         </Header>
         
         <Content style={{ 
-          overflow: 'auto'
+          overflow: 'auto',
         }}>
-          <div  style={{padding: '24px'}}>
+          <div style={{ padding: '24px', height: '100%' }}>
+
           <Outlet />
           </div>
         </Content>

@@ -1,109 +1,67 @@
-import { TelescopeEntry, TelescopeStorage, ITelescopeRepository, EntryType, IncomingRequestEntry } from '@hono-telescope/types';
-import { find } from 'lodash';
+import { IncomingRequestEntry, OutgoingRequestEntry,  BaseEntry, ExceptionEntry, LogEntry, QueryEntry } from '@hono-telescope/types';
+import { find, filter, forEach } from 'lodash';
 
-export class MemoryStorage implements ITelescopeRepository, TelescopeStorage {
-  private entries: TelescopeEntry[] = [];
-  private maxEntries: number;
+
+class BaseRepository<T extends BaseEntry> {
+  protected entries: T[] = [];
+  protected maxEntries: number;
 
   constructor(maxEntries: number = 1000) {
     this.maxEntries = maxEntries;
   }
 
-  // ============ ITelescopeRepository Implementation ============
-
-  async create(entry: TelescopeEntry): Promise<string> {
-    this.entries.unshift(entry);
+  protected trimIfNeeded(): void {
     if (this.entries.length > this.maxEntries) {
-      this.entries = this.entries.slice(0, this.maxEntries);
+      this.entries.splice(0, this.entries.length - this.maxEntries);
     }
+  }
+
+  async create(entry: T): Promise<string> {
+    this.entries.push(entry);
+    this.trimIfNeeded();
     return entry.id;
   }
 
-  async findById(id: string): Promise<TelescopeEntry | null> {
-    return find(this.entries, entry => entry.id === id) || null;
+  async findAll(): Promise<T[]> {
+    return this.entries;
   }
 
-  async findByType(type: EntryType, limit?: number): Promise<TelescopeEntry[]> {
-    const filtered = this.entries.filter(entry => entry.type === type);
-    return limit ? filtered.slice(0, limit) : filtered;
+  async findById(id: string): Promise<T | null> {
+    return find(this.entries, (e) => e.id === id) || null;
   }
 
-  async findAll(limit?: number): Promise<TelescopeEntry[]> {
-    return limit ? this.entries.slice(0, limit) : this.entries;
+  async findByParentId(parentId: string): Promise<T[]> {
+    return filter(this.entries, (e) => e.parent_id === parentId);
   }
 
-  async findByParentId(parentId: string, limit?: number): Promise<TelescopeEntry[]> {
-    const filtered = this.entries.filter(entry => entry.parent_id === parentId);
-    return limit ? filtered.slice(0, limit) : filtered;
+  async count(): Promise<number> {
+    return this.entries.length;
   }
+}
 
-  async findIncomingWithChildren(incomingRequestId: string): Promise<{
-    parent: IncomingRequestEntry;
-    children: TelescopeEntry[];
-  } | null> {
-    const parent = find(this.entries, entry => 
-      entry.id === incomingRequestId && entry.type === EntryType.INCOMING_REQUEST
-    ) as IncomingRequestEntry | undefined;
+export class IncomingRequestRepository extends BaseRepository<IncomingRequestEntry> {}
+export class OutgoingRequestRepository extends BaseRepository<OutgoingRequestEntry> {}
+export class ExceptionRepository extends BaseRepository<ExceptionEntry> {}
+export class LogRepository extends BaseRepository<LogEntry> {}
+export class QueryRepository extends BaseRepository<QueryEntry> {}
 
-    if (!parent) return null;
+export class MemoryStorage {
+  readonly incomingRequests = new IncomingRequestRepository();
+  readonly outgoingRequests = new OutgoingRequestRepository();
+  readonly exceptions = new ExceptionRepository();
+  readonly logs = new LogRepository();
+  readonly queries = new QueryRepository();
 
-    const children = this.entries.filter(entry => entry.parent_id === incomingRequestId);
-    return { parent, children };
-  }
-
-  async count(type?: EntryType): Promise<number> {
-    if (!type) return this.entries.length;
-    return this.entries.filter(entry => entry.type === type).length;
-  }
-
-  async deleteOldEntries(beforeTimestamp: number): Promise<number> {
-    const before = this.entries.length;
-    this.entries = this.entries.filter(entry => entry.timestamp >= beforeTimestamp);
-    return before - this.entries.length;
-  }
-
-  // ============ TelescopeStorage Legacy Methods ============
-
-  async store(entry: TelescopeEntry): Promise<void> {
-    await this.create(entry);
-  }
-
-  async get(type?: EntryType, limit: number = 50): Promise<TelescopeEntry[]> {
-    return this.findByType(type || EntryType.INCOMING_REQUEST, limit);
-  }
-
-  async getEntries(type?: EntryType, limit: number = 50): Promise<TelescopeEntry[]> {
-    return this.get(type, limit);
-  }
-
-  async getEntry(id: string): Promise<TelescopeEntry | null> {
-    return this.findById(id);
-  }
-
-  async clear(): Promise<void> {
-    this.entries = [];
-  }
-
-  async getChildEntries(parentId: string): Promise<TelescopeEntry[]> {
-    return this.findByParentId(parentId);
-  }
-
-  async getIncomingRequestWithChildren(requestId: string): Promise<{
-    request: TelescopeEntry;
-    children: TelescopeEntry[];
-  } | null> {
-    const result = await this.findIncomingWithChildren(requestId);
-    if (!result) return null;
-    return { request: result.parent, children: result.children };
-  }
-
-  // ============ Utility Methods ============
-
-  getByType(type: EntryType): TelescopeEntry[] {
-    return this.entries.filter(entry => entry.type === type);
-  }
-
-  getById(id: string): TelescopeEntry | undefined {
-    return find(this.entries, { id });
+  constructor(maxEntries: number = 1000) {
+    const repos = [
+      this.incomingRequests,
+      this.outgoingRequests,
+      this.exceptions,
+      this.logs,
+      this.queries
+    ];
+    forEach(repos, repo => {
+      (repo as any).maxEntries = maxEntries;
+    });
   }
 }

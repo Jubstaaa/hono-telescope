@@ -1,0 +1,26 @@
+export enum LogLevel {
+  DEBUG = 0,
+  INFO = 1,
+  NOTICE = 2,
+  WARNING = 3,
+  ERROR = 4,
+  CRITICAL = 5,
+  ALERT = 6,
+  EMERGENCY = 7
+}
+
+export enum ExceptionClass {
+  ERROR = 0,
+  EXCEPTION = 1,
+  RUNTIME_ERROR = 2,
+  TYPE_ERROR = 3,
+  SYNTAX_ERROR = 4,
+  REFERENCE_ERROR = 5,
+  RANGE_ERROR = 6,
+  VALIDATION_ERROR = 7,
+  NOT_FOUND = 8,
+  UNAUTHORIZED = 9,
+  FORBIDDEN = 10,
+  BAD_REQUEST = 11,
+  INTERNAL_SERVER_ERROR = 12
+}

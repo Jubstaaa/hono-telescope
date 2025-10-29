@@ -1,5 +1,5 @@
 import { Telescope } from '../telescope';
-import { EntryType, LOG_LEVELS } from '@hono-telescope/types';
+import { LogLevel } from '@hono-telescope/types';
 import { ContextManager } from '../context-manager';
 import { map } from 'lodash';
 
@@ -45,54 +45,43 @@ export class LogWatcher {
   private interceptConsoleLog(): void {
     console.log = (...args: any[]) => {
       this.originalConsole.log.apply(console, args);
-      this.recordLog(LOG_LEVELS.INFO, args);
+      this.recordLog(LogLevel.INFO, args);
     };
   }
 
   private interceptConsoleWarn(): void {
     console.warn = (...args: any[]) => {
       this.originalConsole.warn.apply(console, args);
-      this.recordLog(LOG_LEVELS.WARNING, args);
+      this.recordLog(LogLevel.WARNING, args);
     };
   }
 
   private interceptConsoleError(): void {
     console.error = (...args: any[]) => {
       this.originalConsole.error.apply(console, args);
-      this.recordLog(LOG_LEVELS.ERROR, args);
+      this.recordLog(LogLevel.ERROR, args);
     };
   }
 
   private interceptConsoleInfo(): void {
     console.info = (...args: any[]) => {
       this.originalConsole.info.apply(console, args);
-      this.recordLog(LOG_LEVELS.INFO, args);
+      this.recordLog(LogLevel.INFO, args);
     };
   }
 
   private interceptConsoleDebug(): void {
     console.debug = (...args: any[]) => {
       this.originalConsole.debug.apply(console, args);
-      this.recordLog(LOG_LEVELS.DEBUG, args);
+      this.recordLog(LogLevel.DEBUG, args);
     };
   }
 
-  private async recordLog(level: number, args: any[]): Promise<void> {
+  private async recordLog(level: LogLevel, args: any[]): Promise<void> {
     const message = map(args, arg => 
       typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
     ).join(' ');
 
-    const logPayload = {
-      level,
-      message,
-      context: {
-        args,
-        timestamp: new Date().toISOString(),
-        stack: this.getStackTrace()
-      }
-    };
-
-    // Get current request context
     const requestId = this.contextManager.getCurrentRequestId();
 
     await this.telescope.recordLog({
@@ -107,13 +96,12 @@ export class LogWatcher {
     });
   }
 
-  private getStackTrace(): string[] {
+  private getStackTrace(): string {
     const stack = new Error().stack;
-    return stack ? stack.split('\n').slice(3) : []; // Remove first 3 lines
+    return stack ? stack.split('\n').slice(3).join('\n') : '';
   }
 }
 
-// Global log watcher instance
 let globalLogWatcher: LogWatcher | null = null;
 
 export function startLogWatcher(): void {

@@ -1,7 +1,6 @@
 import { Telescope } from '../telescope';
-import { EntryType } from '@hono-telescope/types';
-import { formatDuration, getMemoryUsage } from '../utils';
 import { ContextManager } from '../context-manager';
+import { forEach } from 'lodash';
 
 export class HttpInterceptor {
   private static instance: HttpInterceptor;
@@ -29,10 +28,8 @@ export class HttpInterceptor {
 
     this.isIntercepting = true;
     
-    // Override global fetch
     globalThis.fetch = this.createInterceptedFetch();
     
-    // Setup axios interceptors if axios is available
     this.setupAxiosInterceptors();
   }
 
@@ -42,7 +39,6 @@ export class HttpInterceptor {
     this.isIntercepting = false;
     globalThis.fetch = this.originalFetch;
     
-    // Remove axios interceptors
     this.removeAxiosInterceptors();
   }
 
@@ -57,9 +53,7 @@ export class HttpInterceptor {
       init?: RequestInit
     ): Promise<Response> {
       const startTime = Date.now();
-      const startMemory = getMemoryUsage();
 
-      // Extract request details
       const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
       const method = init?.method || 'GET';
       const headers = init?.headers || {};
@@ -86,10 +80,8 @@ export class HttpInterceptor {
       let error: Error | null = null;
 
       try {
-        // Make the actual request
         response = await originalFetch(input, init);
         
-        // Try to capture response body
         try {
           const responseClone = response.clone();
           const text = await responseClone.text();
@@ -107,30 +99,24 @@ export class HttpInterceptor {
 
       } catch (err: any) {
         error = err;
-        // Create a mock response for failed requests
         response = new Response(null, { 
           status: 0, 
           statusText: 'Network Error' 
         });
       }
 
-      // Calculate metrics
       const endTime = Date.now();
       const duration = endTime - startTime;
-      const endMemory = getMemoryUsage();
-      const memoryUsed = endMemory - startMemory;
 
-      // Convert response headers to object
       const responseHeaders: Record<string, string> = {};
       response.headers.forEach((value, key) => {
         responseHeaders[key] = value;
       });
 
-      // Record the outgoing HTTP request
       const requestId = contextManager.getCurrentRequestId();
       
       await telescope.recordOutgoingRequest({
-        method,
+        method: method || 'GET',
         uri: url,
         headers: sanitizeHeaders(headers),
         payload: requestBody,
@@ -138,8 +124,6 @@ export class HttpInterceptor {
         response_headers: sanitizeHeaders(responseHeaders),
         response: responseBody,
         duration,
-        memory: memoryUsed,
-        ip_address: 'outgoing',
         parent_id: requestId || 'unknown'
       });
 
@@ -159,7 +143,7 @@ export class HttpInterceptor {
         sanitized[key.toLowerCase()] = value;
       });
     } else if (typeof headers === 'object' && headers !== null) {
-      Object.entries(headers).forEach(([key, value]) => {
+      forEach(headers, (value, key) => {
         sanitized[key.toLowerCase()] = String(value);
       });
     }
@@ -168,73 +152,47 @@ export class HttpInterceptor {
   }
 
   private setupAxiosInterceptors(): void {
-    try {
-      // Try to get axios from global scope or require
       let axios: any = null;
       
-      console.log('🔍 Trying to setup Axios interceptors...');
-      
-      // Check multiple ways to get axios
       if (typeof globalThis !== 'undefined' && (globalThis as any).axios) {
         axios = (globalThis as any).axios;
-        console.log('✅ Found axios in globalThis');
       } else if (typeof window !== 'undefined' && (window as any).axios) {
         axios = (window as any).axios;
-        console.log('✅ Found axios in window');
       } else {
-        // Try to require axios (for Node.js environments)
         try {
           axios = require('axios');
-          console.log('✅ Found axios via require');
         } catch {
-          // Try dynamic import
           try {
             const axiosModule = eval('require("axios")');
             axios = axiosModule.default || axiosModule;
-            console.log('✅ Found axios via dynamic require');
           } catch {
-            console.log('❌ Axios not found, skipping interceptor setup');
             return;
           }
         }
       }
 
       if (!axios) {
-        console.log('❌ Axios is null, skipping');
         return;
       }
       
       if (this.axiosIntercepted) {
-        console.log('⚠️ Axios already intercepted, skipping');
         return;
       }
 
-      const telescope = this.telescope;
-      const contextManager = this.contextManager;
-      const sanitizeHeaders = this.sanitizeHeaders.bind(this);
-
-      // Request interceptor
-      console.log('🔧 Setting up axios request interceptor...');
       axios.interceptors.request.use(
         (config: any) => {
-          console.log('📤 Axios request intercepted:', config.method?.toUpperCase(), config.url);
           config._telescopeStartTime = Date.now();
-          config._telescopeStartMemory = getMemoryUsage();
           return config;
         },
         (error: any) => Promise.reject(error)
       );
 
-      // Response interceptor
-      console.log('🔧 Setting up axios response interceptor...');
       axios.interceptors.response.use(
         async (response: any) => {
-          console.log('📥 Axios response intercepted:', response.status, response.config?.url);
           await this.recordAxiosRequest(response.config, response, null);
           return response;
         },
         async (error: any) => {
-          console.log('❌ Axios error intercepted:', error.message, error.config?.url);
           if (error.config) {
             await this.recordAxiosRequest(error.config, error.response, error);
           }
@@ -243,15 +201,9 @@ export class HttpInterceptor {
       );
 
       this.axiosIntercepted = true;
-      console.log('✅ Axios interceptors setup complete!');
-    } catch (error) {
-      // Silently fail if axios setup fails
-      console.warn('❌ Failed to setup axios interceptors:', error);
-    }
   }
 
   private removeAxiosInterceptors(): void {
-    try {
       let axios: any = null;
       
       if (typeof globalThis !== 'undefined' && (globalThis as any).axios) {
@@ -265,24 +217,17 @@ export class HttpInterceptor {
       }
 
       if (axios && this.axiosIntercepted) {
-        // Clear all interceptors (this is a simple approach)
         axios.interceptors.request.clear();
         axios.interceptors.response.clear();
         this.axiosIntercepted = false;
       }
-    } catch (error) {
-      // Silently fail
-    }
   }
 
   private async recordAxiosRequest(config: any, response: any, error: any): Promise<void> {
     try {
       const endTime = Date.now();
       const startTime = config._telescopeStartTime || endTime;
-      const startMemory = config._telescopeStartMemory || 0;
       const duration = endTime - startTime;
-      const endMemory = getMemoryUsage();
-      const memoryUsed = endMemory - startMemory;
 
       const url = config.url || '';
       const method = (config.method || 'GET').toUpperCase();
@@ -331,12 +276,9 @@ export class HttpInterceptor {
         response_headers: responseHeaders,
         response: responseBody,
         duration,
-        memory: memoryUsed,
-        ip_address: 'outgoing',
         parent_id: requestId || 'unknown'
       });
     } catch (recordError) {
-      // Silently fail to avoid breaking the application
       console.warn('Failed to record axios request:', recordError);
     }
   }

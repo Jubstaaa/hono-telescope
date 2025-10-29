@@ -1,0 +1,32 @@
+import { TelescopeConfig, IncomingRequestEntry, OutgoingRequestEntry, ExceptionEntry, LogEntry, QueryEntry, IncomingRequestCreateInput, OutgoingRequestCreateInput, ExceptionCreateInput, LogCreateInput, QueryCreateInput } from '@hono-telescope/types';
+export declare class Telescope {
+    private static instance;
+    private repository;
+    private constructor();
+    static getInstance(config?: Partial<TelescopeConfig>): Telescope;
+    private createEntry;
+    recordIncomingRequest(data: IncomingRequestCreateInput, customId?: string): Promise<string>;
+    getIncomingRequest(id: string): Promise<IncomingRequestEntry | null>;
+    getAllIncomingRequests(): Promise<IncomingRequestEntry[]>;
+    recordOutgoingRequest(data: OutgoingRequestCreateInput): Promise<string>;
+    getOutgoingRequest(id: string): Promise<OutgoingRequestEntry | null>;
+    getOutgoingRequestsByParentId(parentId: string): Promise<OutgoingRequestEntry[]>;
+    getAllOutgoingRequests(): Promise<OutgoingRequestEntry[]>;
+    recordException(data: ExceptionCreateInput): Promise<string>;
+    getException(id: string): Promise<ExceptionEntry | null>;
+    getExceptionsByParentId(parentId: string): Promise<ExceptionEntry[]>;
+    getAllExceptions(): Promise<ExceptionEntry[]>;
+    recordLog(data: LogCreateInput): Promise<string>;
+    getLog(id: string): Promise<LogEntry | null>;
+    getLogsByParentId(parentId: string): Promise<LogEntry[]>;
+    getAllLogs(): Promise<LogEntry[]>;
+    recordQuery(data: QueryCreateInput): Promise<string>;
+    getQuery(id: string): Promise<QueryEntry | null>;
+    getQueriesByParentId(parentId: string): Promise<QueryEntry[]>;
+    getAllQueries(): Promise<QueryEntry[]>;
+    countIncomingRequests(): Promise<number>;
+    countOutgoingRequests(): Promise<number>;
+    countExceptions(): Promise<number>;
+    countLogs(): Promise<number>;
+    countQueries(): Promise<number>;
+}

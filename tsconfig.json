@@ -1,17 +1,23 @@
 {
+  "files": [],
+  "references": [
+    { "path": "apps/core" },
+    { "path": "apps/dashboard" },
+    { "path": "apps/example" },
+    { "path": "packages/types" }
+  ],
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "allowJs": true,
     "strict": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "declaration": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true,
     "lib": ["ES2022", "DOM"],
     "baseUrl": ".",
     "paths": {

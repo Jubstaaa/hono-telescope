@@ -53,7 +53,7 @@ This is the first beta release of `hono-telescope`, a powerful debugging and mon
 - **Modern React Dashboard** - Beautiful, responsive web interface built with React and Ant Design
 - **Real-time Data Display** - Live monitoring of application activity
 - **Filtering & Search** - Advanced filtering capabilities for all entry types
-- **Performance Metrics** - Response time, memory usage, and other performance indicators
+- **Performance Metrics** - Response time, and other performance indicators
 - **Tagging System** - Organize and categorize entries with custom tags
 
 #### Developer Experience

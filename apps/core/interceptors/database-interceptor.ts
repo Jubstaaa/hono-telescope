@@ -1,6 +1,4 @@
 import { Telescope } from '../telescope';
-import { EntryType } from '@hono-telescope/types';
-import { formatDuration, getMemoryUsage } from '../utils';
 import { ContextManager } from '../context-manager';
 
 export class DatabaseInterceptor {
@@ -28,31 +26,25 @@ export class DatabaseInterceptor {
 
     this.isIntercepting = true;
     
-    // Intercept common database libraries
     this.interceptPrisma();
     this.interceptSequelize();
     this.interceptMongoDB();
     this.interceptBunSQLite();
-    this.interceptGenericSQL();
   }
 
   public stopIntercepting(): void {
     if (!this.isIntercepting) return;
 
     this.isIntercepting = false;
-    // Restore original methods would go here
-    // This is a simplified implementation
   }
 
   private interceptPrisma(): void {
-    // Try to intercept Prisma if it exists
     try {
       const prismaModule = require('@prisma/client');
       if (prismaModule && prismaModule.PrismaClient) {
         this.wrapPrismaClient(prismaModule.PrismaClient);
       }
     } catch {
-      // Prisma not installed, skip
     }
   }
 
@@ -103,14 +95,12 @@ export class DatabaseInterceptor {
   }
 
   private interceptSequelize(): void {
-    // Try to intercept Sequelize if it exists
     try {
       const sequelize = require('sequelize');
       if (sequelize && sequelize.Sequelize) {
         this.wrapSequelize(sequelize.Sequelize);
       }
     } catch {
-      // Sequelize not installed, skip
     }
   }
 
@@ -141,14 +131,12 @@ export class DatabaseInterceptor {
   }
 
   private interceptMongoDB(): void {
-    // Try to intercept MongoDB if it exists
     try {
       const mongodb = require('mongodb');
       if (mongodb && mongodb.MongoClient) {
         this.wrapMongoDB(mongodb);
       }
     } catch {
-      // MongoDB not installed, skip
     }
   }
 
@@ -156,7 +144,6 @@ export class DatabaseInterceptor {
     const telescope = this.telescope;
     const contextManager = this.contextManager;
     
-    // This is a simplified MongoDB interception
     const originalFind = mongodb.Collection?.prototype?.find;
 
     if (originalFind) {
@@ -165,7 +152,6 @@ export class DatabaseInterceptor {
         const startTime = Date.now();
         const baseResult = result;
         
-        // Intercept toArray to measure query execution time
         const originalToArray = result.toArray;
         result.toArray = async function() {
           try {
@@ -189,29 +175,23 @@ export class DatabaseInterceptor {
   }
 
   private interceptBunSQLite(): void {
-    // Try to intercept Bun SQLite if it exists
     try {
       const telescope = this.telescope;
       
-      // Check if we're in Bun environment by checking for global Bun object
       if (typeof (globalThis as any).Bun !== 'undefined') {
-        // Use dynamic import to avoid TypeScript errors
         const importBunSQLite = new Function('return import("bun:sqlite")');
         importBunSQLite().then((bunSQLite: any) => {
           if (bunSQLite && bunSQLite.Database) {
             this.wrapBunSQLiteDatabase(bunSQLite.Database, telescope);
           }
         }).catch(() => {
-          // bun:sqlite not available
         });
       }
     } catch {
-      // Bun SQLite not available, skip
     }
   }
 
   private wrapBunSQLiteDatabase(OriginalDatabase: any, telescope: any): void {
-    // Store original methods
     const originalPrepare = OriginalDatabase.prototype.prepare;
     const contextManager = this.contextManager;
     
@@ -219,7 +199,6 @@ export class DatabaseInterceptor {
       OriginalDatabase.prototype.prepare = function(sql: string) {
         const stmt = originalPrepare.call(this, sql);
         
-        // Wrap statement methods
         const originalGet = stmt.get;
         const originalAll = stmt.all;
         const originalRun = stmt.run;
@@ -284,64 +263,5 @@ export class DatabaseInterceptor {
         return stmt;
       };
     }
-  }
-
-  private interceptGenericSQL(): void {
-    // Intercept console.log for SQL-like patterns
-    const telescope = this.telescope;
-    const originalLog = console.log;
-    
-    console.log = function(...args: any[]) {
-      const message = args.join(' ');
-      
-      // Check if this looks like a SQL query
-      if (typeof message === 'string' && 
-          /\b(SELECT|INSERT|UPDATE|DELETE|CREATE|ALTER|DROP)\b/i.test(message)) {
-        
-        // TODO: Implement proper query recording without parent context
-        // For now, skip console SQL logging as it requires proper context
-      }
-      
-      return originalLog.apply(console, args);
-    };
-  }
-
-  // Helper method to record database queries
-  public async recordQuery<T>(
-    queryFn: () => Promise<T>,
-    sql: string,
-    bindings: any[] = [],
-    connectionName: string = 'default'
-  ): Promise<T> {
-    const startTime = Date.now();
-    const startMemory = getMemoryUsage();
-
-    let result: T;
-    let error: Error | null = null;
-
-    try {
-      result = await queryFn();
-    } catch (err: any) {
-      error = err;
-      throw err;
-    } finally {
-      const endTime = Date.now();
-      const duration = endTime - startTime;
-      const endMemory = getMemoryUsage();
-      const memoryUsed = endMemory - startMemory;
-
-      // Get current request context
-      const requestId = this.contextManager.getCurrentRequestId();
-
-      await this.telescope.recordQuery({
-        query: sql.length > 1000 ? sql.substring(0, 1000) + '...' : sql,
-        bindings: bindings.length > 10 ? bindings.slice(0, 10) : bindings,
-        time: duration,
-        connection: connectionName,
-        parent_id: requestId
-      });
-    }
-
-    return result!;
   }
 }

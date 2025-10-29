@@ -159,7 +159,7 @@ const response = await axios.get('https://api.example.com/users');
 ### Request Monitoring
 - HTTP method, URL, status code
 - Request/response headers and body
-- Response time and memory usage
+- Response time usage
 - IP address and user agent
 
 ### Exception Tracking
@@ -182,7 +182,6 @@ const response = await axios.get('https://api.example.com/users');
 
 ### Performance Metrics
 - Response time distribution
-- Memory usage tracking
 - Request count by status code
 - Average response times
 

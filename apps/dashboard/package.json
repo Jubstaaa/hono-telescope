@@ -14,6 +14,7 @@
     "@hono-telescope/types": "*",
     "@reduxjs/toolkit": "^2.9.2",
     "@types/lodash": "^4.17.20",
+    "@uiw/react-json-view": "^2.0.0-alpha.39",
     "antd": "^5.27.6",
     "clsx": "^2.0.0",
     "dayjs": "^1.11.18",
