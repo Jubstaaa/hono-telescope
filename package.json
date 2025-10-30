@@ -1,6 +1,6 @@
 {
   "name": "hono-telescope",
-  "version": "0.1.7",
+  "version": "0.1.4",
   "type": "module",
   "author": {
     "name": "İlker Balcılar",
@@ -12,20 +12,41 @@
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "dependencies": {
+    "axios": "^1.13.1",
+    "hono": "^4.0.0",
+    "lodash": "^4.17.21"
+  },
   "devDependencies": {
     "@eslint/js": "^9.38.0",
+    "@reduxjs/toolkit": "^1.9.0",
     "@release-it/conventional-changelog": "^8.0.0",
+    "@types/bun": "^1.3.1",
+    "@types/lodash": "^4.17.20",
     "@types/node": "^20.0.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
     "@typescript-eslint/eslint-plugin": "^8.46.2",
     "@typescript-eslint/parser": "^8.46.2",
+    "@uiw/react-json-view": "^2.0.0-alpha.39",
+    "@vitejs/plugin-react": "^4.0.0",
+    "antd": "^5.12.0",
     "eslint": "^9.38.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "prettier": "^3.0.0",
+    "pretty-ms": "^8.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-redux": "^8.1.0",
+    "react-router": "^7.9.5",
+    "react-router-dom": "^6.0.0",
+    "redux": "^4.2.0",
     "release-it": "^17.0.0",
-    "turbo": "latest",
     "typescript": "^5.0.0",
-    "typescript-eslint": "^8.46.2"
+    "typescript-eslint": "^8.46.2",
+    "vite": "^5.0.0",
+    "vitest": "^1.0.0"
   },
   "peerDependencies": {
     "hono": ">=3.0.0"
@@ -64,23 +85,19 @@
     "access": "public"
   },
   "scripts": {
-    "start": "turbo run start",
-    "build": "turbo run build && mkdir -p dist && cp -r apps/core/dist/* dist/",
-    "dev": "turbo run dev",
-    "dev:example": "turbo run dev --filter=@hono-telescope/example",
-    "dev:dashboard": "turbo run dev --filter=@hono-telescope/dashboard",
-    "test": "turbo run test",
-    "clean": "turbo clean && rm -rf node_modules dist",
+    "start": "bun src/example/index.ts",
+    "build": "tsc && vite build && rm -rf dist/dashboard dist/example",
+    "dev": "tsc --watch",
+    "dev:example": "bun --hot src/example/index.ts",
+    "dev:dashboard": "vite dev",
+    "test": "vitest",
+    "clean": "rm -rf node_modules dist",
     "prepublishOnly": "npm run build",
-    "type-check": "turbo run type-check",
+    "type-check": "tsc --noEmit",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "release": "release-it"
-  },
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ]
+  }
 }

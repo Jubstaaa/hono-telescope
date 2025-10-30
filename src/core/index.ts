@@ -4,11 +4,15 @@ import { TelescopeConfig } from '@hono-telescope/types';
 import { startExceptionWatcher } from './watchers/exception-watcher';
 import { startLogWatcher } from './watchers/log-watcher';
 import { startQueryWatcher } from './watchers/query-watcher';
-import type { Hono, Context } from 'hono';
+import type { Context } from 'hono';
 import { getExceptionClassCode } from './utils/helpers';
 import { Telescope } from './telescope';
 
-export function setupTelescope(app: Hono, config?: Partial<TelescopeConfig>): Hono {
+export function setupTelescope(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  app: any,
+  config?: Partial<TelescopeConfig>
+) {
   if (config && !config.enabled) {
     return app;
   }

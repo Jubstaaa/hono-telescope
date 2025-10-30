@@ -3,6 +3,7 @@
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
+    "jsx": "react-jsx",
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
@@ -13,10 +14,17 @@
     "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "types": ["bun"],
     "paths": {
       "@/*": ["src/*"],
-      "@hono-telescope/types": ["../../../packages/types/src/index.ts"],
-      "@hono-telescope/types/*": ["../../../packages/types/src/*"]
+      "@types/*": ["src/types/*"],
+      "@hono-telescope/types": ["src/types/index.ts"],
+      "@hono-telescope/types/*": ["src/types/*"],
+      "@core/*": ["src/core/*"],
+      "@dashboard/*": ["src/dashboard/*"]
     }
   },
   "include": ["src/**/*"],

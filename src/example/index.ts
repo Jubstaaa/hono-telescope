@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { getDatabase, User } from './database';
-import { setupTelescope } from '../../core/dist/index.js';
 import axios, { AxiosError } from 'axios';
+import { setupTelescope } from '@/core';
 
 // Make axios available globally for the interceptor
 (globalThis as unknown as Record<string, unknown>).axios = axios;

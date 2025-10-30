@@ -28,7 +28,9 @@ export class HttpInterceptor {
 
     this.isIntercepting = true;
 
-    globalThis.fetch = this.createInterceptedFetch();
+    const interceptedFetch = this.createInterceptedFetch();
+    Object.assign(interceptedFetch, this.originalFetch);
+    globalThis.fetch = interceptedFetch as typeof fetch;
 
     this.setupAxiosInterceptors();
   }
