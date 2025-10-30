@@ -35,6 +35,7 @@ Shared type definitions used across all packages.
 The main Hono Telescope library providing monitoring, debugging, and data storage functionality.
 
 **Key Components:**
+
 - **Interceptors**: HTTP and Database query interception
   - `HttpInterceptor` - Captures incoming/outgoing HTTP requests
   - `DatabaseInterceptor` - Monitors SQL queries (Prisma, Sequelize, MongoDB, Bun SQLite)
@@ -50,6 +51,7 @@ The main Hono Telescope library providing monitoring, debugging, and data storag
 ### `@hono-telescope/example` (apps/example)
 
 Example Hono application demonstrating all Telescope features:
+
 - HTTP request monitoring
 - Exception tracking
 - Log monitoring
@@ -62,6 +64,7 @@ Example Hono application demonstrating all Telescope features:
 React-based web dashboard for visualizing monitored data.
 
 **Tech Stack:**
+
 - Built with Vite + React 18
 - Ant Design UI components
 - Redux for state management
@@ -220,6 +223,7 @@ bun run release
 ### ESLint
 
 TypeScript-aware linting with strict rules:
+
 - `@typescript-eslint` for TS-specific rules
 - `prettier` integration for formatting consistency
 - Located in `eslint.config.js`
@@ -227,6 +231,7 @@ TypeScript-aware linting with strict rules:
 ### Prettier
 
 Code formatting with opinionated defaults:
+
 - Configuration in `.prettierrc`
 - Ignore patterns in `.prettierignore`
 - Integrated with ESLint for consistency
@@ -234,6 +239,7 @@ Code formatting with opinionated defaults:
 ### TypeScript
 
 Strict TypeScript configuration across all packages:
+
 - ES2020+ target
 - Strict mode enabled
 - Module resolution with workspace support
@@ -294,15 +300,18 @@ bun run format:check
 ## Troubleshooting
 
 ### "Command not found" errors
+
 - Run `bun install` from the root directory
 - Ensure you're using Bun 1.0+ or npm/yarn
 
 ### Build issues
+
 - Clean everything: `bun run clean`
 - Reinstall: `bun install`
 - Rebuild: `bun run build`
 
 ### Type checking failures
+
 - Run `bun run type-check` for detailed errors
 - Update TypeScript: `bun install --latest`
 
