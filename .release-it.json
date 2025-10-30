@@ -1,0 +1,75 @@
+{
+  "git": {
+    "requireCleanWorkingDir": true,
+    "requireBranch": "main",
+    "requireUpstream": true,
+    "commitMessage": "chore(release): v%s",
+    "tagName": "v%s",
+    "tagAnnotation": "Release v%s"
+  },
+  "npm": {
+    "publish": true,
+    "tag": "latest"
+  },
+  "github": {
+    "release": true,
+    "releaseName": "Release v%s"
+  },
+  "plugins": {
+    "@release-it/conventional-changelog": {
+      "infile": "CHANGELOG.md",
+      "preset": {
+        "name": "conventionalcommits",
+        "types": [
+          {
+            "type": "feat",
+            "section": "✨ Features"
+          },
+          {
+            "type": "fix",
+            "section": "🐛 Bug Fixes"
+          },
+          {
+            "type": "perf",
+            "section": "⚡ Performance Improvements"
+          },
+          {
+            "type": "refactor",
+            "section": "♻️ Refactoring"
+          },
+          {
+            "type": "style",
+            "section": "💎 Styling"
+          },
+          {
+            "type": "docs",
+            "section": "📚 Documentation"
+          },
+          {
+            "type": "test",
+            "section": "✅ Tests"
+          },
+          {
+            "type": "chore",
+            "section": "🔧 Chore",
+            "hidden": true
+          },
+          {
+            "type": "build",
+            "section": "🏗️ Build"
+          },
+          {
+            "type": "ci",
+            "section": "🤖 CI",
+            "hidden": true
+          }
+        ],
+        "preMajor": true
+      }
+    }
+  },
+  "hooks": {
+    "before:init": "bun run lint:fix && bun run build && bun run format",
+    "after:release": "echo 'Release v%s published successfully! 🎉'"
+  }
+}
