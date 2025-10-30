@@ -6,7 +6,7 @@ export enum LogLevel {
   ERROR = 4,
   CRITICAL = 5,
   ALERT = 6,
-  EMERGENCY = 7
+  EMERGENCY = 7,
 }
 
 export enum ExceptionClass {
@@ -22,5 +22,5 @@ export enum ExceptionClass {
   UNAUTHORIZED = 9,
   FORBIDDEN = 10,
   BAD_REQUEST = 11,
-  INTERNAL_SERVER_ERROR = 12
+  INTERNAL_SERVER_ERROR = 12,
 }

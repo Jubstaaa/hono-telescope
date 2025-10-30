@@ -5,7 +5,7 @@ export * from './base';
 export * from './enums';
 
 // Entry types
-export *from './entries';
+export * from './entries';
 
 // API types
 export * from './api';

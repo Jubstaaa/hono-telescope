@@ -14,6 +14,7 @@
         "eslint": "^9.38.0",
         "eslint-config-prettier": "^10.1.8",
         "eslint-plugin-prettier": "^5.5.4",
+        "prettier": "^3.0.0",
         "turbo": "latest",
         "typescript": "^5.0.0",
         "typescript-eslint": "^8.46.2",
@@ -24,7 +25,7 @@
     },
     "apps/core": {
       "name": "@hono-telescope/core",
-      "version": "0.1.1-beta.2",
+      "version": "1.0.0",
       "dependencies": {
         "@hono-telescope/types": "workspace:*",
         "@types/lodash": "^4.17.20",
@@ -84,7 +85,7 @@
     },
     "packages/types": {
       "name": "@hono-telescope/types",
-      "version": "0.1.1-beta.2",
+      "version": "1.0.0",
     },
   },
   "packages": {

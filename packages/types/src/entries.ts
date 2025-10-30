@@ -82,11 +82,11 @@ export type QueryCreateInput = QueryEntryData;
 
 // ============ DISCRIMINATED UNION ============
 
-export type TelescopeEntry = 
-  | IncomingRequestEntry 
-  | OutgoingRequestEntry 
-  | ExceptionEntry 
-  | LogEntry 
+export type TelescopeEntry =
+  | IncomingRequestEntry
+  | OutgoingRequestEntry
+  | ExceptionEntry
+  | LogEntry
   | QueryEntry;
 
 export type TelescopeCreateInput =
