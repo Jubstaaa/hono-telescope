@@ -1,5 +1,4 @@
 {
-  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
@@ -10,8 +9,13 @@
     "resolveJsonModule": true,
     "declaration": true,
     "outDir": "./dist",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "baseUrl": "./",
+    "incremental": true,
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
-"include": ["src/**/*"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
 }

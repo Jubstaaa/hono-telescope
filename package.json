@@ -11,6 +11,10 @@
     "url": "https://github.com/jubstaaa/hono-telescope.git"
   },
   "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "dependencies": {
+    "@hono-telescope/types": "workspace:*"
+  },
   "devDependencies": {
     "@eslint/js": "^9.38.0",
     "@types/node": "^20.0.0",
@@ -60,6 +64,7 @@
     "access": "public"
   },
   "scripts": {
+    "start": "turbo run start",
     "build": "turbo run build && mkdir -p dist && cp -r apps/core/dist/* dist/",
     "dev": "turbo run dev",
     "dev:example": "turbo run dev --filter=@hono-telescope/example",
@@ -71,7 +76,6 @@
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix"
   },
-  "types": "./dist/index.d.ts",
   "workspaces": [
     "apps/*",
     "packages/*"

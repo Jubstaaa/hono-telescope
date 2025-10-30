@@ -1,40 +1,40 @@
-import React, { createContext, useContext, useState, useEffect } from 'react'
-import { ConfigProvider, theme } from 'antd'
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { ConfigProvider, theme } from 'antd';
 
 interface ThemeContextType {
-  isDark: boolean
-  toggleTheme: () => void
+  isDark: boolean;
+  toggleTheme: () => void;
 }
 
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const useTheme = () => {
-  const context = useContext(ThemeContext)
+  const context = useContext(ThemeContext);
   if (!context) {
-    throw new Error('useTheme must be used within a ThemeProvider')
+    throw new Error('useTheme must be used within a ThemeProvider');
   }
-  return context
-}
+  return context;
+};
 
 interface ThemeProviderProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const [isDark, setIsDark] = useState(() => {
-    const saved = localStorage.getItem('theme')
-    return saved ? saved === 'dark' : false
-  })
+    const saved = localStorage.getItem('theme');
+    return saved ? saved === 'dark' : false;
+  });
 
   useEffect(() => {
-    localStorage.setItem('theme', isDark ? 'dark' : 'light')
-  }, [isDark])
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  }, [isDark]);
 
   const toggleTheme = () => {
-    setIsDark(!isDark)
-  }
+    setIsDark(!isDark);
+  };
 
-  const { defaultAlgorithm, darkAlgorithm } = theme
+  const { defaultAlgorithm, darkAlgorithm } = theme;
 
   return (
     <ThemeContext.Provider value={{ isDark, toggleTheme }}>
@@ -64,5 +64,5 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
         {children}
       </ConfigProvider>
     </ThemeContext.Provider>
-  )
-}
+  );
+};

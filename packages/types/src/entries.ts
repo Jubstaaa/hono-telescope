@@ -7,10 +7,10 @@ export interface IncomingRequestEntryData {
   method: string;
   uri: string;
   headers: Record<string, string>;
-  payload: string;
+  payload: Record<string, unknown>;
   response_status: number;
   response_headers: Record<string, string>;
-  response: string;
+  response: Record<string, unknown>;
   duration: number;
   ip_address?: string;
   user_agent?: string;
@@ -18,7 +18,7 @@ export interface IncomingRequestEntryData {
 
 export interface IncomingRequestEntry extends BaseEntry, IncomingRequestEntryData {}
 
-export interface IncomingRequestCreateInput extends IncomingRequestEntryData {}
+export type IncomingRequestCreateInput = IncomingRequestEntryData;
 
 // ============ OUTGOING REQUEST ============
 
@@ -27,17 +27,17 @@ export interface OutgoingRequestEntryData {
   method: string;
   uri: string;
   headers: Record<string, string>;
-  payload: string;
+  payload: Record<string, unknown>;
   response_status: number;
   response_headers: Record<string, string>;
-  response: string;
+  response: Record<string, unknown>;
   duration: number;
   user_agent?: string;
 }
 
 export interface OutgoingRequestEntry extends BaseEntry, OutgoingRequestEntryData {}
 
-export interface OutgoingRequestCreateInput extends OutgoingRequestEntryData {}
+export type OutgoingRequestCreateInput = OutgoingRequestEntryData;
 
 // ============ EXCEPTION ============
 
@@ -46,12 +46,12 @@ export interface ExceptionEntryData {
   class: ExceptionClass;
   message: string;
   trace: string;
-  context?: any;
+  context?: Record<string, unknown>;
 }
 
 export interface ExceptionEntry extends BaseEntry, ExceptionEntryData {}
 
-export interface ExceptionCreateInput extends ExceptionEntryData {}
+export type ExceptionCreateInput = ExceptionEntryData;
 
 // ============ LOG ============
 
@@ -59,12 +59,12 @@ export interface LogEntryData {
   parent_id?: string;
   level: LogLevel;
   message: string;
-  context?: any;
+  context?: Record<string, unknown>;
 }
 
 export interface LogEntry extends BaseEntry, LogEntryData {}
 
-export interface LogCreateInput extends LogEntryData {}
+export type LogCreateInput = LogEntryData;
 
 // ============ QUERY ============
 
@@ -72,13 +72,13 @@ export interface QueryEntryData {
   parent_id?: string;
   connection: string;
   query: string;
-  bindings: any[];
+  bindings: string[];
   time: number;
 }
 
 export interface QueryEntry extends BaseEntry, QueryEntryData {}
 
-export interface QueryCreateInput extends QueryEntryData {}
+export type QueryCreateInput = QueryEntryData;
 
 // ============ DISCRIMINATED UNION ============
 

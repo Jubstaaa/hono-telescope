@@ -1,18 +1,16 @@
-import dayjs from 'dayjs'
-import localizedFormat from 'dayjs/plugin/localizedFormat'
-import prettyMs from 'pretty-ms'
+import dayjs from 'dayjs';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
+import prettyMs from 'pretty-ms';
 
-dayjs.extend(localizedFormat)
-
+dayjs.extend(localizedFormat);
 
 export const getStatusColor = (status?: number): string => {
-  if (!status) return 'default'
-  if (status >= 200 && status < 300) return 'success'
-  if (status >= 400) return 'error'
-  if (status >= 300) return 'warning'
-  return 'default'
-}
-
+  if (!status) return 'default';
+  if (status >= 200 && status < 300) return 'success';
+  if (status >= 400) return 'error';
+  if (status >= 300) return 'warning';
+  return 'default';
+};
 
 export const getMethodColor = (method: string): string => {
   const colors: Record<string, string> = {
@@ -20,32 +18,32 @@ export const getMethodColor = (method: string): string => {
     POST: 'green',
     PUT: 'orange',
     DELETE: 'red',
-    PATCH: 'purple'
-  }
-  return colors[method] || 'default'
-}
+    PATCH: 'purple',
+  };
+  return colors[method] || 'default';
+};
 
 export const getLevelColor = (level: number): string => {
   const colors: Record<number, string> = {
-    0: 'gray',    
-    1: 'blue',    
-    2: 'cyan',    
-    3: 'orange',  
-    4: 'red',     
-    5: 'red',     
-    6: 'red',     
-    7: 'red'      
-  }
-  return colors[level] || 'default'
-}
+    0: 'gray',
+    1: 'blue',
+    2: 'cyan',
+    3: 'orange',
+    4: 'red',
+    5: 'red',
+    6: 'red',
+    7: 'red',
+  };
+  return colors[level] || 'default';
+};
 
 export const formatDuration = (duration: number): string => {
-  return prettyMs(duration)
-}
+  return prettyMs(duration);
+};
 
 export const formatDate = (createdAt: string): string => {
-  return dayjs(createdAt).format('YYYY-MM-DD HH:mm')
-}
+  return dayjs(createdAt).format('YYYY-MM-DD HH:mm');
+};
 
 export const getLevelName = (level: number): string => {
   const levels: Record<number, string> = {
@@ -56,10 +54,10 @@ export const getLevelName = (level: number): string => {
     4: 'ERROR',
     5: 'CRITICAL',
     6: 'ALERT',
-    7: 'EMERGENCY'
-  }
-  return levels[level] || 'UNKNOWN'
-}
+    7: 'EMERGENCY',
+  };
+  return levels[level] || 'UNKNOWN';
+};
 
 export const getExceptionClassName = (classNum: number): string => {
   const classes: Record<number, string> = {
@@ -75,7 +73,7 @@ export const getExceptionClassName = (classNum: number): string => {
     9: 'Unauthorized',
     10: 'Forbidden',
     11: 'BadRequest',
-    12: 'InternalServerError'
-  }
-  return classes[classNum] || 'Unknown'
-}
+    12: 'InternalServerError',
+  };
+  return classes[classNum] || 'Unknown';
+};

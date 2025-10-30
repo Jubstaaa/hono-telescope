@@ -1,8 +1,8 @@
-import JsonView from '@uiw/react-json-view'
-import { theme } from 'antd'
+import JsonView from '@uiw/react-json-view';
+import { theme } from 'antd';
 
-export function JsonViewer({ data }: { data: any }) {
-  const { token } = theme.useToken()
+export function JsonViewer({ data }: { data: Record<string, unknown> }) {
+  const { token } = theme.useToken();
 
   const customTheme = {
     '--w-rjv-font-family': 'monospace',
@@ -21,7 +21,7 @@ export function JsonViewer({ data }: { data: any }) {
     '--w-rjv-type-boolean-color': token.colorWarningText,
     '--w-rjv-type-number-color': token.colorPrimaryText,
     '--w-rjv-type-null-color': token.colorErrorText,
-  } as React.CSSProperties
+  } as React.CSSProperties;
 
   return (
     <JsonView
@@ -33,10 +33,10 @@ export function JsonViewer({ data }: { data: any }) {
       displayObjectSize={false}
     >
       <JsonView.String
-        render={({ children, ...props }, { value }) => {
-          return <span {...props}>{String(value)}</span>
+        render={({ ...props }, { value }) => {
+          return <span {...props}>{String(value)}</span>;
         }}
       />
     </JsonView>
-  )
+  );
 }

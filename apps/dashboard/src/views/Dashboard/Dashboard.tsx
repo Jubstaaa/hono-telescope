@@ -1,59 +1,59 @@
-import React from 'react'
-import { Card, Row, Col, Statistic, Typography, Alert, Button, Flex, Skeleton } from 'antd'
-import { useNavigate } from 'react-router-dom'
-import { 
+import React from 'react';
+import { Card, Row, Col, Statistic, Typography, Alert, Button, Flex } from 'antd';
+import { useNavigate } from 'react-router';
+import {
   DownloadOutlined,
   UploadOutlined,
   ExclamationCircleOutlined,
   DatabaseOutlined,
-  FileTextOutlined
-} from '@ant-design/icons'
-import { map } from 'lodash'
-import { useGetStatsQuery } from '../../api/telescopeApi'
+  FileTextOutlined,
+} from '@ant-design/icons';
+import { map } from 'lodash';
+import { useGetStatsQuery } from '../../api/telescopeApi';
 
-const { Title } = Typography
+const { Title } = Typography;
 
 export const Dashboard: React.FC = () => {
-  const navigate = useNavigate()
-  const { data: stats, isLoading, error, refetch } = useGetStatsQuery()
+  const navigate = useNavigate();
+  const { data: stats, isLoading, error, refetch } = useGetStatsQuery();
 
   const statsCards = [
-    { 
-      title: 'Incoming Requests', 
-      value: stats?.incomingRequests.total ?? 0, 
-      icon: <DownloadOutlined />, 
+    {
+      title: 'Incoming Requests',
+      value: stats?.incomingRequests.total ?? 0,
+      icon: <DownloadOutlined />,
       color: '#1890ff',
-      path: '/incoming-requests'
+      path: '/incoming-requests',
     },
-    { 
-      title: 'Outgoing Requests', 
-      value: stats?.outgoingRequests.total ?? 0, 
-      icon: <UploadOutlined />, 
+    {
+      title: 'Outgoing Requests',
+      value: stats?.outgoingRequests.total ?? 0,
+      icon: <UploadOutlined />,
       color: '#13c2c2',
-      path: '/outgoing-requests'
+      path: '/outgoing-requests',
     },
-    { 
-      title: 'Exceptions', 
-      value: stats?.exceptions.total ?? 0, 
-      icon: <ExclamationCircleOutlined />, 
+    {
+      title: 'Exceptions',
+      value: stats?.exceptions.total ?? 0,
+      icon: <ExclamationCircleOutlined />,
       color: '#ff4d4f',
-      path: '/exceptions'
+      path: '/exceptions',
     },
-    { 
-      title: 'Queries', 
-      value: stats?.queries.total ?? 0, 
-      icon: <DatabaseOutlined />, 
+    {
+      title: 'Queries',
+      value: stats?.queries.total ?? 0,
+      icon: <DatabaseOutlined />,
       color: '#52c41a',
-      path: '/queries'
+      path: '/queries',
     },
-    { 
-      title: 'Logs', 
-      value: stats?.logs.total ?? 0, 
-      icon: <FileTextOutlined />, 
+    {
+      title: 'Logs',
+      value: stats?.logs.total ?? 0,
+      icon: <FileTextOutlined />,
       color: '#fa8c16',
-      path: '/logs'
-    }
-  ]
+      path: '/logs',
+    },
+  ];
 
   if (error) {
     return (
@@ -62,13 +62,9 @@ export const Dashboard: React.FC = () => {
         description={error instanceof Error ? error.message : 'Failed to load dashboard data'}
         type="error"
         showIcon
-        action={
-          <Button onClick={refetch}>
-            Retry
-          </Button>
-        }
+        action={<Button onClick={refetch}>Retry</Button>}
       />
-    )
+    );
   }
 
   return (
@@ -86,7 +82,7 @@ export const Dashboard: React.FC = () => {
                 maxWidth: 260,
               }}
             >
-              <Card 
+              <Card
                 loading={isLoading}
                 hoverable
                 onClick={() => navigate(stat.path)}
@@ -95,11 +91,7 @@ export const Dashboard: React.FC = () => {
                 <Statistic
                   title={stat.title}
                   value={stat.value}
-                  prefix={
-                    <span style={{ color: stat.color }}>
-                      {stat.icon}
-                    </span>
-                  }
+                  prefix={<span style={{ color: stat.color }}>{stat.icon}</span>}
                   valueStyle={{ color: stat.color }}
                 />
               </Card>
@@ -108,5 +100,5 @@ export const Dashboard: React.FC = () => {
         </Row>
       </Flex>
     </>
-  )
-}
+  );
+};

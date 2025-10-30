@@ -1,7 +1,7 @@
 import { Telescope } from '../telescope';
 import { LogLevel } from '@hono-telescope/types';
 import { ContextManager } from '../context-manager';
-import { map } from 'lodash';
+import { isObject, map } from 'lodash';
 
 export class LogWatcher {
   private telescope: Telescope;
@@ -22,7 +22,7 @@ export class LogWatcher {
       warn: console.warn,
       error: console.error,
       info: console.info,
-      debug: console.debug
+      debug: console.debug,
     };
   }
 
@@ -43,43 +43,43 @@ export class LogWatcher {
   }
 
   private interceptConsoleLog(): void {
-    console.log = (...args: any[]) => {
+    console.log = (...args: unknown[]) => {
       this.originalConsole.log.apply(console, args);
       this.recordLog(LogLevel.INFO, args);
     };
   }
 
   private interceptConsoleWarn(): void {
-    console.warn = (...args: any[]) => {
+    console.warn = (...args: unknown[]) => {
       this.originalConsole.warn.apply(console, args);
       this.recordLog(LogLevel.WARNING, args);
     };
   }
 
   private interceptConsoleError(): void {
-    console.error = (...args: any[]) => {
+    console.error = (...args: unknown[]) => {
       this.originalConsole.error.apply(console, args);
       this.recordLog(LogLevel.ERROR, args);
     };
   }
 
   private interceptConsoleInfo(): void {
-    console.info = (...args: any[]) => {
+    console.info = (...args: unknown[]) => {
       this.originalConsole.info.apply(console, args);
       this.recordLog(LogLevel.INFO, args);
     };
   }
 
   private interceptConsoleDebug(): void {
-    console.debug = (...args: any[]) => {
+    console.debug = (...args: unknown[]) => {
       this.originalConsole.debug.apply(console, args);
       this.recordLog(LogLevel.DEBUG, args);
     };
   }
 
-  private async recordLog(level: LogLevel, args: any[]): Promise<void> {
-    const message = map(args, arg => 
-      typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+  private async recordLog(level: LogLevel, args: unknown[]): Promise<void> {
+    const message = map(args, (arg) =>
+      isObject(arg) ? JSON.stringify(arg, null, 2) : String(arg)
     ).join(' ');
 
     const requestId = this.contextManager.getCurrentRequestId();
@@ -90,9 +90,9 @@ export class LogWatcher {
       context: {
         args,
         timestamp: new Date().toISOString(),
-        stack: this.getStackTrace()
+        stack: this.getStackTrace(),
       },
-      parent_id: requestId || undefined
+      parent_id: requestId || undefined,
     });
   }
 

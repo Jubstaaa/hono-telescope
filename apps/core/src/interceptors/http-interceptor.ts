@@ -1,6 +1,6 @@
 import { Telescope } from '../telescope';
 import { ContextManager } from '../context-manager';
-import { forEach } from 'lodash';
+import { forEach, isObject, isString } from 'lodash';
 
 export class HttpInterceptor {
   private static instance: HttpInterceptor;
@@ -27,9 +27,9 @@ export class HttpInterceptor {
     if (this.isIntercepting) return;
 
     this.isIntercepting = true;
-    
+
     globalThis.fetch = this.createInterceptedFetch();
-    
+
     this.setupAxiosInterceptors();
   }
 
@@ -38,7 +38,7 @@ export class HttpInterceptor {
 
     this.isIntercepting = false;
     globalThis.fetch = this.originalFetch;
-    
+
     this.removeAxiosInterceptors();
   }
 
@@ -54,54 +54,55 @@ export class HttpInterceptor {
     ): Promise<Response> {
       const startTime = Date.now();
 
-      const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
+      const url = isString(input) ? input : input instanceof URL ? input.toString() : input.url;
       const method = init?.method || 'GET';
       const headers = init?.headers || {};
-      
-      let requestBody: any = null;
+
+      let requestBody: Record<string, unknown> = {};
       if (init?.body) {
         try {
-          if (typeof init.body === 'string') {
+          if (isString(init.body)) {
             try {
               requestBody = JSON.parse(init.body);
             } catch {
-              requestBody = init.body;
+              requestBody = { body: init.body };
             }
           } else {
-            requestBody = init.body.toString();
+            requestBody = { body: init.body.toString() };
           }
         } catch {
-          requestBody = '[Binary Data]';
+          requestBody = { body: '[Binary Data]' };
         }
       }
 
       let response: Response;
-      let responseBody: any = null;
+      let responseBody: Record<string, unknown> = {};
       let error: Error | null = null;
 
       try {
         response = await originalFetch(input, init);
-        
+
         try {
           const responseClone = response.clone();
           const text = await responseClone.text();
-          
+
           if (text) {
             try {
               responseBody = JSON.parse(text);
             } catch {
-              responseBody = text.length > 1000 ? text.substring(0, 1000) + '...' : text;
+              responseBody = {
+                response: text.length > 1000 ? text.substring(0, 1000) + '...' : text,
+              };
             }
           }
         } catch {
-          responseBody = '[Unable to capture response]';
+          responseBody = { response: '[Unable to capture response]' };
         }
-
-      } catch (err: any) {
-        error = err;
-        response = new Response(null, { 
-          status: 0, 
-          statusText: 'Network Error' 
+      } catch (err: unknown) {
+        error = err instanceof Error ? err : new Error(String(err));
+        response = new Response(null, {
+          status: 0,
+          statusText: 'Network Error',
         });
       }
 
@@ -114,7 +115,7 @@ export class HttpInterceptor {
       });
 
       const requestId = contextManager.getCurrentRequestId();
-      
+
       await telescope.recordOutgoingRequest({
         method: method || 'GET',
         uri: url,
@@ -124,7 +125,7 @@ export class HttpInterceptor {
         response_headers: sanitizeHeaders(responseHeaders),
         response: responseBody,
         duration,
-        parent_id: requestId || 'unknown'
+        parent_id: requestId || 'unknown',
       });
 
       if (error) {
@@ -135,14 +136,14 @@ export class HttpInterceptor {
     };
   }
 
-  private sanitizeHeaders(headers: any): Record<string, string> {
+  private sanitizeHeaders(headers: unknown): Record<string, string> {
     const sanitized: Record<string, string> = {};
 
     if (headers instanceof Headers) {
       headers.forEach((value, key) => {
         sanitized[key.toLowerCase()] = value;
       });
-    } else if (typeof headers === 'object' && headers !== null) {
+    } else if (isObject(headers)) {
       forEach(headers, (value, key) => {
         sanitized[key.toLowerCase()] = String(value);
       });
@@ -152,77 +153,87 @@ export class HttpInterceptor {
   }
 
   private setupAxiosInterceptors(): void {
-      let axios: any = null;
-      
-      if (typeof globalThis !== 'undefined' && (globalThis as any).axios) {
-        axios = (globalThis as any).axios;
-      } else if (typeof window !== 'undefined' && (window as any).axios) {
-        axios = (window as any).axios;
-      } else {
-        try {
-          axios = require('axios');
-        } catch {
-          try {
-            const axiosModule = eval('require("axios")');
-            axios = axiosModule.default || axiosModule;
-          } catch {
-            return;
-          }
-        }
-      }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let axios: any = null;
 
-      if (!axios) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (typeof globalThis !== 'undefined' && (globalThis as any).axios) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      axios = (globalThis as any).axios;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } else if (typeof window !== 'undefined' && (window as any).axios) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      axios = (window as any).axios;
+    } else {
+      try {
+        const axiosModule = eval('require("axios")');
+        axios = axiosModule.default || axiosModule;
+      } catch {
         return;
       }
-      
-      if (this.axiosIntercepted) {
-        return;
-      }
+    }
 
-      axios.interceptors.request.use(
-        (config: any) => {
-          config._telescopeStartTime = Date.now();
-          return config;
-        },
-        (error: any) => Promise.reject(error)
-      );
+    if (!axios) {
+      return;
+    }
 
-      axios.interceptors.response.use(
-        async (response: any) => {
-          await this.recordAxiosRequest(response.config, response, null);
-          return response;
-        },
-        async (error: any) => {
-          if (error.config) {
-            await this.recordAxiosRequest(error.config, error.response, error);
-          }
-          return Promise.reject(error);
+    if (this.axiosIntercepted) {
+      return;
+    }
+
+    axios.interceptors.request.use(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (config: any) => {
+        config._telescopeStartTime = Date.now();
+        return config;
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (error: any) => Promise.reject(error)
+    );
+
+    axios.interceptors.response.use(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      async (response: any) => {
+        await this.recordAxiosRequest(response.config, response, null);
+        return response;
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      async (error: any) => {
+        if (error.config) {
+          await this.recordAxiosRequest(error.config, error.response, error);
         }
-      );
+        return Promise.reject(error);
+      }
+    );
 
-      this.axiosIntercepted = true;
+    this.axiosIntercepted = true;
   }
 
   private removeAxiosInterceptors(): void {
-      let axios: any = null;
-      
-      if (typeof globalThis !== 'undefined' && (globalThis as any).axios) {
-        axios = (globalThis as any).axios;
-      } else {
-        try {
-          axios = require('axios');
-        } catch {
-          return;
-        }
-      }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let axios: any = null;
 
-      if (axios && this.axiosIntercepted) {
-        axios.interceptors.request.clear();
-        axios.interceptors.response.clear();
-        this.axiosIntercepted = false;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (typeof globalThis !== 'undefined' && (globalThis as any).axios) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      axios = (globalThis as any).axios;
+    } else {
+      try {
+        const axiosModule = eval('require("axios")');
+        axios = axiosModule.default || axiosModule;
+      } catch {
+        return;
       }
+    }
+
+    if (axios && this.axiosIntercepted) {
+      axios.interceptors.request.clear();
+      axios.interceptors.response.clear();
+      this.axiosIntercepted = false;
+    }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private async recordAxiosRequest(config: any, response: any, error: any): Promise<void> {
     try {
       const endTime = Date.now();
@@ -231,42 +242,56 @@ export class HttpInterceptor {
 
       const url = config.url || '';
       const method = (config.method || 'GET').toUpperCase();
-      
-      let requestBody: any = null;
+
+      let requestBody: Record<string, unknown> = {};
       if (config.data) {
         try {
-          requestBody = typeof config.data === 'string' ? 
-            (config.data.length > 1000 ? config.data.substring(0, 1000) + '...' : config.data) :
-            config.data;
+          if (isString(config.data)) {
+            try {
+              requestBody = JSON.parse(config.data);
+            } catch {
+              requestBody =
+                config.data.length > 1000 ? config.data.substring(0, 1000) + '...' : config.data;
+            }
+          } else {
+            requestBody = config.data;
+          }
         } catch {
-          requestBody = '[Unable to serialize request data]';
+          requestBody = { body: '[Unable to serialize request data]' };
         }
       }
 
-      let responseBody: any = null;
+      let responseBody: Record<string, unknown> = {};
       let responseStatus = 0;
       let responseHeaders: Record<string, string> = {};
 
       if (response) {
         responseStatus = response.status || 0;
         responseHeaders = this.sanitizeHeaders(response.headers || {});
-        
+
         try {
-          responseBody = response.data;
-          if (typeof responseBody === 'string' && responseBody.length > 1000) {
-            responseBody = responseBody.substring(0, 1000) + '...';
+          const rawBody = response.data;
+          if (isString(rawBody)) {
+            responseBody =
+              rawBody.length > 1000
+                ? { response: rawBody.substring(0, 1000) + '...' }
+                : { response: rawBody };
+          } else if (isObject(rawBody)) {
+            responseBody = rawBody as Record<string, unknown>;
+          } else {
+            responseBody = { response: String(rawBody) };
           }
         } catch {
-          responseBody = '[Unable to capture response]';
+          responseBody = { response: '[Unable to capture response]' };
         }
       } else if (error) {
         responseStatus = error.response?.status || 0;
         responseHeaders = this.sanitizeHeaders(error.response?.headers || {});
-        responseBody = error.message || 'Request failed';
+        responseBody = { response: isString(error.message) ? error.message : 'Request failed' };
       }
 
       const requestId = this.contextManager.getCurrentRequestId();
-      
+
       await this.telescope.recordOutgoingRequest({
         method,
         uri: url,
@@ -276,7 +301,7 @@ export class HttpInterceptor {
         response_headers: responseHeaders,
         response: responseBody,
         duration,
-        parent_id: requestId || 'unknown'
+        parent_id: requestId || 'unknown',
       });
     } catch (recordError) {
       console.warn('Failed to record axios request:', recordError);

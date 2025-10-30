@@ -1,0 +1,10 @@
+node_modules
+dist
+build
+.turbo
+*.lock
+*.lock.json
+coverage
+.next
+.venv
+venv

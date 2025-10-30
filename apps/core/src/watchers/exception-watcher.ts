@@ -1,6 +1,5 @@
 import { Telescope } from '../telescope';
 import { ContextManager } from '../context-manager';
-import { ExceptionClass } from '@hono-telescope/types';
 import { getExceptionClassCode } from '../utils/helpers';
 
 class ExceptionWatcher {
@@ -15,10 +14,10 @@ class ExceptionWatcher {
 
   start() {
     if (this.isWatching) return;
-    
+
     this.isWatching = true;
 
-    console.error = (...args: any[]) => {
+    console.error = (...args: unknown[]) => {
       this.originalConsoleError.apply(console, args);
       this.recordException(new Error(args.join(' ')));
     };
@@ -28,7 +27,7 @@ class ExceptionWatcher {
         this.recordException(error);
       });
 
-      process.on('unhandledRejection', (reason: any) => {
+      process.on('unhandledRejection', (reason: unknown) => {
         const error = reason instanceof Error ? reason : new Error(String(reason));
         this.recordException(error);
       });
@@ -37,10 +36,10 @@ class ExceptionWatcher {
 
   stop() {
     if (!this.isWatching) return;
-    
+
     this.isWatching = false;
     console.error = this.originalConsoleError;
-    
+
     if (typeof process !== 'undefined') {
       process.removeAllListeners('uncaughtException');
       process.removeAllListeners('unhandledRejection');
@@ -49,20 +48,18 @@ class ExceptionWatcher {
 
   private recordException(error: Error) {
     const telescope = Telescope.getInstance();
-    
 
     const stack = error.stack || '';
 
     const requestId = this.contextManager.getCurrentRequestId();
-    
-    telescope.recordException({
-       class: getExceptionClassCode(error.constructor.name),
-       message: error.message,
-       trace: stack.split('\n').slice(1).join('\n').trim(),
-       parent_id: requestId || undefined
-     });
-  }
 
+    telescope.recordException({
+      class: getExceptionClassCode(error.constructor.name),
+      message: error.message,
+      trace: stack.split('\n').slice(1).join('\n').trim(),
+      parent_id: requestId || undefined,
+    });
+  }
 }
 
 let watcher: ExceptionWatcher | null = null;

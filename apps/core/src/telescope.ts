@@ -1,5 +1,5 @@
-import { 
-  TelescopeConfig, 
+import {
+  TelescopeConfig,
   IncomingRequestEntry,
   OutgoingRequestEntry,
   ExceptionEntry,
@@ -11,8 +11,7 @@ import {
   LogCreateInput,
   QueryCreateInput,
   TelescopeCreateInput,
-  TelescopeEntry,
-  BaseEntry
+  BaseEntry,
 } from '@hono-telescope/types';
 import { MemoryStorage } from './storage/memory-storage';
 
@@ -21,7 +20,6 @@ export class Telescope {
   private repository: MemoryStorage;
 
   private constructor(config: Partial<TelescopeConfig> = {}) {
-
     this.repository = new MemoryStorage(config.max_entries);
   }
 
@@ -32,14 +30,12 @@ export class Telescope {
     return Telescope.instance;
   }
 
-  private createEntry<T extends TelescopeCreateInput>(
-    data: T
-  ): T & BaseEntry {
+  private createEntry<T extends TelescopeCreateInput>(data: T): T & BaseEntry {
     return {
       ...data,
       id: crypto.randomUUID(),
       timestamp: Date.now(),
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
     };
   }
 
@@ -47,10 +43,9 @@ export class Telescope {
     data: IncomingRequestCreateInput,
     customId?: string
   ): Promise<string> {
-    
     const entry = this.createEntry<IncomingRequestCreateInput>(data);
     if (customId) entry.id = customId;
-    
+
     return await this.repository.incomingRequests.create(entry);
   }
 
@@ -63,9 +58,7 @@ export class Telescope {
     return entries as IncomingRequestEntry[];
   }
 
-  public async recordOutgoingRequest(
-    data: OutgoingRequestCreateInput
-  ): Promise<string> {
+  public async recordOutgoingRequest(data: OutgoingRequestCreateInput): Promise<string> {
     const entry = this.createEntry(data);
     return await this.repository.outgoingRequests.create(entry as OutgoingRequestEntry);
   }
@@ -83,9 +76,7 @@ export class Telescope {
     return entries as OutgoingRequestEntry[];
   }
 
-  public async recordException(
-    data: ExceptionCreateInput
-  ): Promise<string> {
+  public async recordException(data: ExceptionCreateInput): Promise<string> {
     const entry = this.createEntry(data);
     return await this.repository.exceptions.create(entry as ExceptionEntry);
   }
@@ -103,9 +94,7 @@ export class Telescope {
     return entries as ExceptionEntry[];
   }
 
-  public async recordLog(
-    data: LogCreateInput
-  ): Promise<string> {
+  public async recordLog(data: LogCreateInput): Promise<string> {
     const entry = this.createEntry(data);
     return await this.repository.logs.create(entry as LogEntry);
   }
@@ -123,9 +112,7 @@ export class Telescope {
     return entries;
   }
 
-  public async recordQuery(
-    data: QueryCreateInput
-  ): Promise<string> {
+  public async recordQuery(data: QueryCreateInput): Promise<string> {
     const entry = this.createEntry(data);
     return await this.repository.queries.create(entry as QueryEntry);
   }
@@ -162,5 +149,4 @@ export class Telescope {
   public async countQueries(): Promise<number> {
     return this.repository.queries.count();
   }
-
 }

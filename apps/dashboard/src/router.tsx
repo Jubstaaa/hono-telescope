@@ -1,17 +1,16 @@
-import React from 'react'
-import { RouteObject, createBrowserRouter } from 'react-router-dom'
-import { Dashboard } from './views/Dashboard/Dashboard'
-import { IncomingRequestList } from './views/IncomingRequests/List'
-import { OutgoingRequestList } from './views/OutgoingRequests/List'
-import { QueryList } from './views/Queries/List'
-import { ExceptionList } from './views/Exceptions/List'
-import { LogList } from './views/Logs/List'
-import { IncomingRequestDetail } from './views/IncomingRequests/Detail'
-import { OutgoingRequestDetail } from './views/OutgoingRequests/Detail'
-import { QueryDetail } from './views/Queries/Detail'
-import { ExceptionDetail } from './views/Exceptions/Detail'
-import { LogDetail } from './views/Logs/Detail'
-import { MainLayout } from './layouts/MainLayout'
+import { RouteObject, createBrowserRouter } from 'react-router';
+import { Dashboard } from './views/Dashboard/Dashboard';
+import { IncomingRequestList } from './views/IncomingRequests/List';
+import { OutgoingRequestList } from './views/OutgoingRequests/List';
+import { QueryList } from './views/Queries/List';
+import { ExceptionList } from './views/Exceptions/List';
+import { LogList } from './views/Logs/List';
+import { IncomingRequestDetail } from './views/IncomingRequests/Detail';
+import { OutgoingRequestDetail } from './views/OutgoingRequests/Detail';
+import { QueryDetail } from './views/Queries/Detail';
+import { ExceptionDetail } from './views/Exceptions/Detail';
+import { LogDetail } from './views/Logs/Detail';
+import { MainLayout } from './layouts/MainLayout';
 
 const routes: RouteObject[] = [
   {
@@ -20,52 +19,52 @@ const routes: RouteObject[] = [
     children: [
       {
         index: true,
-        element: <Dashboard />
+        element: <Dashboard />,
       },
       {
         path: 'incoming-requests',
-        element: <IncomingRequestList />
+        element: <IncomingRequestList />,
       },
       {
         path: 'incoming-requests/:id',
-        element: <IncomingRequestDetail />
+        element: <IncomingRequestDetail />,
       },
       {
         path: 'outgoing-requests',
-        element: <OutgoingRequestList />
+        element: <OutgoingRequestList />,
       },
       {
         path: 'outgoing-requests/:id',
-        element: <OutgoingRequestDetail />
+        element: <OutgoingRequestDetail />,
       },
       {
         path: 'queries',
-        element: <QueryList />
+        element: <QueryList />,
       },
       {
         path: 'queries/:id',
-        element: <QueryDetail />
+        element: <QueryDetail />,
       },
       {
         path: 'exceptions',
-        element: <ExceptionList />
+        element: <ExceptionList />,
       },
       {
         path: 'exceptions/:id',
-        element: <ExceptionDetail />
+        element: <ExceptionDetail />,
       },
       {
         path: 'logs',
-        element: <LogList />
+        element: <LogList />,
       },
       {
         path: 'logs/:id',
-        element: <LogDetail />
-      }
-    ]
-  }
-]
+        element: <LogDetail />,
+      },
+    ],
+  },
+];
 
 export const router = createBrowserRouter(routes, {
-  basename: '/telescope'
-})
+  basename: '/telescope',
+});

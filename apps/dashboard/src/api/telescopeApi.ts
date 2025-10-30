@@ -1,5 +1,5 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { 
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import {
   DashboardStats,
   IncomingRequestDetailResponse,
   IncomingRequestResponse,
@@ -10,16 +10,15 @@ import {
   QueryResponse,
   QueryDetailResponse,
   LogResponse,
-  LogDetailResponse
-} from '@hono-telescope/types'
-
+  LogDetailResponse,
+} from '@hono-telescope/types';
 
 export const telescopeApi = createApi({
   reducerPath: 'telescopeApi',
   baseQuery: fetchBaseQuery({
     baseUrl: '/telescope/api/',
   }),
-  
+
   // 🔧 Tüm queries için varsayılan davranışlar
   refetchOnFocus: true,
   refetchOnMountOrArgChange: true,
@@ -50,7 +49,7 @@ export const telescopeApi = createApi({
       query: () => 'exceptions',
     }),
 
-          getException: builder.query<ExceptionDetailResponse, string>({
+    getException: builder.query<ExceptionDetailResponse, string>({
       query: (id) => `exceptions/${id}`,
     }),
 
@@ -70,7 +69,7 @@ export const telescopeApi = createApi({
       query: (id) => `logs/${id}`,
     }),
   }),
-})
+});
 
 export const {
   useGetStatsQuery,
@@ -84,4 +83,4 @@ export const {
   useGetQueryQuery,
   useGetLogsQuery,
   useGetLogQuery,
-} = telescopeApi
+} = telescopeApi;

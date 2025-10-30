@@ -1,17 +1,18 @@
 {
   "name": "@hono-telescope/example",
   "version": "1.0.0",
+  "private": true,
   "description": "Example application demonstrating Hono Telescope",
   "main": "index.js",
   "scripts": {
-    "dev": "bun --watch src/index.ts",
-    "build": "bun build src/index.ts --outdir dist --target bun",
+    "dev": "tsc && bun dist/index.js",
+    "build": "tsc",
     "start": "bun dist/index.js"
   },
   "dependencies": {
     "hono": "^4.0.0",
     "axios": "^1.6.0",
-    "@hono-telescope/core": "*"
+    "@hono-telescope/core": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "latest",

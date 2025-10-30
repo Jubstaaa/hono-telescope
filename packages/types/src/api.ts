@@ -26,15 +26,15 @@ export interface DashboardStats {
 
 // ============ API LIST RESPONSES ============
 
-export interface IncomingRequestResponse extends Pick<IncomingRequestEntry, 'id' | 'method' | 'uri' | 'response_status' | 'created_at' | 'duration'> {}
+export type IncomingRequestResponse = Pick<IncomingRequestEntry, 'id' | 'method' | 'uri' | 'response_status' | 'created_at' | 'duration'>;
 
-export interface OutgoingRequestResponse extends Pick<OutgoingRequestEntry, 'id' | 'method' | 'uri' | 'response_status' | 'created_at' | 'duration'> {}
+export type OutgoingRequestResponse = Pick<OutgoingRequestEntry, 'id' | 'method' | 'uri' | 'response_status' | 'created_at' | 'duration'>;
 
-export interface ExceptionResponse extends Pick<ExceptionEntry, 'id' | 'class' | 'message' | 'created_at'> {}
+export type ExceptionResponse = Pick<ExceptionEntry, 'id' | 'class' | 'message' | 'created_at'>;
 
-export interface LogResponse extends Pick<LogEntry, 'id' | 'level' | 'message' | 'created_at'> {}
+export type LogResponse = Pick<LogEntry, 'id' | 'level' | 'message' | 'created_at'>;
 
-export interface QueryResponse extends Pick<QueryEntry, 'id' | 'connection' | 'query' | 'time' | 'created_at'> {}
+export type QueryResponse = Pick<QueryEntry, 'id' | 'connection' | 'query' | 'time' | 'created_at'>;
 
 export type TelescopeListResponse =
   | IncomingRequestResponse
@@ -54,13 +54,13 @@ export interface IncomingRequestDetailResponse extends IncomingRequestEntry {
   };
 }
 
-export interface OutgoingRequestDetailResponse extends OutgoingRequestEntry {}
+export type OutgoingRequestDetailResponse = OutgoingRequestEntry;
 
-export interface ExceptionDetailResponse extends ExceptionEntry {}
+export type ExceptionDetailResponse = ExceptionEntry;
 
-export interface LogDetailResponse extends LogEntry {}
+export type LogDetailResponse = LogEntry;
 
-export interface QueryDetailResponse extends QueryEntry {}
+export type QueryDetailResponse = QueryEntry;
 
 export type TelescopeDetailResponse =
   | IncomingRequestDetailResponse

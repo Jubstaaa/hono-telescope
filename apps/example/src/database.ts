@@ -1,4 +1,3 @@
-// @ts-ignore - Bun built-in module
 import { Database } from 'bun:sqlite';
 
 export interface User {
@@ -17,9 +16,9 @@ export class DatabaseManager {
 
   constructor(dbPath: string = 'example.db') {
     this.db = new Database(dbPath);
-    
+
     this.db.exec('PRAGMA journal_mode = WAL');
-    
+
     this.initTables();
   }
 
@@ -38,7 +37,7 @@ export class DatabaseManager {
     `;
 
     this.db.exec(createUsersTable);
-    
+
     const createTrigger = `
       CREATE TRIGGER IF NOT EXISTS update_users_updated_at 
       AFTER UPDATE ON users
@@ -46,7 +45,7 @@ export class DatabaseManager {
         UPDATE users SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
       END
     `;
-    
+
     this.db.exec(createTrigger);
   }
 
@@ -70,19 +69,28 @@ export class DatabaseManager {
       INSERT INTO users (name, email, username, phone, website)
       VALUES (?, ?, ?, ?, ?)
     `);
-    
-    const result = stmt.run(user.name, user.email, user.username, user.phone || null, user.website || null);
-    
+
+    const result = stmt.run(
+      user.name,
+      user.email,
+      user.username,
+      user.phone || null,
+      user.website || null
+    );
+
     return this.getUserById(result.lastInsertRowid as number)!;
   }
 
-  updateUser(id: number, user: Partial<Omit<User, 'id' | 'created_at' | 'updated_at'>>): User | null {
+  updateUser(
+    id: number,
+    user: Partial<Omit<User, 'id' | 'created_at' | 'updated_at'>>
+  ): User | null {
     const existingUser = this.getUserById(id);
     if (!existingUser) return null;
 
     const fields = [];
     const values = [];
-    
+
     if (user.name !== undefined) {
       fields.push('name = ?');
       values.push(user.name);
