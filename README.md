@@ -12,6 +12,18 @@
 
 A powerful debugging and monitoring tool for Hono applications, inspired by Laravel Telescope. Monitor HTTP requests, exceptions, logs, and database queries with a beautiful web dashboard.
 
+---
+
+## 🌐 Live Demo
+
+> 🎉 **Try it live!** No installation needed. Test all features on our hosted example:
+>
+> **[📊 Hono Telescope Dashboard](https://hono-telescope-9lvpv.ondigitalocean.app/telescope)**
+>
+> **API Base URL:** `https://hono-telescope-9lvpv.ondigitalocean.app`
+
+---
+
 ## ✨ Features
 
 - 🔍 **HTTP Request Monitoring** - Track all incoming and outgoing requests with detailed headers and payloads
@@ -67,6 +79,95 @@ export default app;
 Visit `http://localhost:3000/telescope` to access the dashboard.
 
 > 📋 **Complete Example**: See [src/example/index.ts](./src/example/index.ts) for a full working example with all Telescope features including database query monitoring, multiple HTTP clients (fetch + Axios), and error handling.
+
+## API Testing
+
+### Try the Live Demo
+
+Visit the [live dashboard](https://hono-telescope-9lvpv.ondigitalocean.app/telescope) and test these endpoints:
+
+**API Base:** `https://hono-telescope-9lvpv.ondigitalocean.app`
+
+#### Quick Test with Shell Script
+
+Run all endpoints at once with our test script:
+
+```bash
+# Download and run the test script
+bash <(curl -s https://raw.githubusercontent.com/jubstaaa/hono-telescope/main/src/example/test-all-endpoints.sh)
+```
+
+Or if you have the repo cloned locally:
+
+```bash
+bash src/example/test-all-endpoints.sh
+```
+
+This will automatically test all endpoints and populate the Telescope dashboard with data! ✨
+
+#### Available Test Endpoints
+
+**Users Management**
+
+```bash
+# Get all users
+curl https://hono-telescope-9lvpv.ondigitalocean.app/api/users
+
+# Create a new user
+curl -X POST https://hono-telescope-9lvpv.ondigitalocean.app/api/users \
+  -H "Content-Type: application/json" \
+  -d '{"name": "John Doe", "email": "john@example.com", "username": "johndoe"}'
+
+# Get user by ID
+curl https://hono-telescope-9lvpv.ondigitalocean.app/api/users/1
+
+# Update user
+curl -X PUT https://hono-telescope-9lvpv.ondigitalocean.app/api/users/1 \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Jane Doe", "username": "janedoe"}'
+
+# Delete user
+curl -X DELETE https://hono-telescope-9lvpv.ondigitalocean.app/api/users/1
+```
+
+**Database Operations** (SQLite with Bun)
+
+```bash
+# Trigger database query
+curl https://hono-telescope-9lvpv.ondigitalocean.app/api/health/db
+```
+
+**External Requests** (HTTP Interceptor)
+
+```bash
+# Trigger outgoing HTTP request (tested with Axios)
+curl https://hono-telescope-9lvpv.ondigitalocean.app/api/external/request
+```
+
+**Error Handling** (Exception Tracking)
+
+```bash
+# Trigger an error
+curl https://hono-telescope-9lvpv.ondigitalocean.app/api/error
+```
+
+**Logging** (Log Monitoring)
+
+```bash
+# Trigger log entries
+curl https://hono-telescope-9lvpv.ondigitalocean.app/api/logs
+```
+
+### View the Dashboard
+
+After making requests, visit the [Telescope Dashboard](https://hono-telescope-9lvpv.ondigitalocean.app/telescope) to see:
+
+- 📊 **Incoming Requests** - All HTTP requests with headers, payload, and response
+- 📤 **Outgoing Requests** - External API calls made by the app
+- 📝 **Logs** - Console logs captured in real-time
+- ⚠️ **Exceptions** - Errors and stack traces
+- 🗄️ **Queries** - Database queries with execution time
+- 📈 **Statistics** - Summary of all monitored events
 
 ## Configuration
 
@@ -140,258 +241,3 @@ bun run dev:example
 This starts the example Hono application with hot reload at `http://localhost:3000`
 
 - Example API endpoints: `http://localhost:3000/api/...`
-- Telescope Dashboard: `http://localhost:3000/telescope`
-
-**Terminal 3 - Dashboard Dev Server (Optional)**
-
-```bash
-bun run dev:dashboard
-```
-
-This runs the dashboard on `http://localhost:3001` with Vite dev server for faster React development.
-
-- Use this if you're making changes to the dashboard UI
-
-### Example Development Workflow
-
-```bash
-# Terminal 1
-cd hono-telescope-3
-bun install
-bun run build
-bun run dev
-
-# Terminal 2 (in a new terminal window)
-cd hono-telescope-3
-bun run dev:example
-
-# Terminal 3 (optional, in another new terminal window)
-cd hono-telescope-3
-bun run dev:dashboard
-```
-
-Now you can:
-
-- Edit source files in `src/core/` and see changes reflected
-- Edit `src/example/` and the app will hot reload
-- Edit dashboard components in `src/dashboard/` (if using Terminal 3)
-- Access the dashboard at `http://localhost:3000/telescope` or `http://localhost:3001` (if using Terminal 3)
-
-## Building
-
-### Scripts
-
-```bash
-# Install dependencies
-bun install
-
-# Development
-bun run dev                    # TypeScript watch mode
-bun run dev:example          # Run example app with hot reload
-bun run dev:dashboard        # Run dashboard dev server
-
-# Building
-bun run build                # Build all packages
-bun run type-check           # Type checking with TypeScript
-
-# Code Quality
-bun run lint                 # Run ESLint
-bun run lint:fix             # Fix ESLint issues
-bun run format               # Format with Prettier
-bun run format:check         # Check Prettier formatting
-
-# Release
-bun run release              # Create a new release with automated versioning
-```
-
-### Release Process
-
-This project uses **release-it** for automated versioning and releases:
-
-```bash
-# Create a new release (interactive)
-bun run release
-
-# This will:
-# 1. Run linting and formatting
-# 2. Build the project
-# 3. Bump version (follows Semantic Versioning)
-# 4. Generate changelog from Conventional Commits
-# 5. Create git tag
-# 6. Push to GitHub
-# 7. Create GitHub Release
-# 8. Publish to npm
-```
-
-**Conventional Commits** are used for automatic version bumping:
-
-- `feat:` - New feature (minor version bump)
-- `fix:` - Bug fix (patch version bump)
-- `BREAKING CHANGE:` - Major version bump
-- `chore:`, `style:`, `refactor:`, etc. - No version bump
-
-### Project Structure
-
-```
-hono-telescope/
-├── src/
-│   ├── core/              # Core Telescope library
-│   ├── dashboard/         # React-based web dashboard
-│   ├── example/           # Example Hono application
-│   ├── types/             # TypeScript type definitions
-│   └── index.ts           # Main entry point
-├── .release-it.json       # Release automation config
-├── .prettierrc             # Code formatting config
-├── eslint.config.js       # Linting configuration
-├── tsconfig.json          # TypeScript configuration
-└── vite.config.ts         # Vite configuration
-```
-
-## Watchers
-
-### Exception Watcher
-
-Monitors uncaught exceptions, unhandled promise rejections, and console errors:
-
-```typescript
-import { startExceptionWatcher, stopExceptionWatcher } from 'hono-telescope';
-
-// Start monitoring exceptions
-startExceptionWatcher();
-
-// Stop monitoring (if needed)
-stopExceptionWatcher();
-```
-
-### Log Watcher
-
-Monitors console logs with different severity levels:
-
-```typescript
-import { startLogWatcher, stopLogWatcher } from 'hono-telescope';
-
-// Start monitoring logs
-startLogWatcher();
-
-console.log('Info message');
-console.error('Error message');
-console.warn('Warning message');
-
-// Stop monitoring (if needed)
-stopLogWatcher();
-```
-
-## API Reference
-
-### setupTelescope(app, config?)
-
-Initialize Telescope middleware on your Hono application.
-
-**Parameters:**
-
-- `app` - Hono application instance
-- `config` - Optional configuration object
-
-**Returns:** void
-
-### startExceptionWatcher()
-
-Start monitoring uncaught exceptions and errors.
-
-### startLogWatcher()
-
-Start monitoring console output.
-
-### DatabaseInterceptor
-
-Automatically intercepts database queries from supported ORM/libraries.
-
-## Browser Support
-
-The Telescope dashboard works on all modern browsers:
-
-- Chrome/Edge 90+
-- Firefox 88+
-- Safari 14+
-
-## 🌐 Deployment
-
-### Digital Ocean App Platform
-
-Deploy the example project to Digital Ocean in minutes:
-
-1. **Push to GitHub** (if not already done):
-
-   ```bash
-   git push origin main
-   ```
-
-2. **Connect to Digital Ocean App Platform**:
-   - Go to [Digital Ocean App Platform](https://cloud.digitalocean.com/apps)
-   - Click "Create App"
-   - Select your GitHub repository
-   - Choose the `main` branch
-   - Digital Ocean will automatically detect the Dockerfile
-
-3. **Configure the app**:
-   - Set HTTP port to `3000`
-   - Choose a region (recommended: closest to your users)
-   - Choose instance size (start with basic plan for testing)
-
-4. **Deploy**:
-   - Click "Deploy App"
-   - Wait for deployment to complete
-   - Access your app at the provided URL
-
-Your Hono Telescope application will now be live! 🎉
-
-**Features accessible via web:**
-
-- Example API endpoints: `https://your-app.ondigitalocean.app/api/...`
-- Telescope Dashboard: `https://your-app.ondigitalocean.app/telescope`
-
-### Local Docker Testing
-
-Test the Docker build locally before deploying:
-
-```bash
-# Build Docker image
-docker build -t hono-telescope:latest .
-
-# Run container
-docker run -p 3000:3000 hono-telescope:latest
-
-# Visit http://localhost:3000/telescope
-```
-
-## 🚀 Upcoming Features
-
-We're actively working on exciting new features:
-
-- 📱 **Mobile Dashboard** - Responsive mobile interface for on-the-go monitoring
-- 🔔 **Real-time Alerts** - Get notified about errors and performance issues
-- 📊 **Advanced Analytics** - Detailed performance metrics and trends
-- 🔐 **Authentication** - User authentication and role-based access control
-- 🎯 **Request Filtering** - Advanced filtering and search capabilities
-- 🏷️ **Custom Tags** - User-defined tags and categories for better organization
-- 📤 **Export Data** - Export monitored data to various formats (CSV, JSON, PDF)
-- 🔌 **Webhook Integration** - Send alerts to external services
-- 🗄️ **Multiple Storage Backends** - Support for Redis, PostgreSQL, MongoDB storage
-- 🌙 **Dark Mode** - Full dark theme support
-- ⚙️ **Custom Plugins** - Plugin system for extending functionality
-- 📈 **Performance Profiling** - Detailed performance analysis and bottleneck detection
-
-## Contributing
-
-We welcome contributions! Here's how you can help:
-
-### Getting Started
-
-1. **Fork the repository** on [GitHub](https://github.com/jubstaaa/hono-telescope)
-2. **Clone your fork** locally:
-
-   ```bash
-   git clone https://github.com/YOUR_USERNAME/hono-telescope.git
-   cd hono-telescope
-   bun install
-   ```
