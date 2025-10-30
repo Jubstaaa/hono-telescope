@@ -1,5 +1,24 @@
 
 
+## [0.1.9](https://github.com/jubstaaa/hono-telescope/compare/0.1.8...0.1.9) (2025-10-30)
+
+
+### ✨ Features
+
+* **deployment:** add docker support and digital ocean deployment guide ([dbc94f4](https://github.com/jubstaaa/hono-telescope/commit/dbc94f4368ad60d2b0c0ac59e7cad1f5bd34a49d))
+
+
+### 🐛 Bug Fixes
+
+* **docker:** install dev dependencies for build, then clean up ([d050e95](https://github.com/jubstaaa/hono-telescope/commit/d050e9522a2bd62bcd3ee8abba80b1ed402c1b42))
+
+
+### 📚 Documentation
+
+* update documentation for single workspace structure ([1554657](https://github.com/jubstaaa/hono-telescope/commit/1554657adc26dd843e25ae9594e37fa92e870cdb))
+* update documentation for single workspace structure and add development guide ([a4dadcd](https://github.com/jubstaaa/hono-telescope/commit/a4dadcd75ab28dd033bde24ac4b6a5c96e433622))
+* update live demo url to production digital ocean instance ([be27c87](https://github.com/jubstaaa/hono-telescope/commit/be27c872729e7c766173860808db3fc6c16fca9d))
+
 ## [0.1.8](https://github.com/jubstaaa/hono-telescope/compare/v0.1.7...0.1.8) (2025-10-30)
 
 
