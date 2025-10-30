@@ -48,16 +48,12 @@ bun add hono-telescope
 
 ```typescript
 import { Hono } from 'hono';
-import { setupTelescope, startExceptionWatcher, startLogWatcher } from 'hono-telescope';
+import { setupTelescope } from 'hono-telescope';
 
 const app = new Hono();
 
 // Setup Telescope with default configuration
 setupTelescope(app);
-
-// Start watchers
-startExceptionWatcher();
-startLogWatcher();
 
 // Your routes
 app.get('/', (c) => {
@@ -69,6 +65,8 @@ export default app;
 ```
 
 Visit `http://localhost:3000/telescope` to access the dashboard.
+
+> 📋 **Complete Example**: See [src/example/index.ts](./src/example/index.ts) for a full working example with all Telescope features including database query monitoring, multiple HTTP clients (fetch + Axios), and error handling.
 
 ## Configuration
 
@@ -107,6 +105,80 @@ Queries are automatically captured with:
 
 ## Development
 
+### Getting Started
+
+First, install dependencies:
+
+```bash
+bun install
+```
+
+Then build the project for the first time:
+
+```bash
+bun run build
+```
+
+### Running in Development Mode
+
+Hono Telescope requires three separate processes running simultaneously for full development experience. Open three terminal windows:
+
+**Terminal 1 - TypeScript Compilation (Watch Mode)**
+
+```bash
+bun run dev
+```
+
+This watches for TypeScript changes and compiles them to JavaScript.
+
+**Terminal 2 - Example Application**
+
+```bash
+bun run dev:example
+```
+
+This starts the example Hono application with hot reload at `http://localhost:3000`
+
+- Example API endpoints: `http://localhost:3000/api/...`
+- Telescope Dashboard: `http://localhost:3000/telescope`
+
+**Terminal 3 - Dashboard Dev Server (Optional)**
+
+```bash
+bun run dev:dashboard
+```
+
+This runs the dashboard on `http://localhost:3001` with Vite dev server for faster React development.
+
+- Use this if you're making changes to the dashboard UI
+
+### Example Development Workflow
+
+```bash
+# Terminal 1
+cd hono-telescope-3
+bun install
+bun run build
+bun run dev
+
+# Terminal 2 (in a new terminal window)
+cd hono-telescope-3
+bun run dev:example
+
+# Terminal 3 (optional, in another new terminal window)
+cd hono-telescope-3
+bun run dev:dashboard
+```
+
+Now you can:
+
+- Edit source files in `src/core/` and see changes reflected
+- Edit `src/example/` and the app will hot reload
+- Edit dashboard components in `src/dashboard/` (if using Terminal 3)
+- Access the dashboard at `http://localhost:3000/telescope` or `http://localhost:3001` (if using Terminal 3)
+
+## Building
+
 ### Scripts
 
 ```bash
@@ -114,9 +186,9 @@ Queries are automatically captured with:
 bun install
 
 # Development
-bun run dev                    # Start all apps in dev mode
-bun run dev:example          # Run example app only
-bun run dev:dashboard        # Run dashboard only
+bun run dev                    # TypeScript watch mode
+bun run dev:example          # Run example app with hot reload
+bun run dev:dashboard        # Run dashboard dev server
 
 # Building
 bun run build                # Build all packages
@@ -273,89 +345,3 @@ We welcome contributions! Here's how you can help:
    cd hono-telescope
    bun install
    ```
-
-3. **Create a feature branch**:
-   ```bash
-   git checkout -b feature/amazing-feature
-   ```
-
-### Development Workflow
-
-1. Make your changes following our code style (ESLint + Prettier)
-2. Write clear, descriptive commit messages using [Conventional Commits](https://www.conventionalcommits.org/):
-   - `feat:` for new features
-   - `fix:` for bug fixes
-   - `docs:` for documentation
-   - `style:` for formatting
-   - `refactor:` for code refactoring
-   - `test:` for tests
-   - `chore:` for maintenance
-
-3. Run tests and checks:
-
-   ```bash
-   bun run lint:fix      # Fix linting issues
-   bun run format        # Format code
-   bun run type-check    # Type checking
-   bun run build         # Build project
-   ```
-
-4. **Commit and Push**:
-
-   ```bash
-   git commit -m "feat(core): add amazing feature"
-   git push origin feature/amazing-feature
-   ```
-
-5. **Open a Pull Request** on GitHub with:
-   - Clear description of changes
-   - Related issue numbers (if any)
-   - Screenshots/videos for UI changes
-
-### Pull Request Guidelines
-
-- ✅ All CI checks must pass
-- ✅ Code must follow ESLint rules
-- ✅ Add tests for new features
-- ✅ Update documentation if needed
-- ✅ Rebase on latest `main` branch
-
-### Code Style
-
-- Follow TypeScript best practices
-- Use meaningful variable names
-- Add comments for complex logic
-- Keep functions small and focused
-
-### Areas for Contribution
-
-- 🐛 **Bug Fixes** - Fix existing issues
-- ✨ **Features** - Implement features from the roadmap
-- 📚 **Documentation** - Improve docs and examples
-- 🧪 **Tests** - Add test coverage
-- 🎨 **UI/UX** - Improve dashboard design
-- 🚀 **Performance** - Optimize performance
-
-### Questions?
-
-- 📖 Check [existing issues](https://github.com/jubstaaa/hono-telescope/issues)
-- 💬 Start a [discussion](https://github.com/jubstaaa/hono-telescope/discussions)
-- 📧 Reach out to maintainers
-
-## License
-
-MIT © 2024 - Hono Telescope Contributors
-
-## Changelog
-
-See [CHANGELOG.md](./CHANGELOG.md) for detailed release history and version information.
-
-## Support
-
-- 📖 [Documentation](https://github.com/jubstaaa/hono-telescope)
-- 🐛 [Issue Tracker](https://github.com/jubstaaa/hono-telescope/issues)
-- 💬 [Discussions](https://github.com/jubstaaa/hono-telescope/discussions)
-
----
-
-**Made with ❤️ by the Hono Community**
