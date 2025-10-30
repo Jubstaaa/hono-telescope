@@ -9,7 +9,7 @@
     "dist/**/*"
   ],
   "scripts": {
-    "build": "tsc && cp -r ../dashboard/dist/. dist/dashboard/ && cp -r ../../packages/types/dist/. dist/types/",
+    "build": "tsc && cp -r ../dashboard/dist/. dist/dashboard/ && cp -r ../../packages/types/dist/. dist/types/ && find dist -name '*.js' -type f -exec sed -i \"s|@hono-telescope/types|./types|g\" {} \\;",
     "dev": "tsc --watch",
     "test": "vitest",
     "test:ui": "vitest --ui",
