@@ -9,7 +9,7 @@
     "dist/**/*"
   ],
   "scripts": {
-    "build": "tsc && cp -r ../dashboard/dist/. dist/dashboard/ && cp -r ../../packages/types/dist/. dist/types/ && find dist -name '*.js' -type f -exec sed -i \"s|@hono-telescope/types|./types|g\" {} +",
+    "build": "tsc && cp -r ../dashboard/dist/. dist/dashboard/ && cp -r ../../packages/types/dist/. dist/types/ && node -e \"const fs=require('fs');const path=require('path');const walk=(dir)=>{fs.readdirSync(dir).forEach(f=>{const p=path.join(dir,f);if(fs.statSync(p).isDirectory())walk(p);else if(p.endsWith('.js')){let c=fs.readFileSync(p,'utf8');c=c.replace(/@hono-telescope\\/types/g,'./types');fs.writeFileSync(p,c);}});};walk('dist');\"",
     "dev": "tsc --watch",
     "test": "vitest",
     "test:ui": "vitest --ui",
