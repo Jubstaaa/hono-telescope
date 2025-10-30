@@ -12,8 +12,6 @@
 
 A powerful debugging and monitoring tool for Hono applications, inspired by Laravel Telescope. Monitor HTTP requests, exceptions, logs, and database queries with a beautiful web dashboard.
 
-> 📚 **Monorepo Structure**: This project uses Turborepo! For detailed workspace information, see [MONOREPO.md](./MONOREPO.md).
-
 ## ✨ Features
 
 - 🔍 **HTTP Request Monitoring** - Track all incoming and outgoing requests with detailed headers and payloads
@@ -164,15 +162,17 @@ bun run release
 
 ```
 hono-telescope/
-├── apps/
-│   ├── core/              # Main Telescope library
+├── src/
+│   ├── core/              # Core Telescope library
 │   ├── dashboard/         # React-based web dashboard
-│   └── example/           # Example Hono application
-├── packages/
-│   └── types/             # Shared TypeScript types
+│   ├── example/           # Example Hono application
+│   ├── types/             # TypeScript type definitions
+│   └── index.ts           # Main entry point
 ├── .release-it.json       # Release automation config
 ├── .prettierrc             # Code formatting config
-└── eslint.config.js       # Linting configuration
+├── eslint.config.js       # Linting configuration
+├── tsconfig.json          # TypeScript configuration
+└── vite.config.ts         # Vite configuration
 ```
 
 ## Watchers
