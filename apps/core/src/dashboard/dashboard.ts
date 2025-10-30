@@ -9,6 +9,11 @@ import {
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { map } from 'lodash';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export class TelescopeDashboard {
   private telescope: Telescope;
@@ -25,14 +30,14 @@ export class TelescopeDashboard {
   async getIncomingRequest(id: string) {
     const entry = await this.telescope.getIncomingRequest(id);
     if (!entry) return null;
-    
+
     const [logs, queries, exceptions, outgoingRequests] = await Promise.all([
       this.telescope.getLogsByParentId(id),
       this.telescope.getQueriesByParentId(id),
       this.telescope.getExceptionsByParentId(id),
       this.telescope.getOutgoingRequestsByParentId(id),
     ]);
-    
+
     return {
       ...entry,
       relation_entries: {
@@ -40,7 +45,7 @@ export class TelescopeDashboard {
         queries: map(queries, mapQuery),
         exceptions: map(exceptions, mapException),
         outgoing_requests: map(outgoingRequests, mapOutgoingRequest),
-      }
+      },
     };
   }
 
@@ -114,4 +119,3 @@ export class TelescopeDashboard {
     }
   }
 }
-  

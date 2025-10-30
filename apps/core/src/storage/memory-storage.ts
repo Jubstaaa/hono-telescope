@@ -1,6 +1,12 @@
-import { IncomingRequestEntry, OutgoingRequestEntry,  BaseEntry, ExceptionEntry, LogEntry, QueryEntry } from '@hono-telescope/types';
-import { find, filter, forEach } from 'lodash';
-
+import {
+  IncomingRequestEntry,
+  OutgoingRequestEntry,
+  BaseEntry,
+  ExceptionEntry,
+  LogEntry,
+  QueryEntry,
+} from '@hono-telescope/types';
+import { find, filter } from 'lodash';
 
 class BaseRepository<T extends BaseEntry> {
   protected entries: T[] = [];
@@ -46,22 +52,17 @@ export class LogRepository extends BaseRepository<LogEntry> {}
 export class QueryRepository extends BaseRepository<QueryEntry> {}
 
 export class MemoryStorage {
-  readonly incomingRequests = new IncomingRequestRepository();
-  readonly outgoingRequests = new OutgoingRequestRepository();
-  readonly exceptions = new ExceptionRepository();
-  readonly logs = new LogRepository();
-  readonly queries = new QueryRepository();
+  readonly incomingRequests: IncomingRequestRepository;
+  readonly outgoingRequests: OutgoingRequestRepository;
+  readonly exceptions: ExceptionRepository;
+  readonly logs: LogRepository;
+  readonly queries: QueryRepository;
 
   constructor(maxEntries: number = 1000) {
-    const repos = [
-      this.incomingRequests,
-      this.outgoingRequests,
-      this.exceptions,
-      this.logs,
-      this.queries
-    ];
-    forEach(repos, repo => {
-      (repo as any).maxEntries = maxEntries;
-    });
+    this.incomingRequests = new IncomingRequestRepository(maxEntries);
+    this.outgoingRequests = new OutgoingRequestRepository(maxEntries);
+    this.exceptions = new ExceptionRepository(maxEntries);
+    this.logs = new LogRepository(maxEntries);
+    this.queries = new QueryRepository(maxEntries);
   }
 }

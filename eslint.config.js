@@ -36,16 +36,8 @@ export default [
           argsIgnorePattern: '^_',
         },
       ],
-      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/explicit-function-return-types': 'off',
-      '@typescript-eslint/no-require-imports': 'off',
-      'no-empty': 'off',
-      'no-console': [
-        'warn',
-        {
-          allow: ['warn', 'error', 'info'],
-        },
-      ],
     },
   },
 ];

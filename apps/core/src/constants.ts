@@ -1,9 +1,9 @@
 export const IGNORED_PATHS = [
   '/telescope',
-  '/.well-known', 
+  '/.well-known',
   '/robots.txt',
   '/favicon.ico',
   '/sitemap.xml',
   '/apple-touch-icon.png',
-  '/manifest.json'
+  '/manifest.json',
 ] as const;

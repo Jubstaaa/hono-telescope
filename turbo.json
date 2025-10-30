@@ -7,7 +7,14 @@
       "outputs": ["dist/**", ".next/**", "build/**"],
       "cache": false
     },
+    "@hono-telescope/core#build": {
+      "dependsOn": ["@hono-telescope/dashboard#build"]
+    },
     "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "start": {
       "cache": false,
       "persistent": true
     },

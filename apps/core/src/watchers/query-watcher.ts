@@ -12,12 +12,12 @@ class QueryWatcher {
 
   start() {
     if (this.isWatching) return;
-    
+
     this.isWatching = true;
 
-    console.log = (...args: any[]) => {
+    console.log = (...args: unknown[]) => {
       this.originalConsoleLog.apply(console, args);
-      
+
       const message = args.join(' ');
       if (this.isSQLQuery(message)) {
         this.recordQuery(message);
@@ -27,7 +27,7 @@ class QueryWatcher {
 
   stop() {
     if (!this.isWatching) return;
-    
+
     this.isWatching = false;
     console.log = this.originalConsoleLog;
   }
@@ -35,20 +35,20 @@ class QueryWatcher {
   private isSQLQuery(message: string): boolean {
     const sqlKeywords = ['SELECT', 'INSERT', 'UPDATE', 'DELETE', 'CREATE', 'DROP', 'ALTER'];
     const upperMessage = message.toUpperCase();
-    return some(sqlKeywords, keyword => upperMessage.includes(keyword));
+    return some(sqlKeywords, (keyword) => upperMessage.includes(keyword));
   }
 
   private recordQuery(sql: string) {
     const telescope = Telescope.getInstance();
     const contextManager = ContextManager.getInstance();
     const parentId = contextManager.getCurrentRequestId();
-    
+
     telescope.recordQuery({
       connection: 'default',
       bindings: [],
       query: sql.trim(),
       time: 0,
-      parent_id: parentId || undefined
+      parent_id: parentId || undefined,
     });
   }
 }
@@ -68,7 +68,12 @@ export function stopQueryWatcher() {
   }
 }
 
-export function recordDatabaseQuery(sql: string, connection: string = 'default', bindings: any[] = [], executionTime: number = 0): void {
+export function recordDatabaseQuery(
+  sql: string,
+  connection: string = 'default',
+  bindings: string[] = [],
+  executionTime: number = 0
+): void {
   const telescope = Telescope.getInstance();
   const contextManager = ContextManager.getInstance();
   const parentId = contextManager.getCurrentRequestId();
@@ -78,6 +83,6 @@ export function recordDatabaseQuery(sql: string, connection: string = 'default',
     bindings,
     query: sql.trim(),
     time: executionTime,
-    parent_id: parentId || undefined
+    parent_id: parentId || undefined,
   });
 }

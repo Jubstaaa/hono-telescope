@@ -1,17 +1,15 @@
-import React from 'react'
-import { formatDate } from '../../utils/helpers'
-import { QueryResponse } from '@hono-telescope/types'
-import DurationTag from '../Tag/DurationTag'
-import Table from './Table'
-
+import React from 'react';
+import { formatDate } from '../../utils/helpers';
+import { QueryResponse } from '@hono-telescope/types';
+import DurationTag from '../Tag/DurationTag';
+import Table from './Table';
 
 interface QueryTableProps {
-  entries: QueryResponse[]
-  loading?: boolean
+  entries: QueryResponse[];
+  loading?: boolean;
 }
 
 export const QueryTable: React.FC<QueryTableProps> = ({ entries, loading }) => {
-
   const columns = [
     {
       title: 'Query',
@@ -23,9 +21,7 @@ export const QueryTable: React.FC<QueryTableProps> = ({ entries, loading }) => {
       title: 'Duration',
       dataIndex: 'time',
       key: 'duration',
-      render: (time: number) => (
-       <DurationTag value={time} />
-      ),
+      render: (time: number) => <DurationTag value={time} />,
     },
     {
       title: 'Time',
@@ -33,16 +29,9 @@ export const QueryTable: React.FC<QueryTableProps> = ({ entries, loading }) => {
       key: 'time',
       render: (created_at: string) => formatDate(created_at),
     },
-  ]
+  ];
 
-  return (
-    <Table
-    columns={columns}
-    dataSource={entries}
-    loading={loading}
-    path="queries"
-    />
-  )
-}
+  return <Table columns={columns} dataSource={entries} loading={loading} path="queries" />;
+};
 
-export default QueryTable
+export default QueryTable;

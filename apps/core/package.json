@@ -1,11 +1,15 @@
 {
   "name": "@hono-telescope/core",
-  "version": "0.1.1-beta.2",
+  "version": "1.0.0",
+  "private": true,
   "description": "Core monitoring and debugging utilities for Hono Telescope",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && cp -r ../dashboard/dist/. dist/dashboard/",
     "dev": "tsc --watch",
     "test": "vitest",
     "test:ui": "vitest --ui",
@@ -15,7 +19,7 @@
     "@types/lodash": "^4.17.20",
     "hono": "^4.0.0",
     "lodash": "^4.17.21",
-    "@hono-telescope/types": "*"
+    "@hono-telescope/types": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
@@ -26,11 +30,6 @@
   "peerDependencies": {
     "hono": ">=3.0.0"
   },
-  "files": [
-    "dist",
-    "README.md",
-    "package.json"
-  ],
   "keywords": [
     "hono",
     "debugging",
