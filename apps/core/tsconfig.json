@@ -14,7 +14,9 @@
     "incremental": true,
     "skipLibCheck": true,
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@hono-telescope/types": ["../../../packages/types/src/index.ts"],
+      "@hono-telescope/types/*": ["../../../packages/types/src/*"]
     }
   },
   "include": ["src/**/*"],
