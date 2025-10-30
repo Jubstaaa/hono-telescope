@@ -12,9 +12,6 @@
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "dependencies": {
-    "@hono-telescope/types": "workspace:*"
-  },
   "devDependencies": {
     "@eslint/js": "^9.38.0",
     "@release-it/conventional-changelog": "^8.0.0",
