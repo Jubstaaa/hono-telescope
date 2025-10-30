@@ -1,3 +1,37 @@
+
+
+## 0.1.3 (2025-10-30)
+
+
+### ✨ Features
+
+* Add Axios interceptor support and release v0.1.0-beta.2 ([06378d2](https://github.com/jubstaaa/hono-telescope/commit/06378d245a9c9c378d3ab085c65e930c402cb53e))
+* initial release of @hono/telescope v0.1.0-beta.1 ([c4d6376](https://github.com/jubstaaa/hono-telescope/commit/c4d6376f22331bff43e2e6d2da23c70b0bceae98))
+
+
+### 🐛 Bug Fixes
+
+* **core:** resolve all linter errors and improve database interceptor ([ec105b1](https://github.com/jubstaaa/hono-telescope/commit/ec105b1bbe1c68ee2f4632fe66619680d83b5e86))
+
+
+### ♻️ Refactoring
+
+* convert to turborepo monorepo structure ([ec4a443](https://github.com/jubstaaa/hono-telescope/commit/ec4a4436286bee36c4af13e714afb3a3910722dd))
+* **core,dashboard:** complete type system overhaul and API restructuring ([5fa775d](https://github.com/jubstaaa/hono-telescope/commit/5fa775d89a95f74ba78eb803ae3180a3c2497199))
+* restructure project with clean architecture and improved organization ([536b21c](https://github.com/jubstaaa/hono-telescope/commit/536b21cee4ad5a8974be141dff2648ea481ca563))
+
+
+### 💎 Styling
+
+* **core:** format database interceptor with prettier ([64493f3](https://github.com/jubstaaa/hono-telescope/commit/64493f38b03ddb57b2a5124e50a5cce05238e684))
+
+
+### 🏗️ Build
+
+* add prettier as dev dependency and format project ([5877310](https://github.com/jubstaaa/hono-telescope/commit/58773104ed5fe8bceefbc3964eba42f103e3f615))
+* remove generated dist files ([9433772](https://github.com/jubstaaa/hono-telescope/commit/943377235a2ab714a549e39e890a4256fe64fa93))
+* setup eslint with typescript support ([86f4cf0](https://github.com/jubstaaa/hono-telescope/commit/86f4cf075b71552379bc8b16e6cd69bc12f93e69))
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
