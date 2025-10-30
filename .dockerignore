@@ -1,0 +1,16 @@
+node_modules
+npm-debug.log
+.git
+.gitignore
+.env.local
+.env.*.local
+dist
+build
+.DS_Store
+*.md
+.vscode
+.idea
+coverage
+.turbo
+.release-it.json
+eslint.config.js

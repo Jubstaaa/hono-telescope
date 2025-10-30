@@ -314,6 +314,56 @@ The Telescope dashboard works on all modern browsers:
 - Firefox 88+
 - Safari 14+
 
+## 🌐 Deployment
+
+### Digital Ocean App Platform
+
+Deploy the example project to Digital Ocean in minutes:
+
+1. **Push to GitHub** (if not already done):
+
+   ```bash
+   git push origin main
+   ```
+
+2. **Connect to Digital Ocean App Platform**:
+   - Go to [Digital Ocean App Platform](https://cloud.digitalocean.com/apps)
+   - Click "Create App"
+   - Select your GitHub repository
+   - Choose the `main` branch
+   - Digital Ocean will automatically detect the Dockerfile
+
+3. **Configure the app**:
+   - Set HTTP port to `3000`
+   - Choose a region (recommended: closest to your users)
+   - Choose instance size (start with basic plan for testing)
+
+4. **Deploy**:
+   - Click "Deploy App"
+   - Wait for deployment to complete
+   - Access your app at the provided URL
+
+Your Hono Telescope application will now be live! 🎉
+
+**Features accessible via web:**
+
+- Example API endpoints: `https://your-app.ondigitalocean.app/api/...`
+- Telescope Dashboard: `https://your-app.ondigitalocean.app/telescope`
+
+### Local Docker Testing
+
+Test the Docker build locally before deploying:
+
+```bash
+# Build Docker image
+docker build -t hono-telescope:latest .
+
+# Run container
+docker run -p 3000:3000 hono-telescope:latest
+
+# Visit http://localhost:3000/telescope
+```
+
 ## 🚀 Upcoming Features
 
 We're actively working on exciting new features:
