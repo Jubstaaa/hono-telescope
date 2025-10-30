@@ -23,7 +23,7 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: '../../dist/core/dashboard',
+    outDir: '../core/dashboard',
     emptyOutDir: false,
   },
 });

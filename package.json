@@ -85,8 +85,9 @@
     "access": "public"
   },
   "scripts": {
-    "start": "bun src/example/index.ts",
-    "build": "tsc && vite build && rm -rf dist/dashboard dist/example",
+    "start": "bun dist/example",
+    "build": "vite build && tsc",
+    "publishBuild": "vite build && tsc && rm -rf dist/example dist/dashboard",
     "dev": "tsc --watch",
     "dev:example": "bun --hot src/example/index.ts",
     "dev:dashboard": "vite dev",

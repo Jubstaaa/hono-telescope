@@ -3,9 +3,9 @@
     "requireCleanWorkingDir": true,
     "requireBranch": "main",
     "requireUpstream": true,
-    "commitMessage": "chore(release): ${version}",
+    "commitMessage": "chore(release): v${version}",
     "tagName": "${version}",
-    "tagAnnotation": "Release ${version}"
+    "tagAnnotation": "Release v${version}"
   },
   "npm": {
     "publish": true,
@@ -13,7 +13,7 @@
   },
   "github": {
     "release": true,
-    "releaseName": "Release v%s"
+    "releaseName": "Release v${version}"
   },
   "plugins": {
     "@release-it/conventional-changelog": {
@@ -69,7 +69,7 @@
     }
   },
   "hooks": {
-    "before:init": "bun run lint:fix && bun run build && bun run format",
-    "after:release": "echo 'Release ${version} published successfully! 🎉'"
+    "before:init": "bun run lint:fix && bun run publishBuild && bun run format",
+    "after:release": "echo 'Release v${version} published successfully! 🎉'"
   }
 }
