@@ -9,7 +9,7 @@
     "dist/**/*"
   ],
   "scripts": {
-    "build": "tsc && cp -r ../dashboard/dist/. dist/dashboard/",
+    "build": "tsc && cp -r ../dashboard/dist/. dist/dashboard/ && cp -r ../../packages/types/dist/. dist/types/",
     "dev": "tsc --watch",
     "test": "vitest",
     "test:ui": "vitest --ui",
@@ -18,8 +18,7 @@
   "dependencies": {
     "@types/lodash": "^4.17.20",
     "hono": "^4.0.0",
-    "lodash": "^4.17.21",
-    "@hono-telescope/types": "workspace:*"
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
