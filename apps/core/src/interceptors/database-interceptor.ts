@@ -248,13 +248,24 @@ export class DatabaseInterceptor {
     const originalDeleteOne = (mongodb.Collection?.prototype as Record<string, unknown>)?.deleteOne;
 
     if (originalFind) {
-      (mongodb.Collection?.prototype as Record<string, unknown>).find = function (query?: Record<string, unknown>, options?: Record<string, unknown>) {
+      (mongodb.Collection?.prototype as Record<string, unknown>).find = function (
+        query?: Record<string, unknown>,
+        options?: Record<string, unknown>
+      ) {
         const startTime = Date.now();
-        const result = (originalFind as (this: unknown, query?: Record<string, unknown>, options?: Record<string, unknown>) => unknown).call(this, query, options);
+        const result = (
+          originalFind as (
+            this: unknown,
+            query?: Record<string, unknown>,
+            options?: Record<string, unknown>
+          ) => unknown
+        ).call(this, query, options);
         void telescope.recordQuery({
           connection: 'mongodb',
           bindings: [],
-          query: `db.${(this as Record<string, unknown>).collectionName}.find(${JSON.stringify(query || {})})`,
+          query: `db.${(this as Record<string, unknown>).collectionName}.find(${JSON.stringify(
+            query || {}
+          )})`,
           time: Date.now() - startTime,
           parent_id: contextManager.getCurrentRequestId() || undefined,
         });
