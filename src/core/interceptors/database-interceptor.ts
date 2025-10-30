@@ -413,11 +413,10 @@ export class DatabaseInterceptor {
     connectionName: string = 'default'
   ): Promise<T> {
     let result: T;
-    let startTime: number;
+    const startTime = Date.now();
     const parentId = this.contextManager.getCurrentRequestId();
 
     try {
-      startTime = Date.now();
       result = await queryFn();
     } finally {
       await this.telescope.recordQuery({

@@ -3,9 +3,9 @@
     "requireCleanWorkingDir": true,
     "requireBranch": "main",
     "requireUpstream": true,
-    "commitMessage": "chore(release): v%s",
-    "tagName": "v%s",
-    "tagAnnotation": "Release v%s"
+    "commitMessage": "chore(release): ${version}",
+    "tagName": "${version}",
+    "tagAnnotation": "Release ${version}"
   },
   "npm": {
     "publish": true,
@@ -70,6 +70,6 @@
   },
   "hooks": {
     "before:init": "bun run lint:fix && bun run build && bun run format",
-    "after:release": "echo 'Release v%s published successfully! 🎉'"
+    "after:release": "echo 'Release ${version} published successfully! 🎉'"
   }
 }

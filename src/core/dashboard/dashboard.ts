@@ -105,7 +105,9 @@ export class TelescopeDashboard {
 
   getDashboardHtml() {
     try {
-      return readFileSync(join(__dirname, 'index.html'), 'utf-8');
+      let html = readFileSync(join(__dirname, 'index.html'), 'utf-8');
+      html = html.replace(/(src|href)=["']\.\/assets\//g, '$1="/telescope/assets/');
+      return html;
     } catch {
       return '<h1>Dashboard HTML not found</h1>';
     }

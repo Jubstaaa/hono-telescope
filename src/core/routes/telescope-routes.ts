@@ -1,6 +1,15 @@
 import type { Context } from 'hono';
 import { TelescopeDashboard } from '../dashboard/dashboard';
 
+type HonoContext = Context<{
+  Bindings: {
+    ENV: string;
+  };
+  Variables: {
+    id: string;
+  };
+}>;
+
 export class TelescopeRoutes {
   private dashboard: TelescopeDashboard;
 
@@ -8,12 +17,12 @@ export class TelescopeRoutes {
     this.dashboard = new TelescopeDashboard();
   }
 
-  async getDashboard(c: Context) {
+  async getDashboard(c: HonoContext) {
     const html = this.dashboard.getDashboardHtml();
     return c.html(html);
   }
 
-  async getStats(c: Context) {
+  async getStats(c: HonoContext) {
     try {
       const stats = await this.dashboard.getStats();
       return c.json(stats);
@@ -22,7 +31,7 @@ export class TelescopeRoutes {
     }
   }
 
-  async getAsset(c: Context) {
+  async getAsset(c: HonoContext) {
     const fullPath = c.req.path;
     const assetPath = fullPath.replace('/telescope', '');
     const content = this.dashboard.getAsset(assetPath);
@@ -54,7 +63,7 @@ export class TelescopeRoutes {
     return c.html(content);
   }
 
-  async getIncomingRequests(c: Context) {
+  async getIncomingRequests(c: HonoContext) {
     try {
       const entries = await this.dashboard.getAllIncomingRequests();
       return c.json(entries);
@@ -63,7 +72,7 @@ export class TelescopeRoutes {
     }
   }
 
-  async getIncomingRequest(c: Context) {
+  async getIncomingRequest(c: HonoContext) {
     const id = c.req.param('id');
 
     if (!id) {
@@ -81,7 +90,7 @@ export class TelescopeRoutes {
     }
   }
 
-  async getOutgoingRequests(c: Context) {
+  async getOutgoingRequests(c: HonoContext) {
     try {
       const entries = await this.dashboard.getAllOutgoingRequests();
       return c.json(entries);
@@ -90,7 +99,7 @@ export class TelescopeRoutes {
     }
   }
 
-  async getOutgoingRequest(c: Context) {
+  async getOutgoingRequest(c: HonoContext) {
     const id = c.req.param('id');
 
     if (!id) {
@@ -108,7 +117,7 @@ export class TelescopeRoutes {
     }
   }
 
-  async getExceptions(c: Context) {
+  async getExceptions(c: HonoContext) {
     try {
       const entries = await this.dashboard.getAllExceptions();
       return c.json(entries);
@@ -117,7 +126,7 @@ export class TelescopeRoutes {
     }
   }
 
-  async getException(c: Context) {
+  async getException(c: HonoContext) {
     const id = c.req.param('id');
 
     if (!id) {
@@ -135,7 +144,7 @@ export class TelescopeRoutes {
     }
   }
 
-  async getQueries(c: Context) {
+  async getQueries(c: HonoContext) {
     try {
       const entries = await this.dashboard.getAllQueries();
       return c.json(entries);
@@ -144,7 +153,7 @@ export class TelescopeRoutes {
     }
   }
 
-  async getQuery(c: Context) {
+  async getQuery(c: HonoContext) {
     const id = c.req.param('id');
 
     if (!id) {
@@ -162,7 +171,7 @@ export class TelescopeRoutes {
     }
   }
 
-  async getLogs(c: Context) {
+  async getLogs(c: HonoContext) {
     try {
       const entries = await this.dashboard.getAllLogs();
       return c.json(entries);
@@ -171,7 +180,7 @@ export class TelescopeRoutes {
     }
   }
 
-  async getLog(c: Context) {
+  async getLog(c: HonoContext) {
     const id = c.req.param('id');
 
     if (!id) {
