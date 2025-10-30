@@ -42,7 +42,7 @@ export const formatDuration = (duration: number): string => {
 };
 
 export const formatDate = (createdAt: string): string => {
-  return dayjs(createdAt).format('YYYY-MM-DD HH:mm');
+  return dayjs(createdAt).format('YYYY-MM-DD HH:mm:ss');
 };
 
 export const getLevelName = (level: number): string => {

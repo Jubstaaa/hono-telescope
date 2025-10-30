@@ -24,7 +24,7 @@ export class TelescopeDashboard {
 
   async getAllIncomingRequests() {
     const entries = await this.telescope.getAllIncomingRequests();
-    return map(entries, mapIncomingRequest);
+    return map([...entries].reverse(), mapIncomingRequest);
   }
 
   async getIncomingRequest(id: string) {
@@ -51,7 +51,7 @@ export class TelescopeDashboard {
 
   async getAllOutgoingRequests() {
     const entries = await this.telescope.getAllOutgoingRequests();
-    return map(entries, mapOutgoingRequest);
+    return map([...entries].reverse(), mapOutgoingRequest);
   }
 
   async getOutgoingRequest(id: string) {
@@ -60,7 +60,7 @@ export class TelescopeDashboard {
 
   async getAllExceptions() {
     const entries = await this.telescope.getAllExceptions();
-    return map(entries, mapException);
+    return map([...entries].reverse(), mapException);
   }
 
   async getException(id: string) {
@@ -69,7 +69,7 @@ export class TelescopeDashboard {
 
   async getAllQueries() {
     const entries = await this.telescope.getAllQueries();
-    return map(entries, mapQuery);
+    return map([...entries].reverse(), mapQuery);
   }
 
   async getQuery(id: string) {
@@ -78,7 +78,7 @@ export class TelescopeDashboard {
 
   async getAllLogs() {
     const entries = await this.telescope.getAllLogs();
-    return map(entries, mapLog);
+    return map([...entries].reverse(), mapLog);
   }
 
   async getLog(id: string) {

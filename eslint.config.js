@@ -5,23 +5,22 @@ import prettier from 'eslint-config-prettier';
 export default [
   {
     ignores: [
-      'dist',
-      'node_modules',
-      'build',
-      'coverage',
-      '.turbo',
+      'dist/**',
+      'node_modules/**',
+      'build/**',
+      'coverage/**',
+      '.turbo/**',
+      '**/assets/**',
       '**/*.d.ts',
       '.venv',
       'venv',
-      'apps/*/dist',
-      'packages/*/dist',
     ],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   prettier,
   {
-    files: ['**/*.ts', '**/*.tsx'],
+    files: ['src/**/*.{ts,tsx}'],
     languageOptions: {
       parser: tseslint.parser,
       parserOptions: {
