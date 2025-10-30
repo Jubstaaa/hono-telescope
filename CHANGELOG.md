@@ -1,5 +1,12 @@
 
 
+## [0.1.8](https://github.com/jubstaaa/hono-telescope/compare/v0.1.7...0.1.8) (2025-10-30)
+
+
+### ✨ Features
+
+* **project:** restructure to monorepo and improve hono compatibility ([62e92d7](https://github.com/jubstaaa/hono-telescope/commit/62e92d7d53ba3f9394c208bb8864ccbebde6731e))
+
 ## [0.1.7](https://github.com/jubstaaa/hono-telescope/compare/v%s...v%s) (2025-10-30)
 
 
