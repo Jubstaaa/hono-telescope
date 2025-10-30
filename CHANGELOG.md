@@ -1,5 +1,28 @@
 
 
+## [0.1.6](https://github.com/jubstaaa/hono-telescope/compare/v%s...v%s) (2025-10-30)
+
+
+### 🐛 Bug Fixes
+
+* replace @hono-telescope/types imports in dist files ([4652343](https://github.com/jubstaaa/hono-telescope/commit/4652343fbdb26a24bdd2aa45b207b06cc93f4273))
+
+
+### 💎 Styling
+
+* ignore CHANGELOG.md from prettier formatting ([c198089](https://github.com/jubstaaa/hono-telescope/commit/c1980894782acbcadc8b21f9a3757e9b1f8f3784))
+
+
+### 📚 Documentation
+
+* add professional open source governance files ([a7fdbfd](https://github.com/jubstaaa/hono-telescope/commit/a7fdbfd193d736e70ea4a3f8b1a6854b2389897c))
+* formatting improvements in MONOREPO.md ([618352c](https://github.com/jubstaaa/hono-telescope/commit/618352c8a6af0d71267b757db79c9ce097ac4416))
+
+
+### 🏗️ Build
+
+* include @hono-telescope/types in core package build ([7f2db17](https://github.com/jubstaaa/hono-telescope/commit/7f2db17458311853da7c034de5e41adba46e1bdf))
+
 ## [0.1.5](https://github.com/jubstaaa/hono-telescope/compare/v%s...v%s) (2025-10-30)
 
 
