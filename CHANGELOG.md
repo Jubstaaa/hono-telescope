@@ -1,36 +1,29 @@
-
-
 ## 0.1.3 (2025-10-30)
-
 
 ### ✨ Features
 
-* Add Axios interceptor support and release v0.1.0-beta.2 ([06378d2](https://github.com/jubstaaa/hono-telescope/commit/06378d245a9c9c378d3ab085c65e930c402cb53e))
-* initial release of @hono/telescope v0.1.0-beta.1 ([c4d6376](https://github.com/jubstaaa/hono-telescope/commit/c4d6376f22331bff43e2e6d2da23c70b0bceae98))
-
+- Add Axios interceptor support and release v0.1.0-beta.2 ([06378d2](https://github.com/jubstaaa/hono-telescope/commit/06378d245a9c9c378d3ab085c65e930c402cb53e))
+- initial release of @hono/telescope v0.1.0-beta.1 ([c4d6376](https://github.com/jubstaaa/hono-telescope/commit/c4d6376f22331bff43e2e6d2da23c70b0bceae98))
 
 ### 🐛 Bug Fixes
 
-* **core:** resolve all linter errors and improve database interceptor ([ec105b1](https://github.com/jubstaaa/hono-telescope/commit/ec105b1bbe1c68ee2f4632fe66619680d83b5e86))
-
+- **core:** resolve all linter errors and improve database interceptor ([ec105b1](https://github.com/jubstaaa/hono-telescope/commit/ec105b1bbe1c68ee2f4632fe66619680d83b5e86))
 
 ### ♻️ Refactoring
 
-* convert to turborepo monorepo structure ([ec4a443](https://github.com/jubstaaa/hono-telescope/commit/ec4a4436286bee36c4af13e714afb3a3910722dd))
-* **core,dashboard:** complete type system overhaul and API restructuring ([5fa775d](https://github.com/jubstaaa/hono-telescope/commit/5fa775d89a95f74ba78eb803ae3180a3c2497199))
-* restructure project with clean architecture and improved organization ([536b21c](https://github.com/jubstaaa/hono-telescope/commit/536b21cee4ad5a8974be141dff2648ea481ca563))
-
+- convert to turborepo monorepo structure ([ec4a443](https://github.com/jubstaaa/hono-telescope/commit/ec4a4436286bee36c4af13e714afb3a3910722dd))
+- **core,dashboard:** complete type system overhaul and API restructuring ([5fa775d](https://github.com/jubstaaa/hono-telescope/commit/5fa775d89a95f74ba78eb803ae3180a3c2497199))
+- restructure project with clean architecture and improved organization ([536b21c](https://github.com/jubstaaa/hono-telescope/commit/536b21cee4ad5a8974be141dff2648ea481ca563))
 
 ### 💎 Styling
 
-* **core:** format database interceptor with prettier ([64493f3](https://github.com/jubstaaa/hono-telescope/commit/64493f38b03ddb57b2a5124e50a5cce05238e684))
-
+- **core:** format database interceptor with prettier ([64493f3](https://github.com/jubstaaa/hono-telescope/commit/64493f38b03ddb57b2a5124e50a5cce05238e684))
 
 ### 🏗️ Build
 
-* add prettier as dev dependency and format project ([5877310](https://github.com/jubstaaa/hono-telescope/commit/58773104ed5fe8bceefbc3964eba42f103e3f615))
-* remove generated dist files ([9433772](https://github.com/jubstaaa/hono-telescope/commit/943377235a2ab714a549e39e890a4256fe64fa93))
-* setup eslint with typescript support ([86f4cf0](https://github.com/jubstaaa/hono-telescope/commit/86f4cf075b71552379bc8b16e6cd69bc12f93e69))
+- add prettier as dev dependency and format project ([5877310](https://github.com/jubstaaa/hono-telescope/commit/58773104ed5fe8bceefbc3964eba42f103e3f615))
+- remove generated dist files ([9433772](https://github.com/jubstaaa/hono-telescope/commit/943377235a2ab714a549e39e890a4256fe64fa93))
+- setup eslint with typescript support ([86f4cf0](https://github.com/jubstaaa/hono-telescope/commit/86f4cf075b71552379bc8b16e6cd69bc12f93e69))
 
 # Changelog
 
@@ -39,41 +32,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.1-beta.2] - 2025-01-28
-
-### ✨ Added
-
-- **Zero-Config Axios Support** - Improved automatic detection of Axios instances without requiring global configuration
-- **Custom Axios Instance Test** - Added example demonstrating zero-config usage with custom Axios instances
-
-### 🔧 Technical Improvements
-
-- Enhanced HTTP interceptor to better detect Axios through multiple methods (globalThis, require, dynamic import)
-- Improved documentation for zero-config Axios setup
-- Added test example for custom Axios instances
-
-### 📚 Documentation
-
-- Updated README with zero-config approach examples
-- Added guidance for custom Axios instance usage
-
-## [0.1.0-beta.2] - 2025-10-28
-
-### ✨ Added
-
-- **Axios Interceptor Support** - Automatic interception of outgoing HTTP requests made with Axios
-- **Enhanced HTTP Monitoring** - Now captures both incoming requests (via Hono middleware) and outgoing requests (via Axios interceptor)
-
-### 📚 Documentation
-
-- Added comprehensive Axios setup instructions to README.md
-- Documented requirement for making Axios globally accessible via `globalThis.axios`
-
-### 🔧 Technical Improvements
-
-- Enhanced HTTP interceptor to detect and hook into Axios instances
-- Added debug logging for Axios interceptor setup
-- Improved error handling in HTTP interceptor
+> **Note**: This changelog is automatically generated by [release-it](https://github.com/release-it/release-it) using [Conventional Commits](https://www.conventionalcommits.org/).
 
 ## [0.1.0-beta.1] - 2024-12-27
 
@@ -95,7 +54,7 @@ This is the first beta release of `hono-telescope`, a powerful debugging and mon
 - **Modern React Dashboard** - Beautiful, responsive web interface built with React and Ant Design
 - **Real-time Data Display** - Live monitoring of application activity
 - **Filtering & Search** - Advanced filtering capabilities for all entry types
-- **Performance Metrics** - Response time, and other performance indicators
+- **Performance Metrics** - Response time and other performance indicators
 - **Tagging System** - Organize and categorize entries with custom tags
 
 #### Developer Experience
@@ -126,29 +85,13 @@ This is the first beta release of `hono-telescope`, a powerful debugging and mon
 - **Node.js**: >= 18.0.0
 - **Bun**: >= 1.0.0 (optional)
 
-#### Configuration Options
-
-```typescript
-interface TelescopeConfig {
-  path?: string; // Dashboard path (default: '/telescope')
-  maxEntries?: number; // Maximum entries to store (default: 1000)
-  tags?: string[]; // Default tags for all entries
-  watchers?: {
-    requests?: boolean; // Monitor HTTP requests (default: true)
-    exceptions?: boolean; // Monitor exceptions (default: true)
-    logs?: boolean; // Monitor logs (default: true)
-    queries?: boolean; // Monitor database queries (default: true)
-  };
-}
-```
-
 ### 📦 Package Information
 
 - **Package Name**: `hono-telescope`
 - **Version**: `0.1.0-beta.1`
 - **License**: MIT
 - **Author**: İlker Balcılar
-- **Repository**: https://github.com/ilkerbalcilar/hono-telescope
+- **Repository**: https://github.com/jubstaaa/hono-telescope
 
 ### ⚠️ Beta Release Notes
 
@@ -176,21 +119,3 @@ export default app;
 ```
 
 Visit `/telescope` to access the monitoring dashboard.
-
-### 🗺️ What's Next?
-
-See our [roadmap in the README](README.md#-roadmap) for upcoming features including:
-
-- Real-time WebSocket updates
-- Performance profiling
-- Authentication system
-- Database persistence options
-- Multi-application support
-
-### 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guide](README.md#-contributing) for details.
-
----
-
-**Full Changelog**: https://github.com/ilkerbalcilar/hono-telescope/commits/v0.1.0-beta.1

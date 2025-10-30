@@ -1,171 +1,315 @@
 # Hono Telescope Monorepo
 
-Bu proje bir Turborepo monorepoya dönüştürülmüştür. Aşağıda klasör yapısı ve her paketin açıklaması bulunmaktadır.
+This project is structured as a Turborepo monorepo for better package management and development workflow. Below is the folder structure and description of each package.
 
-## Klasör Yapısı
+## Folder Structure
 
 ```
-hono-telescope-3/
+hono-telescope/
 ├── apps/
-│   ├── core/              # @hono-telescope/core - Temel monitoring ve debugging kütüphanesi
-│   ├── example/           # @hono-telescope/example - Örnek uygulama
-│   └── dashboard/         # @hono-telescope/dashboard - React dashboard
+│   ├── core/              # @hono-telescope/core - Core monitoring and debugging library
+│   ├── example/           # @hono-telescope/example - Example Hono application
+│   └── dashboard/         # @hono-telescope/dashboard - React-based web dashboard
 ├── packages/
-│   └── types/             # @hono-telescope/types - Paylaşılan type tanımları
+│   └── types/             # @hono-telescope/types - Shared TypeScript type definitions
 ├── package.json           # Root workspace package.json
-├── turbo.json             # Turborepo konfigurasyonu
-└── tsconfig.json          # Root TypeScript konfigurasyonu
+├── turbo.json             # Turborepo configuration
+├── .release-it.json       # Release automation configuration
+├── .prettierrc             # Code formatting configuration
+├── eslint.config.js       # ESLint configuration
+└── tsconfig.json          # Root TypeScript configuration
 ```
 
-## Paketler
+## Packages
 
 ### `@hono-telescope/types` (packages/types)
 
-Tüm paketler tarafından kullanılan paylaşılan type tanımları içerir.
+Shared type definitions used across all packages.
 
-- Interfaces: `TelescopeEntry`, `TelescopeConfig`, `TelescopeStorage` vb.
-- Enums: `EntryType`
+- **Interfaces**: `TelescopeEntry`, `TelescopeConfig`, `IncomingRequestEntry`, `OutgoingRequestEntry`, `ExceptionEntry`, `LogEntry`, `QueryEntry`
+- **Types**: Union types for entry handling
+- **Enums**: `LogLevel`, `ExceptionClass`
 
 ### `@hono-telescope/core` (apps/core)
 
-Hono Telescope'un ana kütüphanesi. Monitoring, debugging ve veri depolaması işlevlerini sağlar.
+The main Hono Telescope library providing monitoring, debugging, and data storage functionality.
 
-- Interceptors (HTTP ve Database)
-- Middleware
-- Watchers (Exception, Log, Query)
-- Routes
-- Context Manager
+**Key Components:**
+- **Interceptors**: HTTP and Database query interception
+  - `HttpInterceptor` - Captures incoming/outgoing HTTP requests
+  - `DatabaseInterceptor` - Monitors SQL queries (Prisma, Sequelize, MongoDB, Bun SQLite)
+- **Middleware**: `TelescopeMiddleware` - Hono middleware for request tracking
+- **Watchers**: Background monitoring
+  - `ExceptionWatcher` - Tracks uncaught exceptions
+  - `LogWatcher` - Monitors console output
+  - `QueryWatcher` - Tracks database queries
+- **Routes**: `TelescopeRoutes` - API endpoints for dashboard
+- **Storage**: `MemoryStorage` - In-memory data persistence
+- **Context Manager**: Request context tracking
 
 ### `@hono-telescope/example` (apps/example)
 
-Core kütüphanesinin nasıl kullanılacağını gösteren örnek uygulama.
+Example Hono application demonstrating all Telescope features:
+- HTTP request monitoring
+- Exception tracking
+- Log monitoring
+- Database query interception
+- Multiple database support
+- Mixed HTTP client testing (fetch + Axios)
 
 ### `@hono-telescope/dashboard` (apps/dashboard)
 
-React tabanlı web arayüzü. Monitored verileri görselleştirmek için kullanılır.
+React-based web dashboard for visualizing monitored data.
 
+**Tech Stack:**
 - Built with Vite + React 18
 - Ant Design UI components
 - Redux for state management
+- Modern CSS with responsive design
+- Real-time data updates
 
-## Komutlar
+## Available Commands
 
 ### Root Level
 
 ```bash
-# Tüm paketleri build et
-npm run build
+# Install dependencies
+bun install
 
-# Belirli paketi build et
-npm run build:core
-npm run build:dashboard
+# Development (all packages)
+bun run dev                    # Start all apps in dev mode
+bun run dev:example           # Run example app only
+bun run dev:dashboard         # Run dashboard only
 
-# Geliştirme modu (tüm paketler)
-npm run dev
+# Building
+bun run build                 # Build all packages
+bun run build                 # Generates dist/ at root level
 
-# Belirli paketi dev modunda çalıştır
-npm run dev:example
-npm run dev:dashboard
+# Code Quality
+bun run lint                  # Run ESLint
+bun run lint:fix              # Fix linting issues
+bun run format                # Format with Prettier
+bun run format:check          # Check formatting without changes
+bun run type-check            # TypeScript type checking
 
-# Test çalıştır
-npm run test
-npm run test:ui
+# Release & Publishing
+bun run release               # Create release (interactive)
+                              # - Bumps version
+                              # - Generates changelog
+                              # - Creates git tag
+                              # - Publishes to npm
 
-# Type check
-npm run type-check
-
-# Temizle
-npm run clean
+# Maintenance
+bun run clean                 # Clean all build artifacts and node_modules
+bun run prepublishOnly        # Auto-runs before npm publish
 ```
 
 ### Workspace Level
 
-Her paket kendi package.json'ında spesifik scriptlere sahiptir:
+Each package has its own scripts in `package.json`:
 
 ```bash
-# Core paketinde
+# Core package
 cd apps/core
-npm run build
-npm run dev
-npm run test
+bun run build                # TypeScript compilation
+bun run dev                  # Watch mode development
 
-# Dashboard paketinde
+# Dashboard package
 cd apps/dashboard
-npm run dev      # Vite dev server
-npm run build    # Production build
-npm run preview  # Preview mode
+bun run dev                  # Vite dev server
+bun run build                # Production build
+bun run preview              # Preview production build
 
-# Example paketinde
+# Example package
 cd apps/example
-npm run dev      # Watch mode
-npm run build    # Build with bun
-npm run start    # Start built app
+bun run dev                  # Watch mode
+bun run start                # Run compiled server
 ```
 
-## Dependency Yönetimi
+## Dependency Management
 
-- **Shared dependencies**: Root `package.json`'da tanımlanır
-- **Package-specific dependencies**: Her paketin `package.json`'ında tanımlanır
-- **Internal dependencies**: Paketler arasındaki bağımlılıklar `*` versiyonu ile tanımlanır (örn. `"@hono-telescope/types": "*"`)
+- **Shared dependencies**: Defined in root `package.json`
+- **Package-specific dependencies**: Defined in each package's `package.json`
+- **Internal dependencies**: Cross-package dependencies use workspace protocol (e.g., `"@hono-telescope/types": "workspace:*"`)
+- **Shared tools**: ESLint, Prettier, TypeScript, release-it configured at root level
 
-## Hızlı Başlangıç
+## Quick Start
 
-### 1. Kurulum
+### 1. Installation
 
 ```bash
-cd hono-telescope-3
-npm install
-# veya
+cd hono-telescope
 bun install
 ```
 
 ### 2. Development
 
 ```bash
-# Tüm paketleri dev modunda çalıştır
-npm run dev
+# Start all packages in dev mode
+bun run dev
 
-# Veya sadece example'ı çalıştır
-npm run dev:example
+# Or run specific package
+bun run dev:example
 ```
 
-### 3. Build
+Visit `http://localhost:3000` for the example app and `http://localhost:3000/telescope` for the dashboard.
+
+### 3. Building
 
 ```bash
-# Tüm paketleri build et
-npm run build
+# Build all packages
+bun run build
 
-# Kontrol et
+# Verify builds
 ls -la apps/core/dist
 ls -la apps/dashboard/dist
 ```
 
+### 4. Code Quality
+
+```bash
+# Check and fix linting issues
+bun run lint:fix
+
+# Format code
+bun run format
+
+# Type check entire project
+bun run type-check
+```
+
 ## Turborepo Pipeline
 
-`turbo.json` dosyası pipeline konfigurasyonunu tanımlar:
+The `turbo.json` file defines the build pipeline:
 
-- **build**: Dependler build edildikten sonra çalışır
-- **dev**: Cache yoktur ve persistent modda çalışır
-- **test**: Test komutları sırasında cache kullanılmaz
-- **type-check**: Cache kullanılmaz
+- **build**: Runs after dependencies are built
+- **dev**: No caching, persistent mode
+- **test**: No caching for test runs
+- **type-check**: No caching
+- **lint**: Incremental linting
+- **format**: Code formatting tasks
+
+## Release Process
+
+This project uses **release-it** for automated versioning and publishing:
+
+```bash
+# Create a new release
+bun run release
+
+# The release process:
+# 1. Validates clean working directory
+# 2. Requires main branch
+# 3. Runs: lint:fix, build, format
+# 4. Bumps version (Semantic Versioning)
+# 5. Generates CHANGELOG.md
+# 6. Creates git tag (v{version})
+# 7. Pushes to GitHub
+# 8. Creates GitHub Release
+# 9. Publishes to npm
+
+# Conventional Commits for automatic versioning:
+# - feat: -> minor version bump (new feature)
+# - fix: -> patch version bump (bug fix)
+# - BREAKING CHANGE: -> major version bump
+# - chore:, style:, refactor:, etc. -> no version bump
+```
+
+## Code Quality Tools
+
+### ESLint
+
+TypeScript-aware linting with strict rules:
+- `@typescript-eslint` for TS-specific rules
+- `prettier` integration for formatting consistency
+- Located in `eslint.config.js`
+
+### Prettier
+
+Code formatting with opinionated defaults:
+- Configuration in `.prettierrc`
+- Ignore patterns in `.prettierignore`
+- Integrated with ESLint for consistency
+
+### TypeScript
+
+Strict TypeScript configuration across all packages:
+- ES2020+ target
+- Strict mode enabled
+- Module resolution with workspace support
 
 ## Publishing
 
-Paketleri npm'e publish etmek için:
+Packages are published to npm via the `release-it` command:
 
 ```bash
-# apps/core paketini publish et
+# Automated publishing (recommended)
+bun run release
+
+# Manual publishing (if needed)
 cd apps/core
 npm publish
 
-# @hono-telescope/dashboard paketini publish et
 cd apps/dashboard
 npm publish
 ```
 
-## Notlar
+## Testing & Type Checking
 
-- Tüm paketler TypeScript 5.0+ ile yazılmıştır
-- Node.js 18+ ve Bun 1.0+ desteklenmektedir
-- ESNext modülü kullanılmaktadır
-- Strict TypeScript mode etkindir
+```bash
+# Full project type check
+bun run type-check
+
+# Run linter with fix
+bun run lint:fix
+
+# Format code
+bun run format
+
+# Check formatting without changes
+bun run format:check
+```
+
+## Technology Stack
+
+- **Runtime**: Bun 1.0+ and Node.js 18+
+- **Language**: TypeScript 5.0+
+- **Module System**: ES Modules (ESNext)
+- **Package Manager**: Bun
+- **Build Tool**: Turbo
+- **Dashboard**: React 18 + Vite
+- **UI Components**: Ant Design
+- **State Management**: Redux
+- **Code Quality**: ESLint + Prettier
+
+## Notes
+
+- All packages are written with TypeScript 5.0+
+- Supports both Node.js 18+ and Bun 1.0+
+- Uses ES modules throughout
+- Strict TypeScript mode is enabled
+- All code follows Conventional Commits specification
+- Automated testing and type checking on commits recommended
+
+## Troubleshooting
+
+### "Command not found" errors
+- Run `bun install` from the root directory
+- Ensure you're using Bun 1.0+ or npm/yarn
+
+### Build issues
+- Clean everything: `bun run clean`
+- Reinstall: `bun install`
+- Rebuild: `bun run build`
+
+### Type checking failures
+- Run `bun run type-check` for detailed errors
+- Update TypeScript: `bun install --latest`
+
+## Contributing
+
+1. Create a feature branch from `main`
+2. Follow Conventional Commits for your commits
+3. Run `bun run format` and `bun run lint:fix` before committing
+4. Open a Pull Request
+5. Ensure all CI checks pass
