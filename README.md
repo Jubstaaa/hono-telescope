@@ -71,16 +71,16 @@ Visit `http://localhost:3000/telescope` to access the dashboard.
 import { setupTelescope } from 'hono-telescope';
 
 setupTelescope(app, {
-  enabled: true,                    // Enable/disable Telescope
-  path: '/telescope',               // Dashboard path
-  max_entries: 1000,               // Maximum entries to store
-  ignored_paths: ['/health'],      // Paths to ignore
+  enabled: true, // Enable/disable Telescope
+  path: '/telescope', // Dashboard path
+  max_entries: 1000, // Maximum entries to store
+  ignored_paths: ['/health'], // Paths to ignore
   watchers: {
-    requests: true,                 // Monitor HTTP requests
-    exceptions: true,               // Monitor exceptions
-    logs: true,                     // Monitor logs
-    queries: true                   // Monitor database queries
-  }
+    requests: true, // Monitor HTTP requests
+    exceptions: true, // Monitor exceptions
+    logs: true, // Monitor logs
+    queries: true, // Monitor database queries
+  },
 });
 ```
 
@@ -157,30 +157,35 @@ const response = await axios.get('https://api.example.com/users');
 ## Dashboard Features
 
 ### Request Monitoring
+
 - HTTP method, URL, status code
 - Request/response headers and body
 - Response time usage
 - IP address and user agent
 
 ### Exception Tracking
+
 - Exception class and message
 - Full stack trace
 - File and line number
 - Automatic grouping by exception type
 
 ### Log Monitoring
+
 - Log level (info, warn, error, debug)
 - Message and context
 - Timestamp and stack trace
 - Filterable by log level
 
 ### Query Monitoring
+
 - SQL queries with syntax highlighting
 - Execution time and slow query detection
 - Parameter bindings
 - Connection information
 
 ### Performance Metrics
+
 - Response time distribution
 - Request count by status code
 - Average response times
@@ -190,16 +195,21 @@ const response = await axios.get('https://api.example.com/users');
 ### Core Classes
 
 #### Telescope
+
 ```typescript
 import { Telescope } from 'hono-telescope';
 
 const telescope = Telescope.getInstance();
 
 // Record custom entries
-telescope.record(EntryType.LOG, {
-  level: 'info',
-  message: 'Custom log entry'
-}, ['custom', 'api']);
+telescope.record(
+  EntryType.LOG,
+  {
+    level: 'info',
+    message: 'Custom log entry',
+  },
+  ['custom', 'api']
+);
 
 // Get entries
 const entries = telescope.getEntries();
@@ -209,6 +219,7 @@ telescope.clearEntries();
 ```
 
 #### TelescopeConfig
+
 ```typescript
 interface TelescopeConfig {
   enabled: boolean;
@@ -231,7 +242,7 @@ enum EntryType {
   REQUEST = 'request',
   EXCEPTION = 'exception',
   LOG = 'log',
-  QUERY = 'query'
+  QUERY = 'query',
 }
 ```
 
@@ -266,13 +277,17 @@ import { Telescope, EntryType } from 'hono-telescope';
 
 const customMiddleware = async (c, next) => {
   const start = Date.now();
-  
+
   await next();
-  
+
   const telescope = Telescope.getInstance();
-  telescope.record(EntryType.REQUEST, {
-    // Custom data
-  }, ['custom']);
+  telescope.record(
+    EntryType.REQUEST,
+    {
+      // Custom data
+    },
+    ['custom']
+  );
 };
 ```
 

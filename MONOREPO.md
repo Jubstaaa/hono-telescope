@@ -20,12 +20,16 @@ hono-telescope-3/
 ## Paketler
 
 ### `@hono-telescope/types` (packages/types)
+
 Tüm paketler tarafından kullanılan paylaşılan type tanımları içerir.
+
 - Interfaces: `TelescopeEntry`, `TelescopeConfig`, `TelescopeStorage` vb.
 - Enums: `EntryType`
 
 ### `@hono-telescope/core` (apps/core)
+
 Hono Telescope'un ana kütüphanesi. Monitoring, debugging ve veri depolaması işlevlerini sağlar.
+
 - Interceptors (HTTP ve Database)
 - Middleware
 - Watchers (Exception, Log, Query)
@@ -33,10 +37,13 @@ Hono Telescope'un ana kütüphanesi. Monitoring, debugging ve veri depolaması i
 - Context Manager
 
 ### `@hono-telescope/example` (apps/example)
+
 Core kütüphanesinin nasıl kullanılacağını gösteren örnek uygulama.
 
 ### `@hono-telescope/dashboard` (apps/dashboard)
+
 React tabanlı web arayüzü. Monitored verileri görselleştirmek için kullanılır.
+
 - Built with Vite + React 18
 - Ant Design UI components
 - Redux for state management
@@ -104,6 +111,7 @@ npm run start    # Start built app
 ## Hızlı Başlangıç
 
 ### 1. Kurulum
+
 ```bash
 cd hono-telescope-3
 npm install
@@ -112,6 +120,7 @@ bun install
 ```
 
 ### 2. Development
+
 ```bash
 # Tüm paketleri dev modunda çalıştır
 npm run dev
@@ -121,6 +130,7 @@ npm run dev:example
 ```
 
 ### 3. Build
+
 ```bash
 # Tüm paketleri build et
 npm run build

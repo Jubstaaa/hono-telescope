@@ -3,7 +3,7 @@ import {
   OutgoingRequestEntry,
   ExceptionEntry,
   LogEntry,
-  QueryEntry
+  QueryEntry,
 } from './entries';
 
 export interface DashboardStats {
@@ -26,9 +26,15 @@ export interface DashboardStats {
 
 // ============ API LIST RESPONSES ============
 
-export type IncomingRequestResponse = Pick<IncomingRequestEntry, 'id' | 'method' | 'uri' | 'response_status' | 'created_at' | 'duration'>;
+export type IncomingRequestResponse = Pick<
+  IncomingRequestEntry,
+  'id' | 'method' | 'uri' | 'response_status' | 'created_at' | 'duration'
+>;
 
-export type OutgoingRequestResponse = Pick<OutgoingRequestEntry, 'id' | 'method' | 'uri' | 'response_status' | 'created_at' | 'duration'>;
+export type OutgoingRequestResponse = Pick<
+  OutgoingRequestEntry,
+  'id' | 'method' | 'uri' | 'response_status' | 'created_at' | 'duration'
+>;
 
 export type ExceptionResponse = Pick<ExceptionEntry, 'id' | 'class' | 'message' | 'created_at'>;
 
