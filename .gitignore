@@ -182,4 +182,4 @@ apps/dashboard/.vite/
 *.tsbuildinfo
 
 # Turbo
-.turbo/
+.turbo/dist/
