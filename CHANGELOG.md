@@ -1,5 +1,12 @@
 
 
+## [0.1.10](https://github.com/jubstaaa/hono-telescope/compare/0.1.9...0.1.10) (2025-10-31)
+
+
+### ✨ Features
+
+* major UI/UX improvements and filtering enhancements ([db64298](https://github.com/jubstaaa/hono-telescope/commit/db64298146cd9254355144a4239453e653453cdd))
+
 ## [0.1.9](https://github.com/jubstaaa/hono-telescope/compare/0.1.8...0.1.9) (2025-10-30)
 
 
