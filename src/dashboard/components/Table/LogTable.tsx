@@ -1,6 +1,6 @@
 import React from 'react';
 import { formatDate } from '../../utils/helpers';
-import { LogResponse } from '@hono-telescope/types';
+import { LogResponse } from '@/types';
 import LevelTag from '../Tag/LevelTag';
 import Table from './Table';
 

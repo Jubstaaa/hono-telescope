@@ -1,6 +1,6 @@
 import type { Context, Next, MiddlewareHandler } from 'hono';
 import { Telescope } from '../telescope';
-import { TelescopeConfig } from '@hono-telescope/types';
+import { TelescopeConfig } from '@/types';
 import { ContextManager } from '../context-manager';
 import { HttpInterceptor } from '../interceptors/http-interceptor';
 import { DatabaseInterceptor } from '../interceptors/database-interceptor';
