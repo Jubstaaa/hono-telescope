@@ -1,6 +1,6 @@
 import { telescope } from './middleware/telescope-middleware';
 import { TelescopeRoutes } from './routes/telescope-routes';
-import { TelescopeConfig } from '@hono-telescope/types';
+import { TelescopeConfig } from '@/types';
 import { startExceptionWatcher } from './watchers/exception-watcher';
 import { startLogWatcher } from './watchers/log-watcher';
 import { startQueryWatcher } from './watchers/query-watcher';

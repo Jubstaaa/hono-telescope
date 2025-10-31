@@ -1,5 +1,5 @@
 import React from 'react';
-import { ExceptionResponse } from '@hono-telescope/types';
+import { ExceptionResponse } from '@/types';
 import { formatDate } from '../../utils/helpers';
 import ExceptionTag from '../Tag/ExceptionTag';
 import Table from './Table';

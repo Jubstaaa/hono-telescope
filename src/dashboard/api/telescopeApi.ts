@@ -11,7 +11,7 @@ import {
   QueryDetailResponse,
   LogResponse,
   LogDetailResponse,
-} from '@hono-telescope/types';
+} from '@/types';
 
 export const telescopeApi = createApi({
   reducerPath: 'telescopeApi',

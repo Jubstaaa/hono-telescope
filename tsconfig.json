@@ -21,8 +21,6 @@
     "paths": {
       "@/*": ["src/*"],
       "@types/*": ["src/types/*"],
-      "@hono-telescope/types": ["src/types/index.ts"],
-      "@hono-telescope/types/*": ["src/types/*"],
       "@core/*": ["src/core/*"],
       "@dashboard/*": ["src/dashboard/*"]
     }
