@@ -1,5 +1,12 @@
 
 
+## [0.1.11](https://github.com/jubstaaa/hono-telescope/compare/0.1.10...0.1.11) (2025-10-31)
+
+
+### 🐛 Bug Fixes
+
+* **dashboard:** import SVG icon as module and separate roadmap features ([60ce44c](https://github.com/jubstaaa/hono-telescope/commit/60ce44c6366c03c1b7e2cb4191aa5050200ce7c1))
+
 ## [0.1.10](https://github.com/jubstaaa/hono-telescope/compare/0.1.9...0.1.10) (2025-10-31)
 
 
