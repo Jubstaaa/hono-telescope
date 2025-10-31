@@ -1,5 +1,18 @@
 
 
+## [0.1.14](https://github.com/jubstaaa/hono-telescope/compare/0.1.13...0.1.14) (2025-10-31)
+
+
+### 🐛 Bug Fixes
+
+* resolve @hono-telescope/types import errors ([74ea8e3](https://github.com/jubstaaa/hono-telescope/commit/74ea8e30b8851c729b59fee68a53e3283e0a7b25)), closes [#1](https://github.com/jubstaaa/hono-telescope/issues/1)
+* **types:** resolve @hono-telescope/types module import errors ([c2aaa06](https://github.com/jubstaaa/hono-telescope/commit/c2aaa06e20d5a267ab22d20d4b22ce404b26e912)), closes [#1](https://github.com/jubstaaa/hono-telescope/issues/1)
+
+
+### 📚 Documentation
+
+* **community:** add contributing guide and issue templates ([06153bb](https://github.com/jubstaaa/hono-telescope/commit/06153bb5097ac096383d71f48c9bacb4cac0149c))
+
 ## [0.1.13](https://github.com/jubstaaa/hono-telescope/compare/0.1.12...0.1.13) (2025-10-31)
 
 
