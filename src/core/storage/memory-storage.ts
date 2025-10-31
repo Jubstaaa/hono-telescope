@@ -5,7 +5,7 @@ import {
   ExceptionEntry,
   LogEntry,
   QueryEntry,
-} from '@hono-telescope/types';
+} from '@/types';
 import { find, filter } from 'lodash';
 
 class BaseRepository<T extends BaseEntry> {

@@ -1,5 +1,5 @@
 import { Telescope } from '../telescope';
-import { LogLevel } from '@hono-telescope/types';
+import { LogLevel } from '@/types';
 import { ContextManager } from '../context-manager';
 import { isObject, map } from 'lodash';
 
