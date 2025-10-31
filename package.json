@@ -86,8 +86,8 @@
   },
   "scripts": {
     "start": "bun dist/example",
-    "build": "vite build && tsc",
-    "publishBuild": "vite build && tsc && rm -rf dist/example dist/dashboard",
+    "build": "rm -rf src/core/dashboard/assets && vite build && tsc && cp -r src/core/dashboard/assets dist/core/dashboard/ && cp src/core/dashboard/index.html dist/core/dashboard/",
+    "publishBuild": "bun run build && rm -rf dist/example dist/dashboard",
     "dev": "tsc --watch",
     "dev:example": "bun --hot src/example/index.ts",
     "dev:dashboard": "vite dev",
