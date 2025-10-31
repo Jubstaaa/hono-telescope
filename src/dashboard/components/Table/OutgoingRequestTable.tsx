@@ -27,6 +27,7 @@ export const OutgoingRequestTable: React.FC<OutgoingRequestTableProps> = ({
       title: 'Path',
       dataIndex: 'uri',
       key: 'path',
+      width: 200,
       render: (uri: string) => uri,
     },
     {

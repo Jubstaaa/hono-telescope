@@ -27,6 +27,7 @@ export const IncomingRequestTable: React.FC<IncomingRequestTableProps> = ({
       title: 'Path',
       dataIndex: 'uri',
       key: 'uri',
+      width: 150,
       render: (uri: string) => uri,
     },
     {

@@ -1,16 +1,18 @@
 import React from 'react';
 import { useParams } from 'react-router';
-import { Card, Typography, Alert, Descriptions, Tag, theme, Flex } from 'antd';
+import { Card, Typography, Alert, Descriptions, Tag, theme, Flex, Grid } from 'antd';
 import { useGetQueryQuery } from '../../api/telescopeApi';
 import { formatDate } from '../../utils/helpers';
 import Loader from '../../components/Loader';
 import { map } from 'lodash';
 import DurationTag from '../../components/Tag/DurationTag';
 const { Title, Text } = Typography;
+const { useBreakpoint } = Grid;
 
 export const QueryDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { token } = theme.useToken();
+  const screens = useBreakpoint();
   const { data: entry, isLoading, error } = useGetQueryQuery(id!, { skip: !id });
 
   if (isLoading) {
@@ -24,6 +26,7 @@ export const QueryDetail: React.FC = () => {
   }
 
   const query = entry;
+  const descriptionsColumn = screens.md ? 2 : 1;
 
   return (
     <>
@@ -34,17 +37,19 @@ export const QueryDetail: React.FC = () => {
       </div>
 
       <Flex vertical gap="large">
-        <Descriptions bordered column={2}>
-          <Descriptions.Item label="Connection" span={1}>
-            <Tag color="blue">{query.connection || 'default'}</Tag>
-          </Descriptions.Item>
-          <Descriptions.Item label="Duration" span={1}>
-            <DurationTag value={query.time} />{' '}
-          </Descriptions.Item>
-          <Descriptions.Item label="Time" span={2}>
-            {formatDate(query.created_at)}
-          </Descriptions.Item>
-        </Descriptions>
+        <Card className="mb-4" style={{ backgroundColor: token.colorBgContainer }}>
+          <Descriptions bordered={screens.xs ? false : true} column={descriptionsColumn}>
+            <Descriptions.Item label="Connection" span={1}>
+              <Tag color="blue">{query.connection || 'default'}</Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="Duration" span={1}>
+              <DurationTag value={query.time} />{' '}
+            </Descriptions.Item>
+            <Descriptions.Item label="Time" span={2}>
+              {formatDate(query.created_at)}
+            </Descriptions.Item>
+          </Descriptions>
+        </Card>
 
         {query.query && (
           <Card title="Query" size="small" style={{ backgroundColor: token.colorBgContainer }}>
@@ -54,7 +59,7 @@ export const QueryDetail: React.FC = () => {
 
         {query.bindings && query.bindings.length > 0 && (
           <Card title="Bindings" size="small" style={{ backgroundColor: token.colorBgContainer }}>
-            <Descriptions bordered size="small" column={1}>
+            <Descriptions bordered={screens.xs ? false : true} size="small" column={1}>
               {map(query.bindings, (binding, index: number) => (
                 <Descriptions.Item key={index} label={`Binding ${index + 1}`}>
                   <Text code>{binding}</Text>

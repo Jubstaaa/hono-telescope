@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Row, Col, Statistic, Typography, Alert, Button, Flex } from 'antd';
+import { Card, Row, Col, Statistic, Typography, Alert, Button, Flex, Grid } from 'antd';
 import { useNavigate } from 'react-router';
 import {
   DownloadOutlined,
@@ -12,9 +12,11 @@ import { map } from 'lodash';
 import { useGetStatsQuery } from '../../api/telescopeApi';
 
 const { Title } = Typography;
+const { useBreakpoint } = Grid;
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
+  const screens = useBreakpoint();
   const { data: stats, isLoading, error, refetch } = useGetStatsQuery();
 
   const statsCards = [
@@ -70,18 +72,13 @@ export const Dashboard: React.FC = () => {
   return (
     <>
       <Flex vertical gap="large">
-        <Title level={2}>Dashboard</Title>
+        <Title level={2} style={{ margin: 0 }}>
+          Dashboard
+        </Title>
 
-        <Row gutter={[16, 16]} wrap={false} style={{ overflowX: 'auto', flexWrap: 'nowrap' }}>
+        <Row gutter={[16, 16]}>
           {map(statsCards, (stat) => (
-            <Col
-              key={stat.title}
-              style={{
-                flex: '0 0 auto',
-                minWidth: 220,
-                maxWidth: 260,
-              }}
-            >
+            <Col key={stat.title} xs={12} sm={12} md={8} lg={4.8} xl={4.8}>
               <Card
                 loading={isLoading}
                 hoverable
@@ -92,7 +89,7 @@ export const Dashboard: React.FC = () => {
                   title={stat.title}
                   value={stat.value}
                   prefix={<span style={{ color: stat.color }}>{stat.icon}</span>}
-                  valueStyle={{ color: stat.color }}
+                  valueStyle={{ color: stat.color, fontSize: screens.xs ? '18px' : '24px' }}
                 />
               </Card>
             </Col>

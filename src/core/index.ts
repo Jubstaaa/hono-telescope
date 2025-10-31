@@ -41,7 +41,7 @@ export function setupTelescope(
       trace: error?.stack || '',
       context: {
         method: c.req?.method || 'UNKNOWN',
-        uri: c.req?.url || 'unknown',
+        uri: c.req?.path || 'unknown',
         headers: headers,
       },
     };
