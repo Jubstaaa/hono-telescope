@@ -16,4 +16,5 @@ export enum EntryType {
 export interface TelescopeConfig {
   enabled: boolean;
   max_entries: number;
+  sanitize_headers?: string[];
 }

@@ -9,7 +9,11 @@ import { setupTelescope } from '@/core';
 const app = new Hono();
 const db = getDatabase();
 
-setupTelescope(app);
+setupTelescope(app, {
+  enabled: true,
+  sanitize_headers: ['x-forwarded-for', 'x-real-ip', 'do-connecting-ip'],
+  max_entries: 100,
+});
 
 app.get('/', (c) => {
   return c.json({

@@ -6,10 +6,10 @@ import { LogLevel, ExceptionClass } from './enums';
 export interface IncomingRequestEntryData {
   method: string;
   uri: string;
-  headers: Record<string, string>;
+  headers: Record<string, unknown>;
   payload: Record<string, unknown>;
   response_status: number;
-  response_headers: Record<string, string>;
+  response_headers: Record<string, unknown>;
   response: Record<string, unknown>;
   duration: number;
   ip_address?: string;
@@ -26,10 +26,10 @@ export interface OutgoingRequestEntryData {
   parent_id?: string;
   method: string;
   uri: string;
-  headers: Record<string, string>;
+  headers: Record<string, unknown>;
   payload: Record<string, unknown>;
   response_status: number;
-  response_headers: Record<string, string>;
+  response_headers: Record<string, unknown>;
   response: Record<string, unknown>;
   duration: number;
   user_agent?: string;
