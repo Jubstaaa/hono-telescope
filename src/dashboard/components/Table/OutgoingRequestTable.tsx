@@ -1,6 +1,6 @@
 import React from 'react';
 import { formatDate } from '../../utils/helpers';
-import { OutgoingRequestResponse } from '@hono-telescope/types';
+import { OutgoingRequestResponse } from '@/types';
 import DurationTag from '../Tag/DurationTag';
 import StatusTag from '../Tag/StatusTag';
 import MethodTag from '../Tag/MethodTag';
