@@ -9,7 +9,7 @@ import type {
   ExceptionResponse,
   LogResponse,
   QueryResponse,
-} from '@hono-telescope/types';
+} from '@/types';
 
 export const mapIncomingRequest = (e: IncomingRequestEntry): IncomingRequestResponse => ({
   id: e.id,

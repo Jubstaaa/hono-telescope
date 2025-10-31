@@ -1,4 +1,4 @@
-import { ExceptionClass } from '@hono-telescope/types';
+import { ExceptionClass } from '@/types';
 
 export const getExceptionClassCode = (errorName: string): number => {
   switch (errorName) {

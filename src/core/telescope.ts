@@ -12,7 +12,7 @@ import {
   QueryCreateInput,
   TelescopeCreateInput,
   BaseEntry,
-} from '@hono-telescope/types';
+} from '@/types';
 import { MemoryStorage } from './storage/memory-storage';
 
 export class Telescope {
