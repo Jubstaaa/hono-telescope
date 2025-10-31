@@ -1,5 +1,12 @@
 
 
+## [0.1.13](https://github.com/jubstaaa/hono-telescope/compare/0.1.12...0.1.13) (2025-10-31)
+
+
+### 🐛 Bug Fixes
+
+* **security:** finalize header sanitization implementation ([2ab1465](https://github.com/jubstaaa/hono-telescope/commit/2ab1465e9d9c9c4bacf2ac4537270696a1dac1ba))
+
 ## [0.1.12](https://github.com/jubstaaa/hono-telescope/compare/v0.1.11...0.1.12) (2025-10-31)
 
 
