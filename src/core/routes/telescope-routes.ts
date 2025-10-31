@@ -1,5 +1,7 @@
 import type { Context } from 'hono';
 import { TelescopeDashboard } from '../dashboard/dashboard';
+import { Telescope } from '../telescope';
+import { sanitizeHeaders } from '../utils/helpers';
 
 type HonoContext = Context<{
   Bindings: {
@@ -84,6 +86,17 @@ export class TelescopeRoutes {
       if (!result) {
         return c.json({ error: 'Request not found' }, 404);
       }
+
+      const telescope = Telescope.getInstance();
+      const headersToRedact = telescope.getConfig().sanitize_headers;
+
+      if (result.headers && typeof result.headers === 'object') {
+        result.headers = sanitizeHeaders(result.headers, headersToRedact);
+      }
+      if (result.response_headers && typeof result.response_headers === 'object') {
+        result.response_headers = sanitizeHeaders(result.response_headers, headersToRedact);
+      }
+
       return c.json(result);
     } catch {
       return c.json({ error: 'Failed to fetch request' }, 500);
@@ -111,6 +124,18 @@ export class TelescopeRoutes {
       if (!entry) {
         return c.json({ error: 'Request not found' }, 404);
       }
+
+      // Get sanitization config from Telescope
+      const telescope = Telescope.getInstance();
+      const headersToRedact = telescope.getConfig().sanitize_headers;
+
+      if (entry.headers && typeof entry.headers === 'object') {
+        entry.headers = sanitizeHeaders(entry.headers, headersToRedact);
+      }
+      if (entry.response_headers && typeof entry.response_headers === 'object') {
+        entry.response_headers = sanitizeHeaders(entry.response_headers, headersToRedact);
+      }
+
       return c.json(entry);
     } catch {
       return c.json({ error: 'Failed to fetch request' }, 500);

@@ -1,4 +1,4 @@
-export const IGNORED_PATHS = ['/telescope'] as const;
+export const IGNORED_PATHS = ['/telescope', '.well-known'] as const;
 
 export const IGNORED_STATIC_EXTENSIONS = [
   '.js',

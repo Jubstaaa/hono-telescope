@@ -18,16 +18,24 @@ import { MemoryStorage } from './storage/memory-storage';
 export class Telescope {
   private static instance: Telescope;
   private repository: MemoryStorage;
+  private config: Partial<TelescopeConfig>;
 
   private constructor(config: Partial<TelescopeConfig> = {}) {
     this.repository = new MemoryStorage(config.max_entries);
+    this.config = config;
   }
 
   public static getInstance(config?: Partial<TelescopeConfig>): Telescope {
     if (!Telescope.instance) {
       Telescope.instance = new Telescope(config);
+    } else if (config) {
+      Telescope.instance.config = config;
     }
     return Telescope.instance;
+  }
+
+  public getConfig(): Partial<TelescopeConfig> {
+    return this.config;
   }
 
   private createEntry<T extends TelescopeCreateInput>(data: T): T & BaseEntry {
