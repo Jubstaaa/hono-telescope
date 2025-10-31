@@ -1,5 +1,12 @@
 
 
+## [0.1.12](https://github.com/jubstaaa/hono-telescope/compare/v0.1.11...0.1.12) (2025-10-31)
+
+
+### 🏗️ Build
+
+* **scripts:** ensure dashboard assets and html are copied to dist properly ([5e7c82a](https://github.com/jubstaaa/hono-telescope/commit/5e7c82a9e535fbce7e7fc1496c3bd5dd760126cf))
+
 ## [0.1.11](https://github.com/jubstaaa/hono-telescope/compare/0.1.10...0.1.11) (2025-10-31)
 
 
