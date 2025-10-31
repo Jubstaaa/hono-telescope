@@ -26,6 +26,8 @@ A powerful debugging and monitoring tool for Hono applications, inspired by Lara
 
 ## ✨ Features
 
+**Currently Available:**
+
 - 🔍 **HTTP Request Monitoring** - Track all incoming and outgoing requests with detailed headers and payloads
 - 🚨 **Exception Tracking** - Capture and monitor application errors with stack traces
 - 📝 **Log Monitoring** - Monitor console logs with different severity levels
@@ -37,8 +39,19 @@ A powerful debugging and monitoring tool for Hono applications, inspired by Lara
 - ⚡ **High Performance** - Minimal overhead with efficient memory management
 - 🌐 **Bun & Node.js** - Works with both runtimes seamlessly
 - 🗂️ **Multiple Database Support** - Integrates with popular database libraries
+
+**Planned Features (Roadmap):**
+
 - 🎨 **Code Formatting** - Built-in Prettier integration for consistent code style
 - 🔖 **Automated Versioning** - Release-it integration for semantic versioning
+- 💾 **Data Export** - Export monitored data in multiple formats (JSON, CSV)
+- 🔔 **Alerts & Notifications** - Real-time alerts for errors and performance issues
+- 📈 **Analytics & Reporting** - Advanced analytics and historical data analysis
+- 🔐 **Authentication & Authorization** - Dashboard access control
+- 🌍 **Multi-Tenancy Support** - Support for multiple isolated projects
+- 📱 **Mobile Dashboard** - Responsive mobile-friendly dashboard improvements
+- 🧩 **Plugin System** - Extensible plugin architecture for custom integrations
+- 🔄 **Data Persistence** - Optional database storage for long-term monitoring
 
 ## 📦 Installation
 

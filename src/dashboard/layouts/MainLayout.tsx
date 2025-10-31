@@ -4,6 +4,7 @@ import { Outlet, useNavigate, useLocation } from 'react-router';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { useTheme } from '../contexts/ThemeContext';
 import { Sidebar } from '../components/Sidebar';
+import TelescopeIcon from '../telescope-icon.svg';
 
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
@@ -46,9 +47,7 @@ export const MainLayout: React.FC = () => {
             backgroundColor: token.colorBgContainer,
           }}
         >
-          <div style={{ color: token.colorPrimary, display: 'flex', alignItems: 'center' }}>
-            <Image src={'/telescope-icon.svg'} width={32} height={32} preview={false} />
-          </div>
+          <Image src={TelescopeIcon} width={32} height={32} preview={false} />
           {!screens.xs && (
             <Title level={4} style={{ margin: 0, color: token.colorText }}>
               Hono Telescope
