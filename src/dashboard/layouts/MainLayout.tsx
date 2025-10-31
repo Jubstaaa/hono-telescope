@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layout, Button, Space, Typography, theme, Switch } from 'antd';
+import { Layout, Button, Space, Typography, theme, Switch, Flex, Image, Grid } from 'antd';
 import { Outlet, useNavigate, useLocation } from 'react-router';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { useTheme } from '../contexts/ThemeContext';
@@ -7,9 +7,11 @@ import { Sidebar } from '../components/Sidebar';
 
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
+const { useBreakpoint } = Grid;
 
 export const MainLayout: React.FC = () => {
   const { isDark, toggleTheme } = useTheme();
+  const screens = useBreakpoint();
   const { token } = theme.useToken();
   const navigate = useNavigate();
   const location = useLocation();
@@ -19,8 +21,24 @@ export const MainLayout: React.FC = () => {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider width={250} style={{ backgroundColor: token.colorBgContainer }}>
-        <div
+      <Sider
+        width={250}
+        collapsible
+        collapsed={screens.xs ? true : false}
+        breakpoint="lg"
+        trigger={null}
+        style={{
+          backgroundColor: token.colorBgContainer,
+          position: 'relative',
+          height: '100vh',
+          left: 0,
+          top: 0,
+        }}
+      >
+        <Flex
+          justify={screens.xs ? 'center' : 'start'}
+          align="center"
+          gap="8px"
           style={{
             height: '64px',
             padding: '16px',
@@ -28,10 +46,15 @@ export const MainLayout: React.FC = () => {
             backgroundColor: token.colorBgContainer,
           }}
         >
-          <Title level={4} style={{ margin: 0, color: token.colorText }}>
-            Hono Telescope
-          </Title>
-        </div>
+          <div style={{ color: token.colorPrimary, display: 'flex', alignItems: 'center' }}>
+            <Image src={'/telescope-icon.svg'} width={32} height={32} preview={false} />
+          </div>
+          {!screens.xs && (
+            <Title level={4} style={{ margin: 0, color: token.colorText }}>
+              Hono Telescope
+            </Title>
+          )}
+        </Flex>
         <Sidebar />
       </Sider>
 
@@ -39,20 +62,23 @@ export const MainLayout: React.FC = () => {
         <Header
           style={{
             height: '64px',
-            padding: '0 24px',
+            padding: screens.xs ? '0 12px' : '0 24px',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
             borderBottom: `1px solid ${token.colorBorder}`,
             backgroundColor: token.colorBgContainer,
+            gap: '12px',
           }}
         >
-          <Button
-            icon={<ArrowLeftOutlined />}
-            onClick={() => navigate(-1)}
-            disabled={!canGoBack}
-            style={{ color: token.colorText }}
-          />
+          <Space size="small">
+            <Button
+              icon={<ArrowLeftOutlined />}
+              onClick={() => navigate(-1)}
+              disabled={!canGoBack}
+              style={{ color: token.colorText }}
+            />
+          </Space>
           <Space>
             <Switch
               checked={isDark}
@@ -68,7 +94,12 @@ export const MainLayout: React.FC = () => {
             overflow: 'auto',
           }}
         >
-          <div style={{ padding: '24px', height: '100%' }}>
+          <div
+            style={{
+              padding: screens.xs ? '12px' : '24px',
+              height: '100%',
+            }}
+          >
             <Outlet />
           </div>
         </Content>

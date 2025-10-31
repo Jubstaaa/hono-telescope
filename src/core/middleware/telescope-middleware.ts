@@ -4,9 +4,13 @@ import { TelescopeConfig } from '@hono-telescope/types';
 import { ContextManager } from '../context-manager';
 import { HttpInterceptor } from '../interceptors/http-interceptor';
 import { DatabaseInterceptor } from '../interceptors/database-interceptor';
-import { IGNORED_PATHS } from '../constants';
+import { IGNORED_PATHS, IGNORED_STATIC_EXTENSIONS } from '../constants';
 import { some } from 'lodash';
 import { getExceptionClassCode } from '../utils/helpers';
+
+function isStaticAsset(path: string): boolean {
+  return IGNORED_STATIC_EXTENSIONS.some((ext) => path.toLowerCase().endsWith(ext));
+}
 
 export function telescope(config?: Partial<TelescopeConfig>): MiddlewareHandler {
   const telescopeInstance = Telescope.getInstance(config);
@@ -24,11 +28,16 @@ export function telescope(config?: Partial<TelescopeConfig>): MiddlewareHandler 
       return;
     }
 
+    if (isStaticAsset(c.req.path)) {
+      await next();
+      return;
+    }
+
     const startTime = Date.now();
 
     const requestData = {
       method: c.req.method,
-      uri: c.req.url,
+      uri: c.req.path,
       headers: c.req.header(),
       ip_address: c.req.header('x-forwarded-for') || c.req.header('x-real-ip') || 'unknown',
       user_agent: c.req.header('user-agent') || 'unknown',

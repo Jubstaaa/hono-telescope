@@ -10,3 +10,109 @@ body {
 * {
   box-sizing: border-box;
 }
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+  }
+
+  h1 {
+    font-size: 24px !important;
+  }
+
+  h2 {
+    font-size: 20px !important;
+  }
+
+  h3 {
+    font-size: 18px !important;
+  }
+
+  h4 {
+    font-size: 16px !important;
+  }
+}
+
+@media (max-width: 576px) {
+  body {
+    font-size: 13px;
+  }
+
+  h1 {
+    font-size: 20px !important;
+  }
+
+  h2 {
+    font-size: 18px !important;
+  }
+
+  h3 {
+    font-size: 16px !important;
+  }
+
+  h4 {
+    font-size: 14px !important;
+  }
+}
+
+/* Ant Design overrides for mobile */
+.ant-layout-sider {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 768px) {
+  .ant-card {
+    border-radius: 6px;
+  }
+
+  .ant-statistic-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ant-table {
+    font-size: 12px;
+  }
+
+  .ant-table-thead > tr > th {
+    padding: 8px 12px !important;
+  }
+
+  .ant-table-tbody > tr > td {
+    padding: 8px 12px !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .ant-btn {
+    height: 32px;
+    padding: 0 12px;
+  }
+
+  .ant-btn-icon-only {
+    width: 32px;
+  }
+
+  .ant-switch {
+    min-width: 44px;
+    min-height: 24px;
+  }
+
+  .ant-menu {
+    font-size: 13px;
+  }
+
+  .ant-table {
+    font-size: 11px;
+  }
+
+  .ant-table-thead > tr > th {
+    padding: 6px 8px !important;
+  }
+
+  .ant-table-tbody > tr > td {
+    padding: 6px 8px !important;
+  }
+}

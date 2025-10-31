@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams } from 'react-router';
-import { Card, Typography, Alert, Descriptions, theme, Flex, Tabs } from 'antd';
+import { Card, Typography, Alert, Descriptions, theme, Flex, Tabs, Grid } from 'antd';
 import { useGetIncomingRequestQuery } from '../../api/telescopeApi';
 import { formatDate } from '../../utils/helpers';
 import QueryTable from '../../components/Table/QueryTable';
@@ -13,10 +13,12 @@ import StatusTag from '../../components/Tag/StatusTag';
 import MethodTag from '../../components/Tag/MethodTag';
 import DurationTag from '../../components/Tag/DurationTag';
 const { Title, Text } = Typography;
+const { useBreakpoint } = Grid;
 
 export const IncomingRequestDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { token } = theme.useToken();
+  const screens = useBreakpoint();
   const { data: response, isLoading, error } = useGetIncomingRequestQuery(id!, { skip: !id });
 
   if (isLoading) {
@@ -39,6 +41,8 @@ export const IncomingRequestDetail: React.FC = () => {
   const exceptions = response.relation_entries?.exceptions || [];
   const outgoingRequests = response.relation_entries?.outgoing_requests || [];
 
+  const descriptionsColumn = screens.md ? 2 : 1;
+
   return (
     <>
       <div className="flex justify-between items-center mb-6">
@@ -49,7 +53,7 @@ export const IncomingRequestDetail: React.FC = () => {
 
       <Flex vertical gap="large">
         <Card className="mb-4" style={{ backgroundColor: token.colorBgContainer }}>
-          <Descriptions bordered column={2}>
+          <Descriptions bordered={screens.xs ? false : true} column={descriptionsColumn}>
             <Descriptions.Item label="Method" span={1}>
               <MethodTag method={response.method} />
             </Descriptions.Item>

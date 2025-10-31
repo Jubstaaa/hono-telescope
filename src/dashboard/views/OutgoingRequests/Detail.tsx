@@ -1,16 +1,18 @@
 import React from 'react';
 import { useParams } from 'react-router';
-import { Card, Typography, Alert, Descriptions, Tag, theme, Flex } from 'antd';
+import { Card, Typography, Alert, Descriptions, Tag, theme, Flex, Grid } from 'antd';
 import { useGetOutgoingRequestQuery } from '../../api/telescopeApi';
 import { getStatusColor, formatDate } from '../../utils/helpers';
 import Loader from '../../components/Loader';
 import { JsonViewer } from '../../components/JsonViewer';
 import DurationTag from '../../components/Tag/DurationTag';
 const { Title, Text } = Typography;
+const { useBreakpoint } = Grid;
 
 export const OutgoingRequestDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { token } = theme.useToken();
+  const screens = useBreakpoint();
   const { data: request, isLoading, error } = useGetOutgoingRequestQuery(id!, { skip: !id });
 
   if (isLoading) {
@@ -28,6 +30,8 @@ export const OutgoingRequestDetail: React.FC = () => {
     );
   }
 
+  const descriptionsColumn = screens.md ? 2 : 1;
+
   return (
     <>
       <div className="flex justify-between items-center mb-6">
@@ -38,7 +42,11 @@ export const OutgoingRequestDetail: React.FC = () => {
 
       <Flex vertical gap="large">
         <Card className="mb-4" style={{ backgroundColor: token.colorBgContainer }}>
-          <Descriptions title="Request Information" bordered>
+          <Descriptions
+            title="Request Information"
+            bordered={screens.xs ? false : true}
+            column={descriptionsColumn}
+          >
             <Descriptions.Item label="Method" span={1}>
               <Tag color="blue">{request.method}</Tag>
             </Descriptions.Item>
