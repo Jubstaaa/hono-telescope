@@ -5,7 +5,7 @@ import { startExceptionWatcher } from './watchers/exception-watcher';
 import { startLogWatcher } from './watchers/log-watcher';
 import { startQueryWatcher } from './watchers/query-watcher';
 import type { Context } from 'hono';
-import { getExceptionClassCode } from './utils/helpers';
+import { getExceptionClassCode, sanitizeHeaders } from './utils/helpers';
 import { Telescope } from './telescope';
 
 export function setupTelescope(
@@ -35,6 +35,10 @@ export function setupTelescope(
       headers = {};
     }
 
+    // Sanitize headers based on config
+    const sanitizeConfig = telescopeInstance.getConfig().sanitize_headers;
+    const sanitizedHeaders = sanitizeHeaders(headers, sanitizeConfig);
+
     const exceptionData = {
       class: getExceptionClassCode(error?.constructor?.name || 'Error'),
       message: error?.message || 'Unknown error',
@@ -42,7 +46,7 @@ export function setupTelescope(
       context: {
         method: c.req?.method || 'UNKNOWN',
         uri: c.req?.path || 'unknown',
-        headers: headers,
+        headers: sanitizedHeaders,
       },
     };
 
