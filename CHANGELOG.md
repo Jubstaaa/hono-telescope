@@ -1,5 +1,12 @@
 
 
+## [0.1.15](https://github.com/jubstaaa/hono-telescope/compare/0.1.14...0.1.15) (2025-11-01)
+
+
+### ✨ Features
+
+* **exception:** sanitize sensitive headers in exception context ([e826737](https://github.com/jubstaaa/hono-telescope/commit/e8267378b6b2671b0fa698b9057bba795c036fb9))
+
 ## [0.1.14](https://github.com/jubstaaa/hono-telescope/compare/0.1.13...0.1.14) (2025-10-31)
 
 
