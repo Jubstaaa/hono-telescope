@@ -7,6 +7,7 @@ import { startQueryWatcher } from './watchers/query-watcher';
 import type { Context } from 'hono';
 import { getExceptionClassCode, sanitizeHeaders } from './utils/helpers';
 import { Telescope } from './telescope';
+import { ContextManager } from './context-manager';
 
 export function setupTelescope(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -38,6 +39,7 @@ export function setupTelescope(
     // Sanitize headers based on config
     const sanitizeConfig = telescopeInstance.getConfig().sanitize_headers;
     const sanitizedHeaders = sanitizeHeaders(headers, sanitizeConfig);
+    const requestId = ContextManager.getInstance().getCurrentRequestId();
 
     const exceptionData = {
       class: getExceptionClassCode(error?.constructor?.name || 'Error'),
@@ -48,6 +50,7 @@ export function setupTelescope(
         uri: c.req?.path || 'unknown',
         headers: sanitizedHeaders,
       },
+      parent_id: requestId,
     };
 
     telescopeInstance.recordException(exceptionData).catch((recordError: Error) => {
@@ -74,6 +77,8 @@ export function setupTelescope(
 
   app.get('/telescope/api/logs', routes.getLogs.bind(routes));
   app.get('/telescope/api/logs/:id', routes.getLog.bind(routes));
+
+  app.post('/telescope/api/clear', routes.clearData.bind(routes));
 
   app.get('/telescope', routes.getDashboard.bind(routes));
   app.get('/telescope/assets/*', routes.getAsset.bind(routes));

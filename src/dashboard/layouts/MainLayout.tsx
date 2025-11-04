@@ -1,10 +1,18 @@
 import React from 'react';
-import { Layout, Button, Space, Typography, theme, Switch, Flex, Image, Grid } from 'antd';
+import { Layout, Button, Space, Typography, theme, Flex, Image, Grid } from 'antd';
 import { Outlet, useNavigate, useLocation } from 'react-router';
-import { ArrowLeftOutlined } from '@ant-design/icons';
+import {
+  ArrowLeftOutlined,
+  DeleteOutlined,
+  RadarChartOutlined,
+  SunOutlined,
+  MoonOutlined,
+} from '@ant-design/icons';
 import { useTheme } from '../contexts/ThemeContext';
 import { Sidebar } from '../components/Sidebar';
 import TelescopeIcon from '../telescope-icon.svg';
+import { useClearDataMutation, telescopeApi } from '../api/telescopeApi';
+import { useDispatch } from 'react-redux';
 
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
@@ -16,9 +24,31 @@ export const MainLayout: React.FC = () => {
   const { token } = theme.useToken();
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
+  const [clearData, { isLoading: isClearLoading }] = useClearDataMutation();
+  const [liveMode, setLiveMode] = React.useState(false);
 
   const isDashboard = location.pathname === '/dashboard' || location.pathname === '/';
   const canGoBack = !isDashboard;
+
+  React.useEffect(() => {
+    if (!liveMode) return;
+
+    const interval = setInterval(() => {
+      dispatch(
+        telescopeApi.util.invalidateTags([
+          'Stats',
+          'IncomingRequests',
+          'OutgoingRequests',
+          'Exceptions',
+          'Queries',
+          'Logs',
+        ])
+      );
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [liveMode, dispatch]);
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -30,10 +60,6 @@ export const MainLayout: React.FC = () => {
         trigger={null}
         style={{
           backgroundColor: token.colorBgContainer,
-          position: 'relative',
-          height: '100vh',
-          left: 0,
-          top: 0,
         }}
       >
         <Flex
@@ -78,12 +104,41 @@ export const MainLayout: React.FC = () => {
               style={{ color: token.colorText }}
             />
           </Space>
-          <Space>
-            <Switch
-              checked={isDark}
-              onChange={toggleTheme}
-              checkedChildren="🌙"
-              unCheckedChildren="☀️"
+          <Space size="middle">
+            <Button
+              danger
+              icon={<DeleteOutlined style={{ fontSize: '16px' }} />}
+              onClick={async () => await clearData().unwrap()}
+              loading={isClearLoading}
+              disabled={isClearLoading}
+              title="Clear all data"
+            />
+            <Button
+              icon={
+                <RadarChartOutlined
+                  className={liveMode ? 'live-mode-pulse' : ''}
+                  style={
+                    {
+                      fontSize: '16px',
+                      color: liveMode ? token.colorPrimary : token.colorText,
+                      '--live-color': liveMode ? token.colorPrimary : token.colorText,
+                    } as React.CSSProperties & { '--live-color': string }
+                  }
+                />
+              }
+              onClick={() => setLiveMode(!liveMode)}
+              title={liveMode ? 'Live mode: ON' : 'Live mode: OFF'}
+            />
+            <Button
+              icon={
+                isDark ? (
+                  <SunOutlined style={{ fontSize: '16px' }} />
+                ) : (
+                  <MoonOutlined style={{ fontSize: '16px' }} />
+                )
+              }
+              onClick={toggleTheme}
+              title={isDark ? 'Light mode' : 'Dark mode'}
             />
           </Space>
         </Header>
