@@ -1,5 +1,12 @@
 
 
+## [0.1.17](https://github.com/jubstaaa/hono-telescope/compare/0.1.16...0.1.17) (2025-11-04)
+
+
+### ✨ Features
+
+* **build:** optimize dashboard bundle size\n\n- Add granular manualChunks (ui-antd, react-core, router, state, utils, http, ui-utils, app)\n- Enable terser minification with drop_console/drop_debugger and mangle\n- Report compressed sizes; tighten chunk size warning threshold\n- Prebundle critical deps via optimizeDeps.include\n- Add terser and babel-plugin-import to devDependencies\n\nImpact: raw ~1.2MB total, gzip ~385KB; removed duplicated multi-MB bundles. ([7b178d1](https://github.com/jubstaaa/hono-telescope/commit/7b178d11d83efeb06a37728bc419d7a4a45f534f))
+
 ## [0.1.16](https://github.com/jubstaaa/hono-telescope/compare/0.1.15...0.1.16) (2025-11-04)
 
 
