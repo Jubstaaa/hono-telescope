@@ -48,7 +48,7 @@ class QueryWatcher {
       bindings: [],
       query: sql.trim(),
       time: 0,
-      parent_id: parentId || undefined,
+      parent_id: parentId,
     });
   }
 }
@@ -83,6 +83,6 @@ export function recordDatabaseQuery(
     bindings,
     query: sql.trim(),
     time: executionTime,
-    parent_id: parentId || undefined,
+    parent_id: parentId,
   });
 }

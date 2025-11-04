@@ -222,4 +222,14 @@ export class TelescopeRoutes {
       return c.json({ error: 'Failed to fetch log' }, 500);
     }
   }
+
+  async clearData(c: HonoContext) {
+    try {
+      const telescope = Telescope.getInstance();
+      await telescope.clearAllData();
+      return c.json({ success: true, message: 'All data cleared successfully' });
+    } catch {
+      return c.json({ error: 'Failed to clear data' }, 500);
+    }
+  }
 }
