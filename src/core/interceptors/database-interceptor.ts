@@ -114,7 +114,7 @@ export class DatabaseInterceptor {
             bindings: args.map(String),
             query: String(query),
             time: Date.now() - startTime,
-            parent_id: contextManager.getCurrentRequestId() || undefined,
+            parent_id: contextManager.getCurrentRequestId(),
           });
           return result;
         } catch (error) {
@@ -123,7 +123,7 @@ export class DatabaseInterceptor {
             bindings: args.map(String),
             query: String(query),
             time: Date.now() - startTime,
-            parent_id: contextManager.getCurrentRequestId() || undefined,
+            parent_id: contextManager.getCurrentRequestId(),
           });
           throw error;
         }
@@ -149,7 +149,7 @@ export class DatabaseInterceptor {
             bindings: args.map(String),
             query: String(query),
             time: Date.now() - startTime,
-            parent_id: contextManager.getCurrentRequestId() || undefined,
+            parent_id: contextManager.getCurrentRequestId(),
           });
           return result;
         } catch (error) {
@@ -158,7 +158,7 @@ export class DatabaseInterceptor {
             bindings: args.map(String),
             query: String(query),
             time: Date.now() - startTime,
-            parent_id: contextManager.getCurrentRequestId() || undefined,
+            parent_id: contextManager.getCurrentRequestId(),
           });
           throw error;
         }
@@ -204,7 +204,7 @@ export class DatabaseInterceptor {
             bindings: ((options?.bind as unknown[]) || []).map(String),
             query: sql,
             time: Date.now() - startTime,
-            parent_id: contextManager.getCurrentRequestId() || undefined,
+            parent_id: contextManager.getCurrentRequestId(),
           });
           return result;
         } catch (error) {
@@ -213,7 +213,7 @@ export class DatabaseInterceptor {
             bindings: ((options?.bind as unknown[]) || []).map(String),
             query: sql,
             time: Date.now() - startTime,
-            parent_id: contextManager.getCurrentRequestId() || undefined,
+            parent_id: contextManager.getCurrentRequestId(),
           });
           throw error;
         }
@@ -267,7 +267,7 @@ export class DatabaseInterceptor {
             query || {}
           )})`,
           time: Date.now() - startTime,
-          parent_id: contextManager.getCurrentRequestId() || undefined,
+          parent_id: contextManager.getCurrentRequestId(),
         });
         return result;
       };
@@ -303,6 +303,7 @@ export class DatabaseInterceptor {
   ): void {
     // Store original methods
     const originalPrepare = (OriginalDatabase.prototype as Record<string, unknown>)?.prepare;
+    const contextManager = this.contextManager;
 
     if (originalPrepare) {
       (OriginalDatabase.prototype as Record<string, unknown>).prepare = function (sql: string) {
@@ -328,7 +329,7 @@ export class DatabaseInterceptor {
               bindings: bindings.map(String),
               query: sql,
               time: duration,
-              parent_id: undefined,
+              parent_id: contextManager.getCurrentRequestId(),
             });
 
             return result;
@@ -348,7 +349,7 @@ export class DatabaseInterceptor {
               bindings: bindings.map(String),
               query: sql,
               time: duration,
-              parent_id: undefined,
+              parent_id: contextManager.getCurrentRequestId(),
             });
 
             return result;
@@ -368,7 +369,7 @@ export class DatabaseInterceptor {
               bindings: bindings.map(String),
               query: sql,
               time: duration,
-              parent_id: undefined,
+              parent_id: contextManager.getCurrentRequestId(),
             });
 
             return result;
@@ -397,7 +398,7 @@ export class DatabaseInterceptor {
           bindings: [],
           query: message,
           time: 0,
-          parent_id: contextManager.getCurrentRequestId() || undefined,
+          parent_id: contextManager.getCurrentRequestId(),
         });
       }
 
@@ -424,7 +425,7 @@ export class DatabaseInterceptor {
         bindings,
         query: sql,
         time: Date.now() - startTime,
-        parent_id: parentId || undefined,
+        parent_id: parentId,
       });
     }
 

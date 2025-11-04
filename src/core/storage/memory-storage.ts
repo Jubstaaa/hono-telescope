@@ -43,6 +43,10 @@ class BaseRepository<T extends BaseEntry> {
   async count(): Promise<number> {
     return this.entries.length;
   }
+
+  async clear(): Promise<void> {
+    this.entries = [];
+  }
 }
 
 export class IncomingRequestRepository extends BaseRepository<IncomingRequestEntry> {}
