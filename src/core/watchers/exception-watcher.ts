@@ -57,7 +57,7 @@ class ExceptionWatcher {
       class: getExceptionClassCode(error.constructor.name),
       message: error.message,
       trace: stack.split('\n').slice(1).join('\n').trim(),
-      parent_id: requestId || undefined,
+      parent_id: requestId,
     });
   }
 }

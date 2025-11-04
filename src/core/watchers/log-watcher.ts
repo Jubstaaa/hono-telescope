@@ -92,7 +92,7 @@ export class LogWatcher {
         timestamp: new Date().toISOString(),
         stack: this.getStackTrace(),
       },
-      parent_id: requestId || undefined,
+      parent_id: requestId,
     });
   }
 
