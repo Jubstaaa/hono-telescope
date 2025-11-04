@@ -1,5 +1,12 @@
 
 
+## [0.1.16](https://github.com/jubstaaa/hono-telescope/compare/0.1.15...0.1.16) (2025-11-04)
+
+
+### ✨ Features
+
+* **telescope:** add clear data and live mode features ([fb076ad](https://github.com/jubstaaa/hono-telescope/commit/fb076adfc75985b42ea0afa7984c831f554f63e3))
+
 ## [0.1.15](https://github.com/jubstaaa/hono-telescope/compare/0.1.14...0.1.15) (2025-11-01)
 
 
