@@ -157,4 +157,12 @@ export class Telescope {
   public async countQueries(): Promise<number> {
     return this.repository.queries.count();
   }
+
+  public async clearAllData(): Promise<void> {
+    await this.repository.incomingRequests.clear();
+    await this.repository.outgoingRequests.clear();
+    await this.repository.exceptions.clear();
+    await this.repository.logs.clear();
+    await this.repository.queries.clear();
+  }
 }
