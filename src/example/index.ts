@@ -2,9 +2,15 @@ import { Hono } from 'hono';
 import { getDatabase, User } from './database';
 import axios, { AxiosError } from 'axios';
 import { setupTelescope } from '@/core';
+import dayjs from 'dayjs';
 
 // Make axios available globally for the interceptor
 (globalThis as unknown as Record<string, unknown>).axios = axios;
+
+// Helper function for date formatting
+const formatDate = (): string => {
+  return `[${dayjs().format('YYYY-MM-DD HH:mm:ss.SSS')}]`;
+};
 
 const app = new Hono();
 const db = getDatabase();
@@ -16,6 +22,7 @@ setupTelescope(app, {
 });
 
 app.get('/', (c) => {
+  console.log(`${formatDate()} GET /`);
   return c.json({
     message: 'Hono Telescope Example - Real Database!',
     timestamp: new Date().toISOString(),
@@ -36,6 +43,7 @@ app.get('/', (c) => {
 });
 
 app.get('/api/users', async (c) => {
+  console.log(`${formatDate()} GET /api/users`);
   try {
     const users = db.getAllUsers();
     const count = db.getUserCount();
@@ -61,6 +69,7 @@ app.get('/api/users', async (c) => {
 });
 
 app.get('/api/users/:id', async (c) => {
+  console.log(`${formatDate()} GET /api/users/:id - ID: ${c.req.param('id')}`);
   try {
     const id = parseInt(c.req.param('id'));
 
@@ -103,6 +112,7 @@ app.get('/api/users/:id', async (c) => {
 });
 
 app.post('/api/users', async (c) => {
+  console.log(`${formatDate()} POST /api/users`);
   try {
     const body = (await c.req.json()) as Partial<User>;
 
@@ -157,6 +167,7 @@ app.post('/api/users', async (c) => {
 
 // Update user
 app.put('/api/users/:id', async (c) => {
+  console.log(`${formatDate()} PUT /api/users/:id - ID: ${c.req.param('id')}`);
   try {
     const id = parseInt(c.req.param('id'));
     const body = (await c.req.json()) as Partial<User>;
@@ -216,6 +227,7 @@ app.put('/api/users/:id', async (c) => {
 
 // Delete user
 app.delete('/api/users/:id', async (c) => {
+  console.log(`${formatDate()} DELETE /api/users/:id - ID: ${c.req.param('id')}`);
   try {
     const id = parseInt(c.req.param('id'));
 
@@ -258,6 +270,7 @@ app.delete('/api/users/:id', async (c) => {
 });
 
 app.post('/api/import-users', async (c) => {
+  console.log(`${formatDate()} POST /api/import-users`);
   try {
     const response = await fetch('https://jsonplaceholder.typicode.com/users');
     const externalUsers = await response.json();
@@ -312,10 +325,12 @@ app.post('/api/import-users', async (c) => {
 });
 
 app.get('/api/error', (_) => {
+  console.log(`${formatDate()} GET /api/error`);
   throw new Error('Test error - Database connection lost!');
 });
 
 app.get('/api/slow', async (c) => {
+  console.log(`${formatDate()} GET /api/slow`);
   await new Promise((resolve) => setTimeout(resolve, 2000));
 
   const users = db.getAllUsers();
@@ -329,6 +344,7 @@ app.get('/api/slow', async (c) => {
 
 // 🌐 Axios test endpoints
 app.get('/api/axios-test', async (c) => {
+  console.log(`${formatDate()} GET /api/axios-test`);
   try {
     // Test 1: GET request with axios
     const getResponse = await axios.get('https://jsonplaceholder.typicode.com/posts/1');
@@ -384,6 +400,7 @@ app.get('/api/axios-test', async (c) => {
 
 // 🔄 Mixed HTTP clients test
 app.get('/api/mixed-clients-test', async (c) => {
+  console.log(`${formatDate()} GET /api/mixed-clients-test`);
   try {
     const results = [];
 
@@ -416,19 +433,22 @@ app.get('/api/mixed-clients-test', async (c) => {
       dataPreview: axiosResponse.data.name,
     });
 
-    // Test axios POST
-    const axiosPostResponse = await axios.post('https://httpbin.org/post', {
-      message: 'Testing axios POST with Hono Telescope',
+    // Test axios POST to JSONPlaceholder
+    const axiosPostResponse = await axios.post('https://jsonplaceholder.typicode.com/posts', {
+      title: 'foo',
+      body: 'bar',
+      userId: 1,
+      createdWith: 'Hono Telescope mixed clients test',
       timestamp: new Date().toISOString(),
     });
 
     results.push({
       client: 'axios',
       method: 'POST',
-      url: 'https://httpbin.org/post',
+      url: 'https://jsonplaceholder.typicode.com/posts',
       status: axiosPostResponse.status,
       duration: 'N/A',
-      dataPreview: 'POST data sent successfully',
+      dataPreview: `POST created: id ${axiosPostResponse.data.id}`,
     });
 
     return c.json({
