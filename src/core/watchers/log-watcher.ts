@@ -11,11 +11,14 @@ export class LogWatcher {
     error: typeof console.error;
     info: typeof console.info;
     debug: typeof console.debug;
-  };
+  } | null = null;
 
   constructor() {
     this.telescope = Telescope.getInstance();
     this.contextManager = ContextManager.getInstance();
+  }
+
+  public start(): void {
     this.originalConsole = {
       log: console.log,
       warn: console.warn,
@@ -23,9 +26,7 @@ export class LogWatcher {
       info: console.info,
       debug: console.debug,
     };
-  }
 
-  public start(): void {
     this.interceptConsole('log', 1);
     this.interceptConsole('warn', 3);
     this.interceptConsole('error', 4);
@@ -34,19 +35,22 @@ export class LogWatcher {
   }
 
   public stop(): void {
+    if (!this.originalConsole) return;
+
     console.log = this.originalConsole.log;
     console.warn = this.originalConsole.warn;
     console.error = this.originalConsole.error;
     console.info = this.originalConsole.info;
     console.debug = this.originalConsole.debug;
+    this.originalConsole = null;
   }
 
-  private interceptConsole(method: keyof typeof this.originalConsole, level: LogLevel): void {
-    const original = this.originalConsole[method];
+  private interceptConsole(method: 'log' | 'warn' | 'error' | 'info' | 'debug', level: LogLevel): void {
+    const previous = console[method];
     const self = this;
 
     console[method] = (...args: unknown[]) => {
-      original.apply(console, args);
+      previous.apply(console, args);
       self.recordLog(level, args);
     };
   }
