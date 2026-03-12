@@ -81,6 +81,7 @@ export class DatabaseInterceptor {
         this.wrapPrismaClient(prismaModule.PrismaClient);
       }
     } catch {
+      // prisma not installed, skip
     }
   }
 
@@ -166,6 +167,7 @@ export class DatabaseInterceptor {
         this.wrapSequelize(sequelize.Sequelize);
       }
     } catch {
+      // sequelize not installed, skip
     }
   }
 
@@ -219,6 +221,7 @@ export class DatabaseInterceptor {
         this.wrapMongoDB(mongodb);
       }
     } catch {
+      // mongodb not installed, skip
     }
   }
 
@@ -267,9 +270,11 @@ export class DatabaseInterceptor {
             }
           })
           .catch(() => {
+            // bun:sqlite not available, skip
           });
       }
     } catch {
+      // bun:sqlite not available, skip
     }
   }
 

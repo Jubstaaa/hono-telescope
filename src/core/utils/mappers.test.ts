@@ -1,11 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  mapIncomingRequest,
-  mapOutgoingRequest,
-  mapException,
-  mapLog,
-  mapQuery,
-} from './mappers';
+import { mapIncomingRequest, mapOutgoingRequest, mapException, mapLog, mapQuery } from './mappers';
 import type {
   IncomingRequestEntry,
   OutgoingRequestEntry,

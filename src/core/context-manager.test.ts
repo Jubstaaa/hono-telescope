@@ -61,10 +61,7 @@ describe('ContextManager', () => {
   it('should return the callback result', () => {
     const manager = ContextManager.getInstance();
 
-    const result = manager.run(
-      { requestId: 'x', method: 'GET', uri: '/', startTime: 0 },
-      () => 42
-    );
+    const result = manager.run({ requestId: 'x', method: 'GET', uri: '/', startTime: 0 }, () => 42);
 
     expect(result).toBe(42);
   });

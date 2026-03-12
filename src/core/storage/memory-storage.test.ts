@@ -48,9 +48,7 @@ describe('MemoryStorage', () => {
 
   it('should trim entries when exceeding max_entries', async () => {
     for (let i = 0; i < 8; i++) {
-      await storage.incomingRequests.create(
-        createEntry({ id: `entry-${i}` })
-      );
+      await storage.incomingRequests.create(createEntry({ id: `entry-${i}` }));
     }
 
     const all = await storage.incomingRequests.findAll();
