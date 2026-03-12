@@ -75,7 +75,7 @@ export const Dashboard = () => {
 
       <Row gutter={[16, 16]}>
         {statsCards.map((stat) => (
-          <Col key={stat.title} xs={12} sm={12} md={8} lg={5} xl={5}>
+          <Col key={stat.title} xs={12} sm={12} md={8} lg={4} xl={4} flex="20%">
             <Card
               loading={isLoading}
               hoverable
