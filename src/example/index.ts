@@ -462,8 +462,10 @@ app.get('/api/mixed-clients-test', async (c) => {
   }
 });
 
+const port = parseInt(process.env.PORT || '3000');
+
 export default {
-  port: 3000,
+  port,
   fetch: app.fetch,
   idleTimeout: 60,
 };
