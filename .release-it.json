@@ -69,7 +69,7 @@
     }
   },
   "hooks": {
-    "before:init": "bun run lint:fix && bun run publishBuild && bun run format",
+    "before:init": "bun run test && bun run lint:fix && bun run publishBuild && bun run format",
     "after:release": "echo 'Release v${version} published successfully! 🎉'"
   }
 }

@@ -246,9 +246,7 @@ export class HttpInterceptor {
               requestBody = JSON.parse(config.data);
             } catch {
               requestBody =
-                config.data.length > 1000
-                  ? config.data.substring(0, 1000) + '...'
-                  : config.data;
+                config.data.length > 1000 ? config.data.substring(0, 1000) + '...' : config.data;
             }
           } else {
             requestBody = config.data;

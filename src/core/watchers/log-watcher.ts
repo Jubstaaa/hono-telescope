@@ -45,19 +45,24 @@ export class LogWatcher {
     this.originalConsole = null;
   }
 
-  private interceptConsole(method: 'log' | 'warn' | 'error' | 'info' | 'debug', level: LogLevel): void {
+  private interceptConsole(
+    method: 'log' | 'warn' | 'error' | 'info' | 'debug',
+    level: LogLevel
+  ): void {
     const previous = console[method];
-    const self = this;
+    const recordLog = this.recordLog.bind(this);
 
     console[method] = (...args: unknown[]) => {
       previous.apply(console, args);
-      self.recordLog(level, args);
+      recordLog(level, args);
     };
   }
 
   private async recordLog(level: LogLevel, args: unknown[]): Promise<void> {
     const message = args
-      .map((arg) => (typeof arg === 'object' && arg !== null ? JSON.stringify(arg, null, 2) : String(arg)))
+      .map((arg) =>
+        typeof arg === 'object' && arg !== null ? JSON.stringify(arg, null, 2) : String(arg)
+      )
       .join(' ');
 
     const requestId = this.contextManager.getCurrentRequestId();

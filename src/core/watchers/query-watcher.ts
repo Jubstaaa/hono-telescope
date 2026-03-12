@@ -17,14 +17,15 @@ class QueryWatcher {
     this.isWatching = true;
 
     const previousConsoleLog = console.log;
-    const self = this;
+    const isSQLQuery = this.isSQLQuery.bind(this);
+    const recordQuery = this.recordQuery.bind(this);
 
     console.log = (...args: unknown[]) => {
       previousConsoleLog.apply(console, args);
 
       const message = args.join(' ');
-      if (self.isSQLQuery(message)) {
-        self.recordQuery(message);
+      if (isSQLQuery(message)) {
+        recordQuery(message);
       }
     };
   }

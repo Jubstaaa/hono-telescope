@@ -21,12 +21,7 @@ export const ExceptionDetail = () => {
 
   if (error || !entry) {
     return (
-      <Alert
-        message="Error"
-        description="Failed to load exception details"
-        type="error"
-        showIcon
-      />
+      <Alert message="Error" description="Failed to load exception details" type="error" showIcon />
     );
   }
 

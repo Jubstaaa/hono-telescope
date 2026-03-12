@@ -108,7 +108,9 @@ export function telescope(config?: Partial<TelescopeConfig>): MiddlewareHandler 
               },
               parent_id: requestId,
             });
-          } catch {}
+          } catch {
+            // exception recording failed, continue
+          }
         }
       } finally {
         const endTime = Date.now();
