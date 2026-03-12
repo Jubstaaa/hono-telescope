@@ -1,4 +1,3 @@
-import React from 'react';
 import { useParams } from 'react-router';
 import { Card, Typography, Alert, Descriptions, theme, Flex, Tabs, Grid } from 'antd';
 import { useGetIncomingRequestQuery } from '../../api/telescopeApi';
@@ -12,10 +11,11 @@ import Loader from '../../components/Loader';
 import StatusTag from '../../components/Tag/StatusTag';
 import MethodTag from '../../components/Tag/MethodTag';
 import DurationTag from '../../components/Tag/DurationTag';
+
 const { Title, Text } = Typography;
 const { useBreakpoint } = Grid;
 
-export const IncomingRequestDetail: React.FC = () => {
+export const IncomingRequestDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { token } = theme.useToken();
   const screens = useBreakpoint();
@@ -40,20 +40,17 @@ export const IncomingRequestDetail: React.FC = () => {
   const queries = response.relation_entries?.queries || [];
   const exceptions = response.relation_entries?.exceptions || [];
   const outgoingRequests = response.relation_entries?.outgoing_requests || [];
-
   const descriptionsColumn = screens.md ? 2 : 1;
 
   return (
     <>
-      <div className="flex justify-between items-center mb-6">
-        <Title level={2} style={{ color: token.colorText }}>
-          Incoming Request Details
-        </Title>
-      </div>
+      <Title level={2} style={{ color: token.colorText }}>
+        Incoming Request Details
+      </Title>
 
       <Flex vertical gap="large">
-        <Card className="mb-4" style={{ backgroundColor: token.colorBgContainer }}>
-          <Descriptions bordered={screens.xs ? false : true} column={descriptionsColumn}>
+        <Card style={{ backgroundColor: token.colorBgContainer }}>
+          <Descriptions bordered={!screens.xs} column={descriptionsColumn}>
             <Descriptions.Item label="Method" span={1}>
               <MethodTag method={response.method} />
             </Descriptions.Item>
@@ -66,7 +63,7 @@ export const IncomingRequestDetail: React.FC = () => {
               </Text>
             </Descriptions.Item>
             <Descriptions.Item label="Duration" span={1}>
-              <DurationTag value={response.duration} />{' '}
+              <DurationTag value={response.duration} />
             </Descriptions.Item>
             <Descriptions.Item label="Time" span={1}>
               {formatDate(response.created_at || '')}

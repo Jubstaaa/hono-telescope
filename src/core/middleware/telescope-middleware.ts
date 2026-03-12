@@ -1,11 +1,10 @@
 import type { Context, Next, MiddlewareHandler } from 'hono';
+import type { TelescopeConfig } from '@/types';
 import { Telescope } from '../telescope';
-import { TelescopeConfig } from '@/types';
 import { ContextManager } from '../context-manager';
 import { HttpInterceptor } from '../interceptors/http-interceptor';
 import { DatabaseInterceptor } from '../interceptors/database-interceptor';
 import { IGNORED_PATHS, IGNORED_STATIC_EXTENSIONS } from '../constants';
-import { some } from 'lodash';
 import { getExceptionClassCode } from '../utils/helpers';
 
 function isStaticAsset(path: string): boolean {
@@ -23,7 +22,7 @@ export function telescope(config?: Partial<TelescopeConfig>): MiddlewareHandler 
   dbInterceptor.startIntercepting();
 
   return async (c: Context, next: Next) => {
-    if (some(IGNORED_PATHS, (path) => c.req.path.startsWith(path))) {
+    if (IGNORED_PATHS.some((path) => c.req.path.startsWith(path))) {
       await next();
       return;
     }
@@ -55,11 +54,11 @@ export function telescope(config?: Partial<TelescopeConfig>): MiddlewareHandler 
     let requestBody: Record<string, unknown> = {};
 
     const contentType = c.req.header('content-type');
-    if (contentType?.includes('application/json')) {
+    if (contentType) {
       try {
-        if (contentType?.includes('application/json')) {
+        if (contentType.includes('application/json')) {
           requestBody = await c.req.json();
-        } else if (contentType?.includes('application/x-www-form-urlencoded')) {
+        } else if (contentType.includes('application/x-www-form-urlencoded')) {
           const parsed = await c.req.parseBody();
           requestBody = parsed ?? {};
         }
@@ -109,9 +108,7 @@ export function telescope(config?: Partial<TelescopeConfig>): MiddlewareHandler 
               },
               parent_id: requestId,
             });
-          } catch {
-            // Silently ignore error
-          }
+          } catch {}
         }
       } finally {
         const endTime = Date.now();

@@ -1,4 +1,4 @@
-import {
+import type {
   IncomingRequestEntry,
   OutgoingRequestEntry,
   BaseEntry,
@@ -6,7 +6,6 @@ import {
   LogEntry,
   QueryEntry,
 } from '@/types';
-import { find, filter } from 'lodash';
 
 class BaseRepository<T extends BaseEntry> {
   protected entries: T[] = [];
@@ -33,11 +32,11 @@ class BaseRepository<T extends BaseEntry> {
   }
 
   async findById(id: string): Promise<T | null> {
-    return find(this.entries, (e) => e.id === id) || null;
+    return this.entries.find((e) => e.id === id) ?? null;
   }
 
   async findByParentId(parentId: string): Promise<T[]> {
-    return filter(this.entries, (e) => e.parent_id === parentId);
+    return this.entries.filter((e) => e.parent_id === parentId);
   }
 
   async count(): Promise<number> {

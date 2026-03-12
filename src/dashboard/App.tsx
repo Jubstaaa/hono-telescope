@@ -1,9 +1,9 @@
+import { StrictMode } from 'react';
 import { RouterProvider } from 'react-router';
+import { Provider } from 'react-redux';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { router } from './router';
 import { store } from './store';
-import { Provider } from 'react-redux';
-import { StrictMode } from 'react';
 
 function App() {
   return (

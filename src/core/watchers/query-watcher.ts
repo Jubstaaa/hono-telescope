@@ -1,6 +1,7 @@
 import { Telescope } from '../telescope';
-import { some } from 'lodash';
 import { ContextManager } from '../context-manager';
+
+const SQL_KEYWORDS = ['SELECT', 'INSERT', 'UPDATE', 'DELETE', 'CREATE', 'DROP', 'ALTER'];
 
 class QueryWatcher {
   private isWatching = false;
@@ -15,12 +16,15 @@ class QueryWatcher {
 
     this.isWatching = true;
 
+    const previousConsoleLog = console.log;
+    const self = this;
+
     console.log = (...args: unknown[]) => {
-      this.originalConsoleLog.apply(console, args);
+      previousConsoleLog.apply(console, args);
 
       const message = args.join(' ');
-      if (this.isSQLQuery(message)) {
-        this.recordQuery(message);
+      if (self.isSQLQuery(message)) {
+        self.recordQuery(message);
       }
     };
   }
@@ -33,9 +37,8 @@ class QueryWatcher {
   }
 
   private isSQLQuery(message: string): boolean {
-    const sqlKeywords = ['SELECT', 'INSERT', 'UPDATE', 'DELETE', 'CREATE', 'DROP', 'ALTER'];
     const upperMessage = message.toUpperCase();
-    return some(sqlKeywords, (keyword) => upperMessage.includes(keyword));
+    return SQL_KEYWORDS.some((keyword) => upperMessage.includes(keyword));
   }
 
   private recordQuery(sql: string) {
