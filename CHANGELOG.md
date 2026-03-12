@@ -1,5 +1,75 @@
 
 
+## 0.1.18 (2026-03-12)
+
+
+### ✨ Features
+
+* Add Axios interceptor support and release v0.1.0-beta.2 ([06378d2](https://github.com/jubstaaa/hono-telescope/commit/06378d245a9c9c378d3ab085c65e930c402cb53e))
+* **build:** optimize dashboard bundle size\n\n- Add granular manualChunks (ui-antd, react-core, router, state, utils, http, ui-utils, app)\n- Enable terser minification with drop_console/drop_debugger and mangle\n- Report compressed sizes; tighten chunk size warning threshold\n- Prebundle critical deps via optimizeDeps.include\n- Add terser and babel-plugin-import to devDependencies\n\nImpact: raw ~1.2MB total, gzip ~385KB; removed duplicated multi-MB bundles. ([ef36e48](https://github.com/jubstaaa/hono-telescope/commit/ef36e4858e66a0da77978120426782182d7e9bfe))
+* **deployment:** add docker support and digital ocean deployment guide ([47d7eaa](https://github.com/jubstaaa/hono-telescope/commit/47d7eaa91073a8afb9c2c9b31b2717045f3e5fee))
+* **exception:** sanitize sensitive headers in exception context ([d7610ee](https://github.com/jubstaaa/hono-telescope/commit/d7610eeb12dbd8d46308fdda4736594ad4597854))
+* initial release of @hono/telescope v0.1.0-beta.1 ([c4d6376](https://github.com/jubstaaa/hono-telescope/commit/c4d6376f22331bff43e2e6d2da23c70b0bceae98))
+* major UI/UX improvements and filtering enhancements ([1d9276c](https://github.com/jubstaaa/hono-telescope/commit/1d9276c861431aa6323c8f6bccca8c380321e5c4))
+* **project:** restructure to monorepo and improve hono compatibility ([c6e814c](https://github.com/jubstaaa/hono-telescope/commit/c6e814cb223b8ac7172924e5f996cee116605ae3))
+* **telescope:** add clear data and live mode features ([3e9b3e2](https://github.com/jubstaaa/hono-telescope/commit/3e9b3e27ab4fe2d5f4cfd1ab6ee8c276d2bbdd43))
+
+
+### 🐛 Bug Fixes
+
+* add npm OTP support to release config ([1c710b1](https://github.com/jubstaaa/hono-telescope/commit/1c710b13ef90e2c8b6576bc7b9ab5f563f2e9f4d))
+* address cursor bot review feedback ([5bec183](https://github.com/jubstaaa/hono-telescope/commit/5bec183136ec4192f0e185201485638ce2dcdb25))
+* **core:** resolve all linter errors and improve database interceptor ([3262bb6](https://github.com/jubstaaa/hono-telescope/commit/3262bb603406cb0ee12cc0d0781122aebdd24c8b))
+* correct sed command in build script ([7711b10](https://github.com/jubstaaa/hono-telescope/commit/7711b10f7b9ab1f5e7bdcca3cacf9d912707536b))
+* **dashboard:** import SVG icon as module and separate roadmap features ([9c6b9e9](https://github.com/jubstaaa/hono-telescope/commit/9c6b9e92b83d46f5c073ae2d3023068da3e52271))
+* **docker:** install dev dependencies for build, then clean up ([17e730a](https://github.com/jubstaaa/hono-telescope/commit/17e730afa677ab8fbb74e5f38afe4885b03d8b02))
+* remove broken otp config from release-it ([832ad65](https://github.com/jubstaaa/hono-telescope/commit/832ad6569faef1db34366d1742f56ee3460aae63))
+* replace @hono-telescope/types imports in dist files ([d6524cd](https://github.com/jubstaaa/hono-telescope/commit/d6524cd48ef94f6bf81cdd76898c84231fef1d63))
+* resolve @hono-telescope/types import errors ([ae798d6](https://github.com/jubstaaa/hono-telescope/commit/ae798d6ec2201a2b54d18a1249ee7ca70bfcc5c3)), closes [#1](https://github.com/jubstaaa/hono-telescope/issues/1)
+* resolve eslint errors, add lint and test to CI and release pipeline ([9c201a2](https://github.com/jubstaaa/hono-telescope/commit/9c201a2e9815be79518f07e6585924123b1a9e10))
+* **security:** finalize header sanitization implementation ([f9c5af6](https://github.com/jubstaaa/hono-telescope/commit/f9c5af6604a72c1c66fc9747f55c4157e82e80a8))
+* **types:** resolve @hono-telescope/types module import errors ([a94416b](https://github.com/jubstaaa/hono-telescope/commit/a94416bf2ed3e5fba02366732e9fb13ba8394749)), closes [#1](https://github.com/jubstaaa/hono-telescope/issues/1)
+* use node script instead of sed for import replacement ([91a8a2e](https://github.com/jubstaaa/hono-telescope/commit/91a8a2e42d892516944970f30c96c49829d24195))
+
+
+### ♻️ Refactoring
+
+* comprehensive bug fixes, cleanup, and dependency optimization ([014dd01](https://github.com/jubstaaa/hono-telescope/commit/014dd0188ae2692a1718011f31d4e65ff5ea2626))
+* convert to turborepo monorepo structure ([ec4a443](https://github.com/jubstaaa/hono-telescope/commit/ec4a4436286bee36c4af13e714afb3a3910722dd))
+* **core,dashboard:** complete type system overhaul and API restructuring ([5fa775d](https://github.com/jubstaaa/hono-telescope/commit/5fa775d89a95f74ba78eb803ae3180a3c2497199))
+* restructure project with clean architecture and improved organization ([536b21c](https://github.com/jubstaaa/hono-telescope/commit/536b21cee4ad5a8974be141dff2648ea481ca563))
+
+
+### 💎 Styling
+
+* **core:** format database interceptor with prettier ([0e51d4c](https://github.com/jubstaaa/hono-telescope/commit/0e51d4ca7a3723fef445d9c9ed4eb45e2b2f70d4))
+* ignore CHANGELOG.md from prettier formatting ([7193226](https://github.com/jubstaaa/hono-telescope/commit/71932265235a8467fd7416fb6b1cf061ce4cf845))
+
+
+### 📚 Documentation
+
+* add professional open source governance files ([c3b0696](https://github.com/jubstaaa/hono-telescope/commit/c3b0696987e733fd7f2fd6c43cc5ad7f1bdc38fa))
+* **community:** add contributing guide and issue templates ([83b9913](https://github.com/jubstaaa/hono-telescope/commit/83b9913f996d763875ae4539c96b1ab334d4cc69))
+* formatting improvements in MONOREPO.md ([3b1c282](https://github.com/jubstaaa/hono-telescope/commit/3b1c2821d6697dfb1c4465385a0b2875bf878242))
+* **release:** add comprehensive release notes for v0.1.11 ([0b4819a](https://github.com/jubstaaa/hono-telescope/commit/0b4819a14deeba9e790a1ce9191d0506aa290977))
+* update documentation for single workspace structure ([936b8d0](https://github.com/jubstaaa/hono-telescope/commit/936b8d0ae0e857a0b67694265e5edd23e5092606))
+* update documentation for single workspace structure and add development guide ([6660e68](https://github.com/jubstaaa/hono-telescope/commit/6660e68e4f3bef0508218255004bd4f6ba2e3edc))
+* update live demo url to production digital ocean instance ([b69491e](https://github.com/jubstaaa/hono-telescope/commit/b69491e96f7f10373959830b02a59f01365c0856))
+
+
+### ✅ Tests
+
+* add comprehensive unit tests for core modules ([ec3b836](https://github.com/jubstaaa/hono-telescope/commit/ec3b836e4b527a17466b592e29bcf9bd397d26b4))
+
+
+### 🏗️ Build
+
+* add prettier as dev dependency and format project ([cbfb274](https://github.com/jubstaaa/hono-telescope/commit/cbfb2743dde474f33d42602da253cfc374008896))
+* include @hono-telescope/types in core package build ([1451a47](https://github.com/jubstaaa/hono-telescope/commit/1451a4711563db065f25ca6f5c1a483becc7ab77))
+* remove generated dist files ([9433772](https://github.com/jubstaaa/hono-telescope/commit/943377235a2ab714a549e39e890a4256fe64fa93))
+* **scripts:** ensure dashboard assets and html are copied to dist properly ([6a74b4f](https://github.com/jubstaaa/hono-telescope/commit/6a74b4fbc633268fd55ea820f78d5b31c6826abe))
+* setup eslint with typescript support ([86f4cf0](https://github.com/jubstaaa/hono-telescope/commit/86f4cf075b71552379bc8b16e6cd69bc12f93e69))
+
 ## [0.1.17](https://github.com/jubstaaa/hono-telescope/compare/0.1.16...0.1.17) (2025-11-04)
 
 
