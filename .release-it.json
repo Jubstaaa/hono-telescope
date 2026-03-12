@@ -9,7 +9,8 @@
   },
   "npm": {
     "publish": true,
-    "tag": "latest"
+    "tag": "latest",
+    "otp": true
   },
   "github": {
     "release": true,
