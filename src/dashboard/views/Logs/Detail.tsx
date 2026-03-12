@@ -1,4 +1,3 @@
-import React from 'react';
 import { useParams } from 'react-router';
 import { Card, Typography, Alert, Descriptions, theme, Flex, Grid } from 'antd';
 import { useGetLogQuery } from '../../api/telescopeApi';
@@ -6,10 +5,11 @@ import { formatDate } from '../../utils/helpers';
 import { JsonViewer } from '../../components/JsonViewer';
 import Loader from '../../components/Loader';
 import LevelTag from '../../components/Tag/LevelTag';
+
 const { Title } = Typography;
 const { useBreakpoint } = Grid;
 
-export const LogDetail: React.FC = () => {
+export const LogDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { token } = theme.useToken();
   const screens = useBreakpoint();
@@ -32,12 +32,8 @@ export const LogDetail: React.FC = () => {
       </Title>
 
       <Flex vertical gap="large">
-        <Card className="mb-4" style={{ backgroundColor: token.colorBgContainer }}>
-          <Descriptions
-            title="Basic Information"
-            bordered={screens.xs ? false : true}
-            column={descriptionsColumn}
-          >
+        <Card style={{ backgroundColor: token.colorBgContainer }}>
+          <Descriptions bordered={!screens.xs} column={descriptionsColumn}>
             <Descriptions.Item label="Level">
               <LevelTag level={entry.level} />
             </Descriptions.Item>
@@ -45,7 +41,7 @@ export const LogDetail: React.FC = () => {
           </Descriptions>
         </Card>
 
-        <Card title="Message" className="mb-4" style={{ backgroundColor: token.colorBgContainer }}>
+        <Card title="Message" style={{ backgroundColor: token.colorBgContainer }}>
           {entry.message}
         </Card>
 

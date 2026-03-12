@@ -1,15 +1,17 @@
-import React from 'react';
 import { useParams } from 'react-router';
-import { Card, Typography, Alert, Descriptions, Tag, theme, Flex, Grid } from 'antd';
+import { Card, Typography, Alert, Descriptions, theme, Flex, Grid } from 'antd';
 import { useGetOutgoingRequestQuery } from '../../api/telescopeApi';
-import { getStatusColor, formatDate } from '../../utils/helpers';
+import { formatDate } from '../../utils/helpers';
 import Loader from '../../components/Loader';
 import { JsonViewer } from '../../components/JsonViewer';
+import StatusTag from '../../components/Tag/StatusTag';
+import MethodTag from '../../components/Tag/MethodTag';
 import DurationTag from '../../components/Tag/DurationTag';
+
 const { Title, Text } = Typography;
 const { useBreakpoint } = Grid;
 
-export const OutgoingRequestDetail: React.FC = () => {
+export const OutgoingRequestDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { token } = theme.useToken();
   const screens = useBreakpoint();
@@ -34,24 +36,18 @@ export const OutgoingRequestDetail: React.FC = () => {
 
   return (
     <>
-      <div className="flex justify-between items-center mb-6">
-        <Title level={2} style={{ color: token.colorText }}>
-          Outgoing Request Details
-        </Title>
-      </div>
+      <Title level={2} style={{ color: token.colorText }}>
+        Outgoing Request Details
+      </Title>
 
       <Flex vertical gap="large">
-        <Card className="mb-4" style={{ backgroundColor: token.colorBgContainer }}>
-          <Descriptions
-            title="Request Information"
-            bordered={screens.xs ? false : true}
-            column={descriptionsColumn}
-          >
+        <Card style={{ backgroundColor: token.colorBgContainer }}>
+          <Descriptions bordered={!screens.xs} column={descriptionsColumn}>
             <Descriptions.Item label="Method" span={1}>
-              <Tag color="blue">{request.method}</Tag>
+              <MethodTag method={request.method} />
             </Descriptions.Item>
             <Descriptions.Item label="Status" span={1}>
-              <Tag color={getStatusColor(request.response_status)}>{request.response_status}</Tag>
+              <StatusTag status={request.response_status} />
             </Descriptions.Item>
             <Descriptions.Item label="URL" span={2}>
               <Text code style={{ color: token.colorText }}>
@@ -59,7 +55,7 @@ export const OutgoingRequestDetail: React.FC = () => {
               </Text>
             </Descriptions.Item>
             <Descriptions.Item label="Duration" span={1}>
-              <DurationTag value={request.duration} />{' '}
+              <DurationTag value={request.duration} />
             </Descriptions.Item>
             <Descriptions.Item label="Time" span={1}>
               {formatDate(request.created_at)}
@@ -68,31 +64,19 @@ export const OutgoingRequestDetail: React.FC = () => {
         </Card>
 
         {request.headers && (
-          <Card
-            title="Headers"
-            className="mb-4"
-            style={{ backgroundColor: token.colorBgContainer }}
-          >
+          <Card title="Headers" style={{ backgroundColor: token.colorBgContainer }}>
             <JsonViewer data={request.headers} />
           </Card>
         )}
 
         {request.payload && (
-          <Card
-            title="Request Body"
-            className="mb-4"
-            style={{ backgroundColor: token.colorBgContainer }}
-          >
+          <Card title="Request Body" style={{ backgroundColor: token.colorBgContainer }}>
             <JsonViewer data={request.payload} />
           </Card>
         )}
 
         {request.response && (
-          <Card
-            title="Response"
-            className="mb-4"
-            style={{ backgroundColor: token.colorBgContainer }}
-          >
+          <Card title="Response" style={{ backgroundColor: token.colorBgContainer }}>
             <JsonViewer data={request.response} />
           </Card>
         )}
@@ -100,5 +84,3 @@ export const OutgoingRequestDetail: React.FC = () => {
     </>
   );
 };
-
-export default OutgoingRequestDetail;

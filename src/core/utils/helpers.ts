@@ -26,12 +26,13 @@ export function sanitizeHeaders(
   }
 
   const lowerRedactList = headersToRedact.map((h) => h.toLowerCase());
+  const sanitized = { ...headers };
 
-  for (const key in headers) {
+  for (const key in sanitized) {
     if (lowerRedactList.includes(key.toLowerCase())) {
-      headers[key] = '[SENSITIVE]';
+      sanitized[key] = '[SENSITIVE]';
     }
   }
 
-  return headers;
+  return sanitized;
 }

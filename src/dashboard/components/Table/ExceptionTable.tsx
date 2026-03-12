@@ -1,5 +1,4 @@
-import React from 'react';
-import { ExceptionResponse } from '@/types';
+import type { ExceptionResponse } from '@/types';
 import { formatDate } from '../../utils/helpers';
 import ExceptionTag from '../Tag/ExceptionTag';
 import Table from './Table';
@@ -9,7 +8,7 @@ interface ExceptionTableProps {
   loading?: boolean;
 }
 
-export const ExceptionTable: React.FC<ExceptionTableProps> = ({ entries, loading = false }) => {
+export const ExceptionTable = ({ entries, loading = false }: ExceptionTableProps) => {
   const columns = [
     {
       title: 'Exception',

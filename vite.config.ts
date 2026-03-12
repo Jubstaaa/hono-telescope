@@ -61,17 +61,8 @@ export default defineConfig({
             return 'ui-utils';
           }
 
-          // HTTP & API
-          if (id.includes('node_modules/axios')) {
-            return 'http';
-          }
-
           // Utilities
-          if (
-            id.includes('node_modules/dayjs') ||
-            id.includes('node_modules/pretty-ms') ||
-            id.includes('node_modules/lodash')
-          ) {
+          if (id.includes('node_modules/dayjs') || id.includes('node_modules/pretty-ms')) {
             return 'utils';
           }
         },

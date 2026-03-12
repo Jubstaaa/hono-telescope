@@ -1,6 +1,5 @@
-import React from 'react';
+import type { QueryResponse } from '@/types';
 import { formatDate } from '../../utils/helpers';
-import { QueryResponse } from '@/types';
 import DurationTag from '../Tag/DurationTag';
 import Table from './Table';
 
@@ -9,7 +8,7 @@ interface QueryTableProps {
   loading?: boolean;
 }
 
-export const QueryTable: React.FC<QueryTableProps> = ({ entries, loading }) => {
+export const QueryTable = ({ entries, loading }: QueryTableProps) => {
   const columns = [
     {
       title: 'Query',
@@ -26,7 +25,7 @@ export const QueryTable: React.FC<QueryTableProps> = ({ entries, loading }) => {
     {
       title: 'Time',
       dataIndex: 'created_at',
-      key: 'time',
+      key: 'created_at',
       render: (created_at: string) => formatDate(created_at),
     },
   ];

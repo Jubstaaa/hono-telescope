@@ -1,17 +1,18 @@
+import type { Context } from 'hono';
+import type { Hono } from 'hono';
+import type { TelescopeConfig } from '@/types';
 import { telescope } from './middleware/telescope-middleware';
 import { TelescopeRoutes } from './routes/telescope-routes';
-import { TelescopeConfig } from '@/types';
 import { startExceptionWatcher } from './watchers/exception-watcher';
 import { startLogWatcher } from './watchers/log-watcher';
 import { startQueryWatcher } from './watchers/query-watcher';
-import type { Context } from 'hono';
 import { getExceptionClassCode, sanitizeHeaders } from './utils/helpers';
 import { Telescope } from './telescope';
 import { ContextManager } from './context-manager';
 
 export function setupTelescope(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  app: any,
+  app: Hono<any>,
   config?: Partial<TelescopeConfig>
 ) {
   if (config && !config.enabled) {
@@ -36,7 +37,6 @@ export function setupTelescope(
       headers = {};
     }
 
-    // Sanitize headers based on config
     const sanitizeConfig = telescopeInstance.getConfig().sanitize_headers;
     const sanitizedHeaders = sanitizeHeaders(headers, sanitizeConfig);
     const requestId = ContextManager.getInstance().getCurrentRequestId();
@@ -53,9 +53,7 @@ export function setupTelescope(
       parent_id: requestId,
     };
 
-    telescopeInstance.recordException(exceptionData).catch((recordError: Error) => {
-      void recordError;
-    });
+    telescopeInstance.recordException(exceptionData).catch(() => {});
 
     return c.text('Internal Server Error', 500);
   });

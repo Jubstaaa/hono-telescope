@@ -1,4 +1,3 @@
-import React from 'react';
 import { useParams } from 'react-router';
 import { Card, Typography, Alert, Descriptions, theme, Flex, Grid } from 'antd';
 import { useGetExceptionQuery } from '../../api/telescopeApi';
@@ -6,10 +5,11 @@ import { formatDate } from '../../utils/helpers';
 import Loader from '../../components/Loader';
 import ExceptionTag from '../../components/Tag/ExceptionTag';
 import { JsonViewer } from '../../components/JsonViewer';
+
 const { Title, Text } = Typography;
 const { useBreakpoint } = Grid;
 
-export const ExceptionDetail: React.FC = () => {
+export const ExceptionDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { token } = theme.useToken();
   const screens = useBreakpoint();
@@ -21,7 +21,12 @@ export const ExceptionDetail: React.FC = () => {
 
   if (error || !entry) {
     return (
-      <Alert message="Error" description="Failed to load exception details" type="error" showIcon />
+      <Alert
+        message="Error"
+        description="Failed to load exception details"
+        type="error"
+        showIcon
+      />
     );
   }
 
@@ -33,13 +38,9 @@ export const ExceptionDetail: React.FC = () => {
         Exception Details
       </Title>
 
-      <Flex vertical gap="large" style={{ padding: '0' }}>
-        <Card className="mb-4" style={{ backgroundColor: token.colorBgContainer }}>
-          <Descriptions
-            title="Basic Information"
-            bordered={screens.xs ? false : true}
-            column={descriptionsColumn}
-          >
+      <Flex vertical gap="large">
+        <Card style={{ backgroundColor: token.colorBgContainer }}>
+          <Descriptions bordered={!screens.xs} column={descriptionsColumn}>
             <Descriptions.Item label="Exception">
               <ExceptionTag classNum={entry.class} />
             </Descriptions.Item>
@@ -47,16 +48,12 @@ export const ExceptionDetail: React.FC = () => {
           </Descriptions>
         </Card>
 
-        <Card title="Message" className="mb-4" style={{ backgroundColor: token.colorBgContainer }}>
+        <Card title="Message" style={{ backgroundColor: token.colorBgContainer }}>
           <Text>{entry.message}</Text>
         </Card>
 
         {entry.trace && entry.trace.length > 0 && (
-          <Card
-            title="Stack Trace"
-            className="mb-4"
-            style={{ backgroundColor: token.colorBgContainer }}
-          >
+          <Card title="Stack Trace" style={{ backgroundColor: token.colorBgContainer }}>
             <Text code>{entry.trace}</Text>
           </Card>
         )}

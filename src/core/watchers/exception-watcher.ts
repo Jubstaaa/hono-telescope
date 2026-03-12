@@ -6,6 +6,8 @@ class ExceptionWatcher {
   private originalConsoleError: typeof console.error;
   private contextManager: ContextManager;
   private isWatching = false;
+  private uncaughtHandler: ((error: Error) => void) | null = null;
+  private rejectionHandler: ((reason: unknown) => void) | null = null;
 
   constructor() {
     this.originalConsoleError = console.error;
@@ -17,20 +19,24 @@ class ExceptionWatcher {
 
     this.isWatching = true;
 
+    const previousConsoleError = console.error;
     console.error = (...args: unknown[]) => {
-      this.originalConsoleError.apply(console, args);
+      previousConsoleError.apply(console, args);
       this.recordException(new Error(args.join(' ')));
     };
 
     if (typeof process !== 'undefined') {
-      process.on('uncaughtException', (error: Error) => {
+      this.uncaughtHandler = (error: Error) => {
         this.recordException(error);
-      });
+      };
 
-      process.on('unhandledRejection', (reason: unknown) => {
+      this.rejectionHandler = (reason: unknown) => {
         const error = reason instanceof Error ? reason : new Error(String(reason));
         this.recordException(error);
-      });
+      };
+
+      process.on('uncaughtException', this.uncaughtHandler);
+      process.on('unhandledRejection', this.rejectionHandler);
     }
   }
 
@@ -41,16 +47,20 @@ class ExceptionWatcher {
     console.error = this.originalConsoleError;
 
     if (typeof process !== 'undefined') {
-      process.removeAllListeners('uncaughtException');
-      process.removeAllListeners('unhandledRejection');
+      if (this.uncaughtHandler) {
+        process.removeListener('uncaughtException', this.uncaughtHandler);
+        this.uncaughtHandler = null;
+      }
+      if (this.rejectionHandler) {
+        process.removeListener('unhandledRejection', this.rejectionHandler);
+        this.rejectionHandler = null;
+      }
     }
   }
 
   private recordException(error: Error) {
     const telescope = Telescope.getInstance();
-
     const stack = error.stack || '';
-
     const requestId = this.contextManager.getCurrentRequestId();
 
     telescope.recordException({

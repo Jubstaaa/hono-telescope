@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import {
+import type {
   DashboardStats,
   IncomingRequestDetailResponse,
   IncomingRequestResponse,
@@ -19,8 +19,6 @@ export const telescopeApi = createApi({
     baseUrl: '/telescope/api/',
   }),
   tagTypes: ['Stats', 'IncomingRequests', 'OutgoingRequests', 'Exceptions', 'Queries', 'Logs'],
-
-  // 🔧 Tüm queries için varsayılan davranışlar
   refetchOnFocus: true,
   refetchOnMountOrArgChange: true,
   refetchOnReconnect: true,
