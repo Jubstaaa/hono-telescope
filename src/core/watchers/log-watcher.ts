@@ -1,7 +1,6 @@
 import { Telescope } from '../telescope';
-import { LogLevel } from '@/types';
+import type { LogLevel } from '@/types';
 import { ContextManager } from '../context-manager';
-import { isObject, map } from 'lodash';
 
 export class LogWatcher {
   private telescope: Telescope;
@@ -12,11 +11,14 @@ export class LogWatcher {
     error: typeof console.error;
     info: typeof console.info;
     debug: typeof console.debug;
-  };
+  } | null = null;
 
   constructor() {
     this.telescope = Telescope.getInstance();
     this.contextManager = ContextManager.getInstance();
+  }
+
+  public start(): void {
     this.originalConsole = {
       log: console.log,
       warn: console.warn,
@@ -24,63 +26,39 @@ export class LogWatcher {
       info: console.info,
       debug: console.debug,
     };
-  }
 
-  public start(): void {
-    this.interceptConsoleLog();
-    this.interceptConsoleWarn();
-    this.interceptConsoleError();
-    this.interceptConsoleInfo();
-    this.interceptConsoleDebug();
+    this.interceptConsole('log', 1);
+    this.interceptConsole('warn', 3);
+    this.interceptConsole('error', 4);
+    this.interceptConsole('info', 1);
+    this.interceptConsole('debug', 0);
   }
 
   public stop(): void {
+    if (!this.originalConsole) return;
+
     console.log = this.originalConsole.log;
     console.warn = this.originalConsole.warn;
     console.error = this.originalConsole.error;
     console.info = this.originalConsole.info;
     console.debug = this.originalConsole.debug;
+    this.originalConsole = null;
   }
 
-  private interceptConsoleLog(): void {
-    console.log = (...args: unknown[]) => {
-      this.originalConsole.log.apply(console, args);
-      this.recordLog(LogLevel.INFO, args);
-    };
-  }
+  private interceptConsole(method: 'log' | 'warn' | 'error' | 'info' | 'debug', level: LogLevel): void {
+    const previous = console[method];
+    const self = this;
 
-  private interceptConsoleWarn(): void {
-    console.warn = (...args: unknown[]) => {
-      this.originalConsole.warn.apply(console, args);
-      this.recordLog(LogLevel.WARNING, args);
-    };
-  }
-
-  private interceptConsoleError(): void {
-    console.error = (...args: unknown[]) => {
-      this.originalConsole.error.apply(console, args);
-      this.recordLog(LogLevel.ERROR, args);
-    };
-  }
-
-  private interceptConsoleInfo(): void {
-    console.info = (...args: unknown[]) => {
-      this.originalConsole.info.apply(console, args);
-      this.recordLog(LogLevel.INFO, args);
-    };
-  }
-
-  private interceptConsoleDebug(): void {
-    console.debug = (...args: unknown[]) => {
-      this.originalConsole.debug.apply(console, args);
-      this.recordLog(LogLevel.DEBUG, args);
+    console[method] = (...args: unknown[]) => {
+      previous.apply(console, args);
+      self.recordLog(level, args);
     };
   }
 
   private async recordLog(level: LogLevel, args: unknown[]): Promise<void> {
-    const message = map(args, (arg) =>
-      isObject(arg) ? JSON.stringify(arg, null, 2) : String(arg)
-    ).join(' ');
+    const message = args
+      .map((arg) => (typeof arg === 'object' && arg !== null ? JSON.stringify(arg, null, 2) : String(arg)))
+      .join(' ');
 
     const requestId = this.contextManager.getCurrentRequestId();
 

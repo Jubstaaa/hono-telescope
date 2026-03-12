@@ -3,15 +3,6 @@ import { TelescopeDashboard } from '../dashboard/dashboard';
 import { Telescope } from '../telescope';
 import { sanitizeHeaders } from '../utils/helpers';
 
-type HonoContext = Context<{
-  Bindings: {
-    ENV: string;
-  };
-  Variables: {
-    id: string;
-  };
-}>;
-
 export class TelescopeRoutes {
   private dashboard: TelescopeDashboard;
 
@@ -19,12 +10,12 @@ export class TelescopeRoutes {
     this.dashboard = new TelescopeDashboard();
   }
 
-  async getDashboard(c: HonoContext) {
+  async getDashboard(c: Context) {
     const html = this.dashboard.getDashboardHtml();
     return c.html(html);
   }
 
-  async getStats(c: HonoContext) {
+  async getStats(c: Context) {
     try {
       const stats = await this.dashboard.getStats();
       return c.json(stats);
@@ -33,7 +24,7 @@ export class TelescopeRoutes {
     }
   }
 
-  async getAsset(c: HonoContext) {
+  async getAsset(c: Context) {
     const fullPath = c.req.path;
     const assetPath = fullPath.replace('/telescope', '');
     const content = this.dashboard.getAsset(assetPath);
@@ -65,7 +56,7 @@ export class TelescopeRoutes {
     return c.html(content);
   }
 
-  async getIncomingRequests(c: HonoContext) {
+  async getIncomingRequests(c: Context) {
     try {
       const entries = await this.dashboard.getAllIncomingRequests();
       return c.json(entries);
@@ -74,7 +65,7 @@ export class TelescopeRoutes {
     }
   }
 
-  async getIncomingRequest(c: HonoContext) {
+  async getIncomingRequest(c: Context) {
     const id = c.req.param('id');
 
     if (!id) {
@@ -103,7 +94,7 @@ export class TelescopeRoutes {
     }
   }
 
-  async getOutgoingRequests(c: HonoContext) {
+  async getOutgoingRequests(c: Context) {
     try {
       const entries = await this.dashboard.getAllOutgoingRequests();
       return c.json(entries);
@@ -112,7 +103,7 @@ export class TelescopeRoutes {
     }
   }
 
-  async getOutgoingRequest(c: HonoContext) {
+  async getOutgoingRequest(c: Context) {
     const id = c.req.param('id');
 
     if (!id) {
@@ -125,7 +116,6 @@ export class TelescopeRoutes {
         return c.json({ error: 'Request not found' }, 404);
       }
 
-      // Get sanitization config from Telescope
       const telescope = Telescope.getInstance();
       const headersToRedact = telescope.getConfig().sanitize_headers;
 
@@ -142,7 +132,7 @@ export class TelescopeRoutes {
     }
   }
 
-  async getExceptions(c: HonoContext) {
+  async getExceptions(c: Context) {
     try {
       const entries = await this.dashboard.getAllExceptions();
       return c.json(entries);
@@ -151,7 +141,7 @@ export class TelescopeRoutes {
     }
   }
 
-  async getException(c: HonoContext) {
+  async getException(c: Context) {
     const id = c.req.param('id');
 
     if (!id) {
@@ -169,7 +159,7 @@ export class TelescopeRoutes {
     }
   }
 
-  async getQueries(c: HonoContext) {
+  async getQueries(c: Context) {
     try {
       const entries = await this.dashboard.getAllQueries();
       return c.json(entries);
@@ -178,7 +168,7 @@ export class TelescopeRoutes {
     }
   }
 
-  async getQuery(c: HonoContext) {
+  async getQuery(c: Context) {
     const id = c.req.param('id');
 
     if (!id) {
@@ -196,7 +186,7 @@ export class TelescopeRoutes {
     }
   }
 
-  async getLogs(c: HonoContext) {
+  async getLogs(c: Context) {
     try {
       const entries = await this.dashboard.getAllLogs();
       return c.json(entries);
@@ -205,7 +195,7 @@ export class TelescopeRoutes {
     }
   }
 
-  async getLog(c: HonoContext) {
+  async getLog(c: Context) {
     const id = c.req.param('id');
 
     if (!id) {
@@ -223,7 +213,7 @@ export class TelescopeRoutes {
     }
   }
 
-  async clearData(c: HonoContext) {
+  async clearData(c: Context) {
     try {
       const telescope = Telescope.getInstance();
       await telescope.clearAllData();

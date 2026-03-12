@@ -1,6 +1,5 @@
-import React from 'react';
+import type { OutgoingRequestResponse } from '@/types';
 import { formatDate } from '../../utils/helpers';
-import { OutgoingRequestResponse } from '@/types';
 import DurationTag from '../Tag/DurationTag';
 import StatusTag from '../Tag/StatusTag';
 import MethodTag from '../Tag/MethodTag';
@@ -11,10 +10,7 @@ interface OutgoingRequestTableProps {
   loading?: boolean;
 }
 
-export const OutgoingRequestTable: React.FC<OutgoingRequestTableProps> = ({
-  entries,
-  loading = false,
-}) => {
+export const OutgoingRequestTable = ({ entries, loading = false }: OutgoingRequestTableProps) => {
   const columns = [
     {
       title: 'Method',
@@ -26,14 +22,14 @@ export const OutgoingRequestTable: React.FC<OutgoingRequestTableProps> = ({
     {
       title: 'Path',
       dataIndex: 'uri',
-      key: 'path',
+      key: 'uri',
       width: 200,
       render: (uri: string) => uri,
     },
     {
       title: 'Status',
       dataIndex: 'response_status',
-      key: 'status',
+      key: 'response_status',
       width: 80,
       render: (status: number) => <StatusTag status={status} />,
     },

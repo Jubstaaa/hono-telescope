@@ -1,4 +1,4 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import { Layout, Button, Space, Typography, theme, Flex, Image, Grid } from 'antd';
 import { Outlet, useNavigate, useLocation } from 'react-router';
 import {
@@ -18,7 +18,7 @@ const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
 const { useBreakpoint } = Grid;
 
-export const MainLayout: React.FC = () => {
+export const MainLayout = () => {
   const { isDark, toggleTheme } = useTheme();
   const screens = useBreakpoint();
   const { token } = theme.useToken();
@@ -26,12 +26,12 @@ export const MainLayout: React.FC = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const [clearData, { isLoading: isClearLoading }] = useClearDataMutation();
-  const [liveMode, setLiveMode] = React.useState(false);
+  const [liveMode, setLiveMode] = useState(false);
 
-  const isDashboard = location.pathname === '/dashboard' || location.pathname === '/';
+  const isDashboard = location.pathname === '/' || location.pathname === '';
   const canGoBack = !isDashboard;
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!liveMode) return;
 
     const interval = setInterval(() => {
@@ -49,6 +49,14 @@ export const MainLayout: React.FC = () => {
 
     return () => clearInterval(interval);
   }, [liveMode, dispatch]);
+
+  const handleClearData = async () => {
+    try {
+      await clearData().unwrap();
+    } catch {
+      // silently handled by RTK Query
+    }
+  };
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -108,7 +116,7 @@ export const MainLayout: React.FC = () => {
             <Button
               danger
               icon={<DeleteOutlined style={{ fontSize: '16px' }} />}
-              onClick={async () => await clearData().unwrap()}
+              onClick={handleClearData}
               loading={isClearLoading}
               disabled={isClearLoading}
               title="Clear all data"

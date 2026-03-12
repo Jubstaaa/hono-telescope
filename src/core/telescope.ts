@@ -1,4 +1,4 @@
-import {
+import type {
   TelescopeConfig,
   IncomingRequestEntry,
   OutgoingRequestEntry,

@@ -1,49 +1,45 @@
-import React from 'react';
 import { useParams } from 'react-router';
 import { Card, Typography, Alert, Descriptions, Tag, theme, Flex, Grid } from 'antd';
 import { useGetQueryQuery } from '../../api/telescopeApi';
 import { formatDate } from '../../utils/helpers';
 import Loader from '../../components/Loader';
-import { map } from 'lodash';
 import DurationTag from '../../components/Tag/DurationTag';
+
 const { Title, Text } = Typography;
 const { useBreakpoint } = Grid;
 
-export const QueryDetail: React.FC = () => {
+export const QueryDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { token } = theme.useToken();
   const screens = useBreakpoint();
-  const { data: entry, isLoading, error } = useGetQueryQuery(id!, { skip: !id });
+  const { data: query, isLoading, error } = useGetQueryQuery(id!, { skip: !id });
 
   if (isLoading) {
     return <Loader />;
   }
 
-  if (error || !entry) {
+  if (error || !query) {
     return (
       <Alert message="Error" description="Failed to load query details" type="error" showIcon />
     );
   }
 
-  const query = entry;
   const descriptionsColumn = screens.md ? 2 : 1;
 
   return (
     <>
-      <div className="flex justify-between items-center mb-6">
-        <Title level={2} style={{ color: token.colorText }}>
-          Query Details
-        </Title>
-      </div>
+      <Title level={2} style={{ color: token.colorText }}>
+        Query Details
+      </Title>
 
       <Flex vertical gap="large">
-        <Card className="mb-4" style={{ backgroundColor: token.colorBgContainer }}>
-          <Descriptions bordered={screens.xs ? false : true} column={descriptionsColumn}>
+        <Card style={{ backgroundColor: token.colorBgContainer }}>
+          <Descriptions bordered={!screens.xs} column={descriptionsColumn}>
             <Descriptions.Item label="Connection" span={1}>
               <Tag color="blue">{query.connection || 'default'}</Tag>
             </Descriptions.Item>
             <Descriptions.Item label="Duration" span={1}>
-              <DurationTag value={query.time} />{' '}
+              <DurationTag value={query.time} />
             </Descriptions.Item>
             <Descriptions.Item label="Time" span={2}>
               {formatDate(query.created_at)}
@@ -59,8 +55,8 @@ export const QueryDetail: React.FC = () => {
 
         {query.bindings && query.bindings.length > 0 && (
           <Card title="Bindings" size="small" style={{ backgroundColor: token.colorBgContainer }}>
-            <Descriptions bordered={screens.xs ? false : true} size="small" column={1}>
-              {map(query.bindings, (binding, index: number) => (
+            <Descriptions bordered={!screens.xs} size="small" column={1}>
+              {query.bindings.map((binding: string, index: number) => (
                 <Descriptions.Item key={index} label={`Binding ${index + 1}`}>
                   <Text code>{binding}</Text>
                 </Descriptions.Item>
@@ -72,4 +68,3 @@ export const QueryDetail: React.FC = () => {
     </>
   );
 };
-export default QueryDetail;

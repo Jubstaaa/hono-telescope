@@ -43,12 +43,10 @@ export class DatabaseInterceptor {
   private telescope: Telescope;
   private contextManager: ContextManager;
   private isIntercepting = false;
-  private originalConsole: typeof console;
 
   private constructor() {
     this.telescope = Telescope.getInstance();
     this.contextManager = ContextManager.getInstance();
-    this.originalConsole = { ...console };
   }
 
   public static getInstance(): DatabaseInterceptor {
@@ -63,24 +61,19 @@ export class DatabaseInterceptor {
 
     this.isIntercepting = true;
 
-    // Intercept common database libraries
     this.interceptPrisma();
     this.interceptSequelize();
     this.interceptMongoDB();
     this.interceptBunSQLite();
-    this.interceptGenericSQL();
   }
 
   public stopIntercepting(): void {
     if (!this.isIntercepting) return;
 
     this.isIntercepting = false;
-    // Restore original methods would go here
-    // This is a simplified implementation
   }
 
   private interceptPrisma(): void {
-    // Try to intercept Prisma if it exists
     try {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const prismaModule = require('@prisma/client') as PrismaClientModule;
@@ -88,7 +81,6 @@ export class DatabaseInterceptor {
         this.wrapPrismaClient(prismaModule.PrismaClient);
       }
     } catch {
-      // Prisma not installed, skip
     }
   }
 
@@ -167,7 +159,6 @@ export class DatabaseInterceptor {
   }
 
   private interceptSequelize(): void {
-    // Try to intercept Sequelize if it exists
     try {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const sequelize = require('sequelize') as SequelizeModule;
@@ -175,7 +166,6 @@ export class DatabaseInterceptor {
         this.wrapSequelize(sequelize.Sequelize);
       }
     } catch {
-      // Sequelize not installed, skip
     }
   }
 
@@ -222,7 +212,6 @@ export class DatabaseInterceptor {
   }
 
   private interceptMongoDB(): void {
-    // Try to intercept MongoDB if it exists
     try {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const mongodb = require('mongodb') as MongoDBModule;
@@ -230,7 +219,6 @@ export class DatabaseInterceptor {
         this.wrapMongoDB(mongodb);
       }
     } catch {
-      // MongoDB not installed, skip
     }
   }
 
@@ -238,14 +226,7 @@ export class DatabaseInterceptor {
     const telescope = this.telescope;
     const contextManager = this.contextManager;
 
-    // This is a simplified MongoDB interception
     const originalFind = (mongodb.Collection?.prototype as Record<string, unknown>)?.find;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const originalInsertOne = (mongodb.Collection?.prototype as Record<string, unknown>)?.insertOne;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const originalUpdateOne = (mongodb.Collection?.prototype as Record<string, unknown>)?.updateOne;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const originalDeleteOne = (mongodb.Collection?.prototype as Record<string, unknown>)?.deleteOne;
 
     if (originalFind) {
       (mongodb.Collection?.prototype as Record<string, unknown>).find = function (
@@ -275,12 +256,9 @@ export class DatabaseInterceptor {
   }
 
   private interceptBunSQLite(): void {
-    // Try to intercept Bun SQLite if it exists
     try {
       const telescope = this.telescope;
-      // Check if we're in Bun environment by checking for global Bun object
       if (typeof (globalThis as Record<string, unknown>).Bun !== 'undefined') {
-        // Use dynamic import to avoid TypeScript errors
         const importBunSQLite = new Function('return import("bun:sqlite")');
         (importBunSQLite() as Promise<BunSQLiteModule>)
           .then((bunSQLite: BunSQLiteModule) => {
@@ -289,11 +267,9 @@ export class DatabaseInterceptor {
             }
           })
           .catch(() => {
-            // bun:sqlite not available
           });
       }
     } catch {
-      // Bun SQLite not available, skip
     }
   }
 
@@ -301,7 +277,6 @@ export class DatabaseInterceptor {
     OriginalDatabase: Record<string, unknown>,
     telescope: Telescope
   ): void {
-    // Store original methods
     const originalPrepare = (OriginalDatabase.prototype as Record<string, unknown>)?.prepare;
     const contextManager = this.contextManager;
 
@@ -311,7 +286,6 @@ export class DatabaseInterceptor {
           originalPrepare as (this: unknown, sql: string) => Record<string, unknown>
         ).call(this, sql);
 
-        // Wrap statement methods
         const originalGet = stmt.get;
         const originalAll = stmt.all;
         const originalRun = stmt.run;
@@ -381,32 +355,6 @@ export class DatabaseInterceptor {
     }
   }
 
-  private interceptGenericSQL(): void {
-    const telescope = this.telescope;
-    const contextManager = this.contextManager;
-    const originalLog = console.log;
-
-    console.log = function (...args: unknown[]) {
-      const message = args.join(' ');
-
-      if (
-        typeof message === 'string' &&
-        /\b(SELECT|INSERT|UPDATE|DELETE|CREATE|ALTER|DROP)\b/i.test(message)
-      ) {
-        telescope.recordQuery({
-          connection: 'console',
-          bindings: [],
-          query: message,
-          time: 0,
-          parent_id: contextManager.getCurrentRequestId(),
-        });
-      }
-
-      return originalLog.apply(console, args);
-    };
-  }
-
-  // Helper method to record database queries
   public async recordQuery<T>(
     queryFn: () => Promise<T>,
     sql: string,
