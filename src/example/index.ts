@@ -4,10 +4,8 @@ import axios, { AxiosError } from 'axios';
 import { setupTelescope } from '@/core';
 import dayjs from 'dayjs';
 
-// Make axios available globally for the interceptor
 (globalThis as unknown as Record<string, unknown>).axios = axios;
 
-// Helper function for date formatting
 const formatDate = (): string => {
   return `[${dayjs().format('YYYY-MM-DD HH:mm:ss.SSS')}]`;
 };
@@ -165,7 +163,6 @@ app.post('/api/users', async (c) => {
   }
 });
 
-// Update user
 app.put('/api/users/:id', async (c) => {
   console.log(`${formatDate()} PUT /api/users/:id - ID: ${c.req.param('id')}`);
   try {
@@ -182,7 +179,6 @@ app.put('/api/users/:id', async (c) => {
       );
     }
 
-    // Email check (if email is being updated)
     if (body.email) {
       const existingUser = db.getUserByEmail(body.email);
       if (existingUser && existingUser.id !== id) {
@@ -225,7 +221,6 @@ app.put('/api/users/:id', async (c) => {
   }
 });
 
-// Delete user
 app.delete('/api/users/:id', async (c) => {
   console.log(`${formatDate()} DELETE /api/users/:id - ID: ${c.req.param('id')}`);
   try {
@@ -342,7 +337,6 @@ app.get('/api/slow', async (c) => {
   });
 });
 
-// 🌐 Axios test endpoints
 app.get('/api/axios-test', async (c) => {
   console.log(`${formatDate()} GET /api/axios-test`);
   try {
@@ -398,7 +392,6 @@ app.get('/api/axios-test', async (c) => {
   }
 });
 
-// 🔄 Mixed HTTP clients test
 app.get('/api/mixed-clients-test', async (c) => {
   console.log(`${formatDate()} GET /api/mixed-clients-test`);
   try {
@@ -469,8 +462,10 @@ app.get('/api/mixed-clients-test', async (c) => {
   }
 });
 
+const port = parseInt(process.env.PORT || '3000');
+
 export default {
-  port: 3000,
+  port,
   fetch: app.fetch,
   idleTimeout: 60,
 };

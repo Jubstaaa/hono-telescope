@@ -1,6 +1,5 @@
 import { Telescope } from '../telescope';
 import { ContextManager } from '../context-manager';
-import { forEach, isObject, isString } from 'lodash';
 
 export class HttpInterceptor {
   private static instance: HttpInterceptor;
@@ -56,14 +55,15 @@ export class HttpInterceptor {
     ): Promise<Response> {
       const startTime = Date.now();
 
-      const url = isString(input) ? input : input instanceof URL ? input.toString() : input.url;
+      const url =
+        typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
       const method = init?.method || 'GET';
       const headers = init?.headers || {};
 
       let requestBody: Record<string, unknown> = {};
       if (init?.body) {
         try {
-          if (isString(init.body)) {
+          if (typeof init.body === 'string') {
             try {
               requestBody = JSON.parse(init.body);
             } catch {
@@ -108,8 +108,7 @@ export class HttpInterceptor {
         });
       }
 
-      const endTime = Date.now();
-      const duration = endTime - startTime;
+      const duration = Date.now() - startTime;
 
       const responseHeaders: Record<string, string> = {};
       response.headers.forEach((value, key) => {
@@ -145,10 +144,10 @@ export class HttpInterceptor {
       headers.forEach((value, key) => {
         sanitized[key.toLowerCase()] = value;
       });
-    } else if (isObject(headers)) {
-      forEach(headers, (value, key) => {
+    } else if (typeof headers === 'object' && headers !== null) {
+      for (const [key, value] of Object.entries(headers)) {
         sanitized[key.toLowerCase()] = String(value);
-      });
+      }
     }
 
     return sanitized;
@@ -175,13 +174,7 @@ export class HttpInterceptor {
       }
     }
 
-    if (!axios) {
-      return;
-    }
-
-    if (this.axiosIntercepted) {
-      return;
-    }
+    if (!axios || this.axiosIntercepted) return;
 
     axios.interceptors.request.use(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -248,12 +241,14 @@ export class HttpInterceptor {
       let requestBody: Record<string, unknown> = {};
       if (config.data) {
         try {
-          if (isString(config.data)) {
+          if (typeof config.data === 'string') {
             try {
               requestBody = JSON.parse(config.data);
             } catch {
               requestBody =
-                config.data.length > 1000 ? config.data.substring(0, 1000) + '...' : config.data;
+                config.data.length > 1000
+                  ? config.data.substring(0, 1000) + '...'
+                  : config.data;
             }
           } else {
             requestBody = config.data;
@@ -273,12 +268,12 @@ export class HttpInterceptor {
 
         try {
           const rawBody = response.data;
-          if (isString(rawBody)) {
+          if (typeof rawBody === 'string') {
             responseBody =
               rawBody.length > 1000
                 ? { response: rawBody.substring(0, 1000) + '...' }
                 : { response: rawBody };
-          } else if (isObject(rawBody)) {
+          } else if (typeof rawBody === 'object' && rawBody !== null) {
             responseBody = rawBody as Record<string, unknown>;
           } else {
             responseBody = { response: String(rawBody) };
@@ -289,7 +284,9 @@ export class HttpInterceptor {
       } else if (error) {
         responseStatus = error.response?.status || 0;
         responseHeaders = this.sanitizeHeaders(error.response?.headers || {});
-        responseBody = { response: isString(error.message) ? error.message : 'Request failed' };
+        responseBody = {
+          response: typeof error.message === 'string' ? error.message : 'Request failed',
+        };
       }
 
       const requestId = this.contextManager.getCurrentRequestId();

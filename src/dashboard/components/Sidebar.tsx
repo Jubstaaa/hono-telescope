@@ -1,4 +1,3 @@
-import React from 'react';
 import { Menu, theme } from 'antd';
 import { useLocation, useNavigate } from 'react-router';
 import {
@@ -43,7 +42,7 @@ const menuItems = [
   },
 ];
 
-export const Sidebar: React.FC = () => {
+export const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
 

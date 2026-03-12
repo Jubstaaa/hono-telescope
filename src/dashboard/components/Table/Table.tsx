@@ -1,4 +1,5 @@
-import { Table as AntTable, TableProps } from 'antd';
+import type { TableProps } from 'antd';
+import { Table as AntTable } from 'antd';
 import { useNavigate } from 'react-router';
 
 function Table({ columns, dataSource, loading, path }: TableProps & { path: string }) {

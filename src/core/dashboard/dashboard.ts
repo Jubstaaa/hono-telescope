@@ -7,10 +7,8 @@ import {
   mapQuery,
 } from '../utils/mappers';
 import { readFileSync } from 'fs';
-import { join } from 'path';
-import { map } from 'lodash';
+import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -24,7 +22,7 @@ export class TelescopeDashboard {
 
   async getAllIncomingRequests() {
     const entries = await this.telescope.getAllIncomingRequests();
-    return map([...entries].reverse(), mapIncomingRequest);
+    return [...entries].reverse().map(mapIncomingRequest);
   }
 
   async getIncomingRequest(id: string) {
@@ -41,17 +39,17 @@ export class TelescopeDashboard {
     return {
       ...entry,
       relation_entries: {
-        logs: map(logs, mapLog),
-        queries: map(queries, mapQuery),
-        exceptions: map(exceptions, mapException),
-        outgoing_requests: map(outgoingRequests, mapOutgoingRequest),
+        logs: logs.map(mapLog),
+        queries: queries.map(mapQuery),
+        exceptions: exceptions.map(mapException),
+        outgoing_requests: outgoingRequests.map(mapOutgoingRequest),
       },
     };
   }
 
   async getAllOutgoingRequests() {
     const entries = await this.telescope.getAllOutgoingRequests();
-    return map([...entries].reverse(), mapOutgoingRequest);
+    return [...entries].reverse().map(mapOutgoingRequest);
   }
 
   async getOutgoingRequest(id: string) {
@@ -60,7 +58,7 @@ export class TelescopeDashboard {
 
   async getAllExceptions() {
     const entries = await this.telescope.getAllExceptions();
-    return map([...entries].reverse(), mapException);
+    return [...entries].reverse().map(mapException);
   }
 
   async getException(id: string) {
@@ -69,7 +67,7 @@ export class TelescopeDashboard {
 
   async getAllQueries() {
     const entries = await this.telescope.getAllQueries();
-    return map([...entries].reverse(), mapQuery);
+    return [...entries].reverse().map(mapQuery);
   }
 
   async getQuery(id: string) {
@@ -78,7 +76,7 @@ export class TelescopeDashboard {
 
   async getAllLogs() {
     const entries = await this.telescope.getAllLogs();
-    return map([...entries].reverse(), mapLog);
+    return [...entries].reverse().map(mapLog);
   }
 
   async getLog(id: string) {

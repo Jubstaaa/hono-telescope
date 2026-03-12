@@ -1,6 +1,5 @@
-import React from 'react';
+import type { LogResponse } from '@/types';
 import { formatDate } from '../../utils/helpers';
-import { LogResponse } from '@/types';
 import LevelTag from '../Tag/LevelTag';
 import Table from './Table';
 
@@ -9,7 +8,7 @@ interface LogTableProps {
   loading?: boolean;
 }
 
-export const LogTable: React.FC<LogTableProps> = ({ entries, loading }) => {
+export const LogTable = ({ entries, loading }: LogTableProps) => {
   const columns = [
     {
       title: 'Level',
@@ -34,7 +33,7 @@ export const LogTable: React.FC<LogTableProps> = ({ entries, loading }) => {
     },
   ];
 
-  return <Table columns={columns} dataSource={entries} loading={loading} path={'logs'} />;
+  return <Table columns={columns} dataSource={entries} loading={loading} path="logs" />;
 };
 
 export default LogTable;

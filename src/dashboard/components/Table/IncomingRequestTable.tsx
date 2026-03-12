@@ -1,6 +1,5 @@
-import React from 'react';
+import type { IncomingRequestResponse } from '@/types';
 import { formatDate } from '../../utils/helpers';
-import { IncomingRequestResponse } from '@/types';
 import MethodTag from '../Tag/MethodTag';
 import StatusTag from '../Tag/StatusTag';
 import DurationTag from '../Tag/DurationTag';
@@ -11,10 +10,7 @@ interface IncomingRequestTableProps {
   loading?: boolean;
 }
 
-export const IncomingRequestTable: React.FC<IncomingRequestTableProps> = ({
-  entries,
-  loading = false,
-}) => {
+export const IncomingRequestTable = ({ entries, loading = false }: IncomingRequestTableProps) => {
   const columns = [
     {
       title: 'Method',
