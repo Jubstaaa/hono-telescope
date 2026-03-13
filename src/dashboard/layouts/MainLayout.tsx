@@ -7,6 +7,7 @@ import {
   RadarChartOutlined,
   SunOutlined,
   MoonOutlined,
+  GithubOutlined,
 } from '@ant-design/icons';
 import { useTheme } from '../contexts/ThemeContext';
 import { Sidebar } from '../components/Sidebar';
@@ -147,6 +148,12 @@ export const MainLayout = () => {
               }
               onClick={toggleTheme}
               title={isDark ? 'Light mode' : 'Dark mode'}
+            />
+            <Button
+              icon={<GithubOutlined style={{ fontSize: '16px' }} />}
+              href="https://github.com/Jubstaaa/hono-telescope"
+              target="_blank"
+              title="GitHub"
             />
           </Space>
         </Header>
