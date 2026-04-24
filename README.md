@@ -18,9 +18,9 @@ A powerful debugging and monitoring tool for Hono applications, inspired by Lara
 
 > 🎉 **Try it live!** No installation needed. Test all features on our hosted example:
 >
-> **[📊 Hono Telescope Dashboard](https://hono-telescope-9lvpv.ondigitalocean.app/telescope)**
+> **[📊 Hono Telescope Dashboard](https://hono-telescope.onrender.com/telescope)**
 >
-> **API Base URL:** `https://hono-telescope-9lvpv.ondigitalocean.app`
+> **API Base URL:** `https://hono-telescope.onrender.com`
 
 ---
 
@@ -97,9 +97,9 @@ Visit `http://localhost:3000/telescope` to access the dashboard.
 
 ### Try the Live Demo
 
-Visit the [live dashboard](https://hono-telescope-9lvpv.ondigitalocean.app/telescope) and test these endpoints:
+Visit the [live dashboard](https://hono-telescope.onrender.com/telescope) and test these endpoints:
 
-**API Base:** `https://hono-telescope-9lvpv.ondigitalocean.app`
+**API Base:** `https://hono-telescope.onrender.com`
 
 #### Quick Test with Shell Script
 
@@ -124,56 +124,56 @@ This will automatically test all endpoints and populate the Telescope dashboard 
 
 ```bash
 # Get all users
-curl https://hono-telescope-9lvpv.ondigitalocean.app/api/users
+curl https://hono-telescope.onrender.com/api/users
 
 # Create a new user
-curl -X POST https://hono-telescope-9lvpv.ondigitalocean.app/api/users \
+curl -X POST https://hono-telescope.onrender.com/api/users \
   -H "Content-Type: application/json" \
   -d '{"name": "John Doe", "email": "john@example.com", "username": "johndoe"}'
 
 # Get user by ID
-curl https://hono-telescope-9lvpv.ondigitalocean.app/api/users/1
+curl https://hono-telescope.onrender.com/api/users/1
 
 # Update user
-curl -X PUT https://hono-telescope-9lvpv.ondigitalocean.app/api/users/1 \
+curl -X PUT https://hono-telescope.onrender.com/api/users/1 \
   -H "Content-Type: application/json" \
   -d '{"name": "Jane Doe", "username": "janedoe"}'
 
 # Delete user
-curl -X DELETE https://hono-telescope-9lvpv.ondigitalocean.app/api/users/1
+curl -X DELETE https://hono-telescope.onrender.com/api/users/1
 ```
 
 **Database Operations** (SQLite with Bun)
 
 ```bash
 # Trigger database query
-curl https://hono-telescope-9lvpv.ondigitalocean.app/api/health/db
+curl https://hono-telescope.onrender.com/api/health/db
 ```
 
 **External Requests** (HTTP Interceptor)
 
 ```bash
 # Trigger outgoing HTTP request (tested with Axios)
-curl https://hono-telescope-9lvpv.ondigitalocean.app/api/external/request
+curl https://hono-telescope.onrender.com/api/external/request
 ```
 
 **Error Handling** (Exception Tracking)
 
 ```bash
 # Trigger an error
-curl https://hono-telescope-9lvpv.ondigitalocean.app/api/error
+curl https://hono-telescope.onrender.com/api/error
 ```
 
 **Logging** (Log Monitoring)
 
 ```bash
 # Trigger log entries
-curl https://hono-telescope-9lvpv.ondigitalocean.app/api/logs
+curl https://hono-telescope.onrender.com/api/logs
 ```
 
 ### View the Dashboard
 
-After making requests, visit the [Telescope Dashboard](https://hono-telescope-9lvpv.ondigitalocean.app/telescope) to see:
+After making requests, visit the [Telescope Dashboard](https://hono-telescope.onrender.com/telescope) to see:
 
 - 📊 **Incoming Requests** - All HTTP requests with headers, payload, and response
 - 📤 **Outgoing Requests** - External API calls made by the app
