@@ -189,17 +189,12 @@ import { setupTelescope } from 'hono-telescope';
 
 setupTelescope(app, {
   enabled: true, // Enable/disable Telescope
-  path: '/telescope', // Dashboard path
   max_entries: 1000, // Maximum entries to store
-  ignored_paths: ['/health'], // Paths to ignore
-  watchers: {
-    requests: true, // Monitor HTTP requests
-    exceptions: true, // Monitor exceptions
-    logs: true, // Monitor logs
-    queries: true, // Monitor database queries
-  },
+  sanitize_headers: ['authorization', 'cookie'], // Headers to redact before storing
 });
 ```
+
+All options are optional — `setupTelescope(app)` works with the defaults.
 
 ## Database Query Monitoring
 
