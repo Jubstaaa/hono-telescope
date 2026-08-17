@@ -42,8 +42,6 @@ A powerful debugging and monitoring tool for Hono applications, inspired by Lara
 
 **Planned Features (Roadmap):**
 
-- 🎨 **Code Formatting** - Built-in Prettier integration for consistent code style
-- 🔖 **Automated Versioning** - Release-it integration for semantic versioning
 - 💾 **Data Export** - Export monitored data in multiple formats (JSON, CSV)
 - 🔔 **Alerts & Notifications** - Real-time alerts for errors and performance issues
 - 📈 **Analytics & Reporting** - Advanced analytics and historical data analysis
