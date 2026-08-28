@@ -65,6 +65,16 @@
     "CHANGELOG.md",
     "LICENSE"
   ],
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/Jubstaaa"
+    },
+    {
+      "type": "buy_me_a_coffee",
+      "url": "https://buymeacoffee.com/jubstaa"
+    }
+  ],
   "homepage": "https://github.com/jubstaaa/hono-telescope#readme",
   "keywords": [
     "hono",
