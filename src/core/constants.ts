@@ -1,4 +1,4 @@
-export const IGNORED_PATHS = ['.well-known'] as const;
+export const IGNORED_PATHS = ['/.well-known'] as const;
 
 export const DEFAULT_DASHBOARD_PATH = '/telescope';
 

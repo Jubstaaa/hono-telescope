@@ -25,19 +25,23 @@ function headersOf(
   init: RequestInit | undefined,
   keys: string[]
 ): Record<string, unknown> {
-  const source =
-    init?.headers !== undefined
-      ? new Headers(init.headers)
-      : input instanceof Request
-        ? input.headers
-        : new Headers();
+  try {
+    const source =
+      init?.headers !== undefined
+        ? new Headers(init.headers)
+        : input instanceof Request
+          ? input.headers
+          : new Headers();
 
-  const headers: Record<string, unknown> = {};
-  source.forEach((value, key) => {
-    headers[key] = value;
-  });
+    const headers: Record<string, unknown> = {};
+    source.forEach((value, key) => {
+      headers[key] = value;
+    });
 
-  return redactHeaders(headers, keys);
+    return redactHeaders(headers, keys);
+  } catch {
+    return {};
+  }
 }
 
 function responseHeadersOf(response: Response, keys: string[]): Record<string, unknown> {

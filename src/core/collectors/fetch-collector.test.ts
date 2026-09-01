@@ -34,6 +34,22 @@ describe('fetchCollector', () => {
     });
   });
 
+  it('keeps a successful fetch successful when the headers cannot be read', async () => {
+    const { storage, recorder } = build();
+    const original = globalThis.fetch;
+    globalThis.fetch = (async () => new Response('ok')) as unknown as typeof fetch;
+
+    const uninstall = fetchCollector().install(recorder);
+    const response = await fetch('https://example.test/x', {
+      headers: { 'bad header': 'value' } as unknown as HeadersInit,
+    });
+    uninstall();
+    globalThis.fetch = original;
+
+    expect(response.status).toBe(200);
+    expect((await storage.list('outgoing_request'))[0].headers).toEqual({});
+  });
+
   it('records a failed request as a 0-status entry and rethrows', async () => {
     const { storage, recorder } = build();
     const original = globalThis.fetch;

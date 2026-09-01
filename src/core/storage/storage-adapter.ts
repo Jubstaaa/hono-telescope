@@ -5,10 +5,16 @@ export interface ListOptions {
   offset?: number;
 }
 
+/**
+ * Adapters are verified by the contract suite exported from `hono-telescope/testing`:
+ * `runStorageContract('my-adapter', () => myAdapter())`.
+ */
 export interface StorageAdapter {
   record<T extends EntryType>(type: T, entry: EntryMap[T]): Promise<void>;
+  /** Newest first. `limit` and `offset` apply to that order. */
   list<T extends EntryType>(type: T, opts?: ListOptions): Promise<EntryMap[T][]>;
   find<T extends EntryType>(type: T, id: string): Promise<EntryMap[T] | null>;
+  /** Oldest first, so a request's children read in the order they happened. */
   findByParent<T extends EntryType>(type: T, parentId: string): Promise<EntryMap[T][]>;
   count(type: EntryType): Promise<number>;
   clear(): Promise<void>;
