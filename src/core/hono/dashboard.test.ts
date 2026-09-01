@@ -123,6 +123,18 @@ describe('createDashboard', () => {
     expect(authorised.status).toBe(200);
   });
 
+  it('answers an unknown asset and an unknown resource with a JSON 404', async () => {
+    const { app } = build();
+
+    const asset = await app.request('/telescope/assets/nope.js');
+    const resource = await app.request('/telescope/api/nope');
+
+    expect(asset.status).toBe(404);
+    expect(await asset.json()).toEqual({ error: 'Not found' });
+    expect(resource.status).toBe(404);
+    expect(await resource.json()).toEqual({ error: 'Not found' });
+  });
+
   it('gates the asset route behind auth', async () => {
     const { app } = build({ dashboard: { auth: { username: 'a', password: 'b' } } });
     const { DASHBOARD_ASSETS } = await import('./dashboard-assets.js');

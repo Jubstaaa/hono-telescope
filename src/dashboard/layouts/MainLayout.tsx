@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Layout, Button, Space, Typography, theme, Flex, Image, Grid, message } from 'antd';
+import { Layout, Button, Space, Typography, theme, Flex, Image, Grid, Alert } from 'antd';
 import { Outlet, useNavigate, useLocation } from 'react-router';
 import {
   ArrowLeftOutlined,
@@ -26,6 +26,7 @@ export const MainLayout = () => {
   const location = useLocation();
   const { clearData, isLoading: isClearLoading } = useClearData();
   const [liveMode, setLiveMode] = useState(false);
+  const [clearError, setClearError] = useState<string | null>(null);
 
   const isDashboard = location.pathname === '/' || location.pathname === '';
   const canGoBack = !isDashboard;
@@ -41,11 +42,13 @@ export const MainLayout = () => {
   }, [liveMode]);
 
   const handleClearData = async () => {
+    setClearError(null);
+
     try {
       await clearData();
       window.location.reload();
     } catch {
-      message.error('Failed to clear data');
+      setClearError('Failed to clear data');
     }
   };
 
@@ -159,6 +162,16 @@ export const MainLayout = () => {
               height: '100%',
             }}
           >
+            {clearError && (
+              <Alert
+                type="error"
+                message={clearError}
+                closable
+                showIcon
+                onClose={() => setClearError(null)}
+                style={{ marginBottom: '16px' }}
+              />
+            )}
             <Outlet />
           </div>
         </Content>

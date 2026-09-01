@@ -60,7 +60,7 @@ export function createDashboard(recorder: Recorder, config: ResolvedConfig): Hon
 
   app.get('/assets/:file', (c) => {
     const asset = DASHBOARD_ASSETS[c.req.param('file')];
-    if (!asset) return c.notFound();
+    if (!asset) return c.json({ error: 'Not found' }, 404);
 
     c.header('Content-Type', asset.contentType);
     return c.body(asset.body);
@@ -91,7 +91,7 @@ export function createDashboard(recorder: Recorder, config: ResolvedConfig): Hon
 
   app.get('/api/:resource', async (c) => {
     const type = RESOURCES[c.req.param('resource')];
-    if (!type) return c.notFound();
+    if (!type) return c.json({ error: 'Not found' }, 404);
 
     const entries = await recorder.list(type);
     const map = MAPPERS[type] as (entry: unknown) => unknown;
@@ -101,7 +101,7 @@ export function createDashboard(recorder: Recorder, config: ResolvedConfig): Hon
 
   app.get('/api/:resource/:id', async (c) => {
     const type = RESOURCES[c.req.param('resource')];
-    if (!type) return c.notFound();
+    if (!type) return c.json({ error: 'Not found' }, 404);
 
     const entry = await recorder.find(type, c.req.param('id'));
     if (!entry) return c.json({ error: 'Not found' }, 404);
