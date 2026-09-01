@@ -14,8 +14,9 @@ export interface User {
 export class DatabaseManager {
   private db: Database;
 
-  constructor(dbPath: string = 'example.db') {
-    this.db = new Database(dbPath);
+  constructor(dbPath: string = 'example.db', instrument?: <T>(db: T) => T) {
+    const database = new Database(dbPath);
+    this.db = instrument ? instrument(database) : database;
 
     this.db.exec('PRAGMA journal_mode = WAL');
 

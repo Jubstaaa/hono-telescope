@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
-import { getDatabase, User } from './database';
+import { createTelescope, memoryStorage } from '../index';
+import { User, DatabaseManager } from './database';
 import axios, { AxiosError } from 'axios';
 import dayjs from 'dayjs';
 
@@ -10,7 +11,12 @@ const formatDate = (): string => {
 };
 
 const app = new Hono();
-const db = getDatabase();
+const telescope = createTelescope({ storage: memoryStorage({ maxEntries: 500 }) });
+
+app.use('*', telescope.middleware());
+app.route('/telescope', telescope.dashboard());
+
+const db = new DatabaseManager('example.db', (database) => telescope.instrumentBunSqlite(database));
 
 app.get('/', (c) => {
   console.log(`${formatDate()} GET /`);
