@@ -95,3 +95,21 @@ export type TelescopeCreateInput =
   | ExceptionCreateInput
   | LogCreateInput
   | QueryCreateInput;
+
+// ============ TYPE MAPS ============
+
+export interface EntryMap {
+  incoming_request: IncomingRequestEntry;
+  outgoing_request: OutgoingRequestEntry;
+  exception: ExceptionEntry;
+  log: LogEntry;
+  query: QueryEntry;
+}
+
+export interface CreateInputMap {
+  incoming_request: IncomingRequestCreateInput;
+  outgoing_request: OutgoingRequestCreateInput;
+  exception: ExceptionCreateInput;
+  log: LogCreateInput;
+  query: QueryCreateInput;
+}
