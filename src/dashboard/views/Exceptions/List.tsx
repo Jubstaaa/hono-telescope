@@ -1,13 +1,14 @@
 import { Button, Flex, Typography, theme } from 'antd';
 import { ReloadOutlined } from '@ant-design/icons';
 import { ExceptionTable } from '../../components/Table/ExceptionTable';
-import { useGetExceptionsQuery } from '../../api/telescopeApi';
+import { useList } from '../../hooks/use-entries';
+import type { ExceptionResponse } from '@/types';
 
 const { Title } = Typography;
 
 export const ExceptionList = () => {
   const { token } = theme.useToken();
-  const { data: entries = [], isLoading, refetch } = useGetExceptionsQuery();
+  const { data: entries, isLoading, refetch } = useList<ExceptionResponse>('exceptions');
 
   return (
     <Flex vertical gap="large">

@@ -7,7 +7,7 @@ import {
   DatabaseOutlined,
   FileTextOutlined,
 } from '@ant-design/icons';
-import { useGetStatsQuery } from '../../api/telescopeApi';
+import { useStats } from '../../hooks/use-entries';
 
 const { Title } = Typography;
 const { useBreakpoint } = Grid;
@@ -53,7 +53,7 @@ const statsCards = [
 export const Dashboard = () => {
   const navigate = useNavigate();
   const screens = useBreakpoint();
-  const { data: stats, isLoading, error, refetch } = useGetStatsQuery();
+  const { data: stats, isLoading, error, refetch } = useStats();
 
   if (error) {
     return (

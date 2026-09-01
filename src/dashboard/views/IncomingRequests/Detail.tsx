@@ -1,6 +1,7 @@
 import { useParams } from 'react-router';
 import { Card, Typography, Alert, Descriptions, theme, Flex, Tabs, Grid } from 'antd';
-import { useGetIncomingRequestQuery } from '../../api/telescopeApi';
+import { useDetail } from '../../hooks/use-entries';
+import type { IncomingRequestDetailResponse } from '@/types';
 import { formatDate } from '../../utils/helpers';
 import QueryTable from '../../components/Table/QueryTable';
 import LogTable from '../../components/Table/LogTable';
@@ -19,7 +20,11 @@ export const IncomingRequestDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { token } = theme.useToken();
   const screens = useBreakpoint();
-  const { data: response, isLoading, error } = useGetIncomingRequestQuery(id!, { skip: !id });
+  const {
+    data: response,
+    isLoading,
+    error,
+  } = useDetail<IncomingRequestDetailResponse>('incoming-requests', id);
 
   if (isLoading) {
     return <Loader />;

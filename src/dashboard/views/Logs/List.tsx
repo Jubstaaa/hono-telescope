@@ -1,13 +1,14 @@
 import { Button, Flex, Typography, theme } from 'antd';
 import { ReloadOutlined } from '@ant-design/icons';
 import { LogTable } from '../../components/Table/LogTable';
-import { useGetLogsQuery } from '../../api/telescopeApi';
+import { useList } from '../../hooks/use-entries';
+import type { LogResponse } from '@/types';
 
 const { Title } = Typography;
 
 export const LogList = () => {
   const { token } = theme.useToken();
-  const { data: entries = [], isLoading, refetch } = useGetLogsQuery();
+  const { data: entries, isLoading, refetch } = useList<LogResponse>('logs');
 
   return (
     <Flex vertical gap="large">

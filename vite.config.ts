@@ -46,11 +46,6 @@ export default defineConfig({
             return 'router';
           }
 
-          // State Management - Redux
-          if (id.includes('node_modules/@reduxjs/toolkit') || id.includes('node_modules/redux')) {
-            return 'state';
-          }
-
           // Core React
           if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
             return 'react-core';
@@ -72,6 +67,6 @@ export default defineConfig({
     reportCompressedSize: true,
   },
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router', 'antd', '@reduxjs/toolkit', 'redux'],
+    include: ['react', 'react-dom', 'react-router', 'antd'],
   },
 });
