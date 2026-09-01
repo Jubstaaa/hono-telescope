@@ -138,12 +138,3 @@ export class DatabaseManager {
     this.db.close();
   }
 }
-
-let dbInstance: DatabaseManager | null = null;
-
-export function getDatabase(): DatabaseManager {
-  if (!dbInstance) {
-    dbInstance = new DatabaseManager();
-  }
-  return dbInstance;
-}

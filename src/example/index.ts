@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { createTelescope, memoryStorage } from '../index';
-import { User, DatabaseManager } from './database';
+import type { User } from './database';
+import { DatabaseManager } from './database';
 import axios, { AxiosError } from 'axios';
 import dayjs from 'dayjs';
 
