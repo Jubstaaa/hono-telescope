@@ -22,11 +22,19 @@ const contentTypeOf = (file: string): string => {
 
 const html = readFileSync(join(DASHBOARD_DIR, 'index.html'), 'utf-8');
 
+if (html.trim().length === 0) {
+  throw new Error(`dashboard HTML at ${DASHBOARD_DIR} is empty`);
+}
+
 const assets = readdirSync(ASSETS_DIR).map((file) => ({
   file,
   contentType: contentTypeOf(file),
   body: readFileSync(join(ASSETS_DIR, file), 'utf-8'),
 }));
+
+if (assets.length === 0) {
+  throw new Error(`no dashboard assets found in ${ASSETS_DIR} — did the Vite build run?`);
+}
 
 const entries = assets
   .map(
