@@ -1,13 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { DashboardStats } from '@/types';
-
-declare global {
-  interface Window {
-    __TELESCOPE_BASE__?: string;
-  }
-}
-
-const base = (): string => window.__TELESCOPE_BASE__ ?? '/telescope';
+import { DASHBOARD_BASE } from '../config';
 
 const REFRESH_EVENT = 'telescope:refresh';
 
@@ -44,7 +37,7 @@ function useJson<T>(path: string | null): Result<T> {
     setIsLoading(true);
     setError(undefined);
 
-    fetch(`${base()}/api/${path}`, { signal: controller.signal })
+    fetch(`${DASHBOARD_BASE()}/api/${path}`, { signal: controller.signal })
       .then(async (response) => {
         if (!response.ok) throw new Error(`Request failed with ${response.status}`);
         return (await response.json()) as T;
@@ -93,7 +86,7 @@ export function useClearData(): { clearData: () => Promise<void>; isLoading: boo
   const clearData = useCallback(async () => {
     setIsLoading(true);
     try {
-      await fetch(`${base()}/api/clear`, { method: 'POST' });
+      await fetch(`${DASHBOARD_BASE()}/api/clear`, { method: 'POST' });
     } finally {
       setIsLoading(false);
     }

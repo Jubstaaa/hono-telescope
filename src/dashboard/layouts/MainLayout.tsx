@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Layout, Button, Space, Typography, theme, Flex, Image, Grid } from 'antd';
+import { Layout, Button, Space, Typography, theme, Flex, Image, Grid, message } from 'antd';
 import { Outlet, useNavigate, useLocation } from 'react-router';
 import {
   ArrowLeftOutlined,
@@ -41,8 +41,12 @@ export const MainLayout = () => {
   }, [liveMode]);
 
   const handleClearData = async () => {
-    await clearData();
-    window.location.reload();
+    try {
+      await clearData();
+      window.location.reload();
+    } catch {
+      message.error('Failed to clear data');
+    }
   };
 
   return (

@@ -1,4 +1,5 @@
 import { RouteObject, createBrowserRouter } from 'react-router';
+import { DASHBOARD_BASE } from './config';
 import { Dashboard } from './views/Dashboard/Dashboard';
 import { IncomingRequestList } from './views/IncomingRequests/List';
 import { OutgoingRequestList } from './views/OutgoingRequests/List';
@@ -65,8 +66,6 @@ const routes: RouteObject[] = [
   },
 ];
 
-const basename = window.__TELESCOPE_BASE__ ?? '/telescope';
-
 export const router = createBrowserRouter(routes, {
-  basename,
+  basename: DASHBOARD_BASE(),
 });
