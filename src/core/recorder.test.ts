@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { Recorder } from './recorder';
-import { memoryStorage } from './storage/memory-storage';
-import { alsContext } from './context/als-context';
+import { Recorder } from './recorder.js';
+import { memoryStorage } from './storage/memory-storage.js';
+import { alsContext } from './context/als-context.js';
 
 const build = () => {
   const storage = memoryStorage();

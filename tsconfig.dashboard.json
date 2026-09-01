@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "incremental": false
+  },
+  "include": ["src/dashboard/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

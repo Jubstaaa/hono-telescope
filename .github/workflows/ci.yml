@@ -23,7 +23,10 @@ jobs:
         run: bun run lint
 
       - name: Type check
-        run: bunx tsc --noEmit
+        run: bun run type-check
 
       - name: Run tests
         run: bun run test
+
+      - name: Build and verify the published artifact loads
+        run: bun run publishBuild

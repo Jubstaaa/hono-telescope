@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
-import { fetchCollector } from './fetch-collector';
-import { Recorder } from '../recorder';
-import { memoryStorage } from '../storage/memory-storage';
-import { alsContext } from '../context/als-context';
+import { fetchCollector } from './fetch-collector.js';
+import { Recorder } from '../recorder.js';
+import { memoryStorage } from '../storage/memory-storage.js';
+import { alsContext } from '../context/als-context.js';
 
 const build = () => {
   const storage = memoryStorage();

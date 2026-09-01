@@ -1,4 +1,4 @@
-import type { Recorder } from '../recorder';
+import type { Recorder } from '../recorder.js';
 
 type Statement = Record<string, unknown> & { sql?: string };
 

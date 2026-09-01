@@ -1,4 +1,4 @@
-import { ExceptionClass } from '@/types';
+import { ExceptionClass } from '../../types/index.js';
 
 export const getExceptionClassCode = (errorName: string): number => {
   switch (errorName) {

@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
-import { instrumentPrisma } from './prisma';
-import { instrumentSequelize } from './sequelize';
-import { instrumentMongo } from './mongo';
-import { instrumentBunSqlite } from './bun-sqlite';
-import { Recorder } from '../recorder';
-import { memoryStorage } from '../storage/memory-storage';
-import { alsContext } from '../context/als-context';
+import { instrumentPrisma } from './prisma.js';
+import { instrumentSequelize } from './sequelize.js';
+import { instrumentMongo } from './mongo.js';
+import { instrumentBunSqlite } from './bun-sqlite.js';
+import { Recorder } from '../recorder.js';
+import { memoryStorage } from '../storage/memory-storage.js';
+import { alsContext } from '../context/als-context.js';
 
 const build = () => {
   const storage = memoryStorage();

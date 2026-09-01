@@ -1,12 +1,18 @@
 import { describe, it, expect } from 'vitest';
-import { mapIncomingRequest, mapOutgoingRequest, mapException, mapLog, mapQuery } from './mappers';
+import {
+  mapIncomingRequest,
+  mapOutgoingRequest,
+  mapException,
+  mapLog,
+  mapQuery,
+} from './mappers.js';
 import type {
   IncomingRequestEntry,
   OutgoingRequestEntry,
   ExceptionEntry,
   LogEntry,
   QueryEntry,
-} from '@/types';
+} from '../../types/index.js';
 
 describe('mappers', () => {
   it('should map incoming request to slim response', () => {

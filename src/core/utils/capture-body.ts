@@ -1,4 +1,4 @@
-import type { CaptureConfig } from '@/types';
+import type { CaptureConfig } from '../../types/index.js';
 
 const CAPTURABLE = [/^application\/json\b/, /\+json\b/, /^text\//];
 

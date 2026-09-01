@@ -1,6 +1,6 @@
-import type { StorageAdapter } from '@core/storage/storage-adapter';
-import type { ContextStrategy } from '@core/context/context-strategy';
-import type { Collector } from '@core/collectors/collector';
+import type { StorageAdapter } from '../core/storage/storage-adapter.js';
+import type { ContextStrategy } from '../core/context/context-strategy.js';
+import type { Collector } from '../core/collectors/collector.js';
 
 export interface CaptureConfig {
   requestBody: boolean;

@@ -1,11 +1,11 @@
 import { randomUUID } from 'node:crypto';
 import type { Context, MiddlewareHandler } from 'hono';
-import type { ResolvedConfig } from '@/types';
-import type { Recorder } from '../recorder';
-import { IGNORED_STATIC_EXTENSIONS } from '../constants';
-import { getExceptionClassCode } from '../utils/helpers';
-import { redactBody, redactHeaders } from '../utils/redact';
-import { captureResponseBody, isCapturableContentType } from '../utils/capture-body';
+import type { ResolvedConfig } from '../../types/index.js';
+import type { Recorder } from '../recorder.js';
+import { IGNORED_STATIC_EXTENSIONS } from '../constants.js';
+import { getExceptionClassCode } from '../utils/helpers.js';
+import { redactBody, redactHeaders } from '../utils/redact.js';
+import { captureResponseBody, isCapturableContentType } from '../utils/capture-body.js';
 
 function shouldIgnore(path: string, config: ResolvedConfig): boolean {
   if (config.ignorePaths.some((ignored) => path.startsWith(ignored))) return true;

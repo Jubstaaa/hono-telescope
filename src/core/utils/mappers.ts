@@ -9,7 +9,7 @@ import type {
   ExceptionResponse,
   LogResponse,
   QueryResponse,
-} from '@/types';
+} from '../../types/index.js';
 
 export const mapIncomingRequest = (e: IncomingRequestEntry): IncomingRequestResponse => ({
   id: e.id,

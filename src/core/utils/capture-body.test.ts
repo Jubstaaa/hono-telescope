@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { captureResponseBody, isCapturableContentType, readCappedText } from './capture-body';
-import type { CaptureConfig } from '@/types';
+import { captureResponseBody, isCapturableContentType, readCappedText } from './capture-body.js';
+import type { CaptureConfig } from '../../types/index.js';
 
 const capture: CaptureConfig = { requestBody: true, responseBody: true, maxBodySize: 20 };
 

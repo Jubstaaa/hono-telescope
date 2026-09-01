@@ -14,6 +14,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./testing": {
+      "types": "./dist/core/storage/storage-contract.d.ts",
+      "import": "./dist/core/storage/storage-contract.js"
     }
   },
   "devDependencies": {
@@ -96,7 +100,8 @@
   "scripts": {
     "start": "bun dist/example",
     "build": "rm -rf src/core/dashboard/assets && vite build && bun run scripts/inline-assets.ts && tsc",
-    "publishBuild": "bun run build && rm -rf dist/example dist/dashboard && find dist -name '*.test.*' -delete && rm -f dist/tsconfig.tsbuildinfo",
+    "publishBuild": "bun run build && rm -rf dist/example dist/dashboard && find dist -name '*.test.*' -delete && rm -f dist/tsconfig.tsbuildinfo && bun run verify:dist",
+    "verify:dist": "node -e \"import('./dist/index.js').then(()=>console.log('dist loads on node'))\" && bun -e \"import('./dist/index.js').then(()=>console.log('dist loads on bun'))\"",
     "dev": "tsc --watch",
     "dev:example": "bun --hot src/example/index.ts",
     "dev:dashboard": "vite dev",
@@ -104,7 +109,7 @@
     "test:watch": "vitest",
     "clean": "rm -rf node_modules dist",
     "prepublishOnly": "bun run publishBuild",
-    "type-check": "tsc --noEmit",
+    "type-check": "tsc --noEmit && tsc -p tsconfig.dashboard.json",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "format": "prettier --write .",

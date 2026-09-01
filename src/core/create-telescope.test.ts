@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { Hono } from 'hono';
-import { createTelescope } from './create-telescope';
-import { memoryStorage } from './storage/memory-storage';
+import { createTelescope } from './create-telescope.js';
+import { memoryStorage } from './storage/memory-storage.js';
 
 describe('createTelescope', () => {
   it('installs the default collectors and uninstalls them on stop', () => {

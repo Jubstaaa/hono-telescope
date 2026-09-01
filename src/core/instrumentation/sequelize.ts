@@ -1,4 +1,4 @@
-import type { Recorder } from '../recorder';
+import type { Recorder } from '../recorder.js';
 
 const START = Symbol('hono-telescope.start');
 
