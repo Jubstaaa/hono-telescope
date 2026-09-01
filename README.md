@@ -8,19 +8,7 @@
 [![GitHub stars](https://img.shields.io/github/stars/jubstaaa/hono-telescope?style=social)](https://github.com/jubstaaa/hono-telescope)
 [![GitHub watchers](https://img.shields.io/github/watchers/jubstaaa/hono-telescope?style=social)](https://github.com/jubstaaa/hono-telescope)
 
-> **⚠️ Beta Release**: This package is currently in beta. APIs may change before the stable release.
-
 A powerful debugging and monitoring tool for Hono applications, inspired by Laravel Telescope. Monitor HTTP requests, exceptions, logs, and database queries with a beautiful web dashboard.
-
----
-
-## 🌐 Live Demo
-
-> 🎉 **Try it live!** No installation needed. Test all features on our hosted example:
->
-> **[📊 Hono Telescope Dashboard](https://hono-telescope.onrender.com/telescope)**
->
-> **API Base URL:** `https://hono-telescope.onrender.com`
 
 ---
 
@@ -31,7 +19,7 @@ A powerful debugging and monitoring tool for Hono applications, inspired by Lara
 - 🔍 **HTTP Request Monitoring** - Track all incoming and outgoing requests with detailed headers and payloads
 - 🚨 **Exception Tracking** - Capture and monitor application errors with stack traces
 - 📝 **Log Monitoring** - Monitor console logs with different severity levels
-- 🗄️ **Database Query Monitoring** - Track SQL queries (Prisma, Sequelize, MongoDB, Bun SQLite) with execution time
+- 🗄️ **Database Query Monitoring** - Explicit per-client instrumentation for Prisma, Sequelize, MongoDB, and Bun SQLite with execution time
 - 📊 **Beautiful Dashboard** - Modern React-based web interface with real-time updates
 - 🎯 **Zero Configuration** - Works out of the box with sensible defaults
 - 🏷️ **Tagging System** - Organize entries with custom tags and context
@@ -39,17 +27,18 @@ A powerful debugging and monitoring tool for Hono applications, inspired by Lara
 - ⚡ **High Performance** - Minimal overhead with efficient memory management
 - 🌐 **Bun & Node.js** - Works with both runtimes seamlessly
 - 🗂️ **Multiple Database Support** - Integrates with popular database libraries
+- ⚙️ **Zero Runtime Dependencies** - Depends only on Hono (peer dependency)
 
 **Planned Features (Roadmap):**
 
 - 💾 **Data Export** - Export monitored data in multiple formats (JSON, CSV)
 - 🔔 **Alerts & Notifications** - Real-time alerts for errors and performance issues
 - 📈 **Analytics & Reporting** - Advanced analytics and historical data analysis
-- 🔐 **Authentication & Authorization** - Dashboard access control
+- 🔐 **Authentication & Authorization** - Dashboard access control beyond basic auth
 - 🌍 **Multi-Tenancy Support** - Support for multiple isolated projects
-- 📱 **Mobile Dashboard** - Responsive mobile-friendly dashboard improvements
 - 🧩 **Plugin System** - Extensible plugin architecture for custom integrations
 - 🔄 **Data Persistence** - Optional database storage for long-term monitoring
+- 📡 **MCP Server** - Model Context Protocol server for AI integration
 
 ## 📦 Installation
 
@@ -71,144 +60,145 @@ bun add hono-telescope
 
 ```typescript
 import { Hono } from 'hono';
-import { setupTelescope } from 'hono-telescope';
+import { createTelescope, memoryStorage } from 'hono-telescope';
 
 const app = new Hono();
+const telescope = createTelescope({ storage: memoryStorage({ maxEntries: 1000 }) });
 
-// Setup Telescope with default configuration
-setupTelescope(app);
-
-// Your routes
-app.get('/', (c) => {
-  console.log('Home page accessed');
-  return c.json({ message: 'Hello World!' });
-});
+app.use('*', telescope.middleware());
+app.route('/telescope', telescope.dashboard());
 
 export default app;
 ```
 
-Visit `http://localhost:3000/telescope` to access the dashboard.
+Visit `/telescope`. Telescope is on by default outside production and off inside it.
 
-> 📋 **Complete Example**: See [src/example/index.ts](./src/example/index.ts) for a full working example with all Telescope features including database query monitoring, multiple HTTP clients (fetch + Axios), and error handling.
-
-## API Testing
-
-### Try the Live Demo
-
-Visit the [live dashboard](https://hono-telescope.onrender.com/telescope) and test these endpoints:
-
-**API Base:** `https://hono-telescope.onrender.com`
-
-#### Quick Test with Shell Script
-
-Run all endpoints at once with our test script:
-
-```bash
-# Download and run the test script
-bash <(curl -s https://raw.githubusercontent.com/jubstaaa/hono-telescope/main/src/example/test-all-endpoints.sh)
-```
-
-Or if you have the repo cloned locally:
-
-```bash
-bash src/example/test-all-endpoints.sh
-```
-
-This will automatically test all endpoints and populate the Telescope dashboard with data! ✨
-
-#### Available Test Endpoints
-
-**Users Management**
-
-```bash
-# Get all users
-curl https://hono-telescope.onrender.com/api/users
-
-# Create a new user
-curl -X POST https://hono-telescope.onrender.com/api/users \
-  -H "Content-Type: application/json" \
-  -d '{"name": "John Doe", "email": "john@example.com", "username": "johndoe"}'
-
-# Get user by ID
-curl https://hono-telescope.onrender.com/api/users/1
-
-# Update user
-curl -X PUT https://hono-telescope.onrender.com/api/users/1 \
-  -H "Content-Type: application/json" \
-  -d '{"name": "Jane Doe", "username": "janedoe"}'
-
-# Delete user
-curl -X DELETE https://hono-telescope.onrender.com/api/users/1
-```
-
-**Database Operations** (SQLite with Bun)
-
-```bash
-# Trigger database query
-curl https://hono-telescope.onrender.com/api/health/db
-```
-
-**External Requests** (HTTP Interceptor)
-
-```bash
-# Trigger outgoing HTTP request (tested with Axios)
-curl https://hono-telescope.onrender.com/api/external/request
-```
-
-**Error Handling** (Exception Tracking)
-
-```bash
-# Trigger an error
-curl https://hono-telescope.onrender.com/api/error
-```
-
-**Logging** (Log Monitoring)
-
-```bash
-# Trigger log entries
-curl https://hono-telescope.onrender.com/api/logs
-```
-
-### View the Dashboard
-
-After making requests, visit the [Telescope Dashboard](https://hono-telescope.onrender.com/telescope) to see:
-
-- 📊 **Incoming Requests** - All HTTP requests with headers, payload, and response
-- 📤 **Outgoing Requests** - External API calls made by the app
-- 📝 **Logs** - Console logs captured in real-time
-- ⚠️ **Exceptions** - Errors and stack traces
-- 🗄️ **Queries** - Database queries with execution time
-- 📈 **Statistics** - Summary of all monitored events
+> 📋 **Complete Example**: See [src/example/index.ts](./src/example/index.ts) for a full working example with all Telescope features including database query monitoring, external request tracking, and error handling.
 
 ## Configuration
+
+```typescript
+import { Hono } from 'hono';
+import { createTelescope, memoryStorage, alsContext, consoleCollector } from 'hono-telescope';
+
+const telescope = createTelescope({
+  enabled: process.env.NODE_ENV !== 'production',
+  storage: memoryStorage({ maxEntries: 1000 }),
+  context: alsContext(),
+  collectors: [consoleCollector()],
+  dashboardPath: '/telescope',
+  ignorePaths: ['/health'],
+  ignoreStaticAssets: true,
+  capture: {
+    requestBody: true,
+    responseBody: true,
+    maxBodySize: 65536,
+  },
+  redact: {
+    headers: ['authorization', 'cookie', 'set-cookie', 'x-api-key', 'proxy-authorization'],
+    bodyKeys: ['password', 'token', 'secret', 'apiKey', 'authorization'],
+  },
+  dashboard: {
+    auth: { username: 'admin', password: 'telescope' },
+  },
+});
+```
+
+All options are optional — `createTelescope()` works with the defaults.
+
+| Key                    | Type                     | Default                                                                         | Notes                                                                           |
+| ---------------------- | ------------------------ | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `enabled`              | `boolean`                | `NODE_ENV !== 'production'`                                                     | Disable in production by default                                                |
+| `storage`              | `StorageAdapter`         | `memoryStorage({ maxEntries: 1000 })`                                           | In-memory storage with 1000 entry limit                                         |
+| `context`              | `ContextStrategy`        | `alsContext()`                                                                  | AsyncLocalStorage-based request context tracking                                |
+| `collectors`           | `Collector[]`            | `[consoleCollector(), exceptionCollector(), fetchCollector()]`                  | Default collectors for console, exceptions, and fetch; pass `[]` to disable all |
+| `dashboardPath`        | `string`                 | `'/telescope'`                                                                  | Dashboard mount path; must match the path in `app.route()`                      |
+| `ignorePaths`          | `string[]`               | `['.well-known']`                                                               | Paths to exclude from monitoring                                                |
+| `ignoreStaticAssets`   | `boolean`                | `true`                                                                          | Skip monitoring requests for static files (.js, .css, .svg, etc.)               |
+| `capture.requestBody`  | `boolean`                | `true`                                                                          | Capture incoming request bodies                                                 |
+| `capture.responseBody` | `boolean`                | `true`                                                                          | Capture outgoing response bodies                                                |
+| `capture.maxBodySize`  | `number`                 | `65536`                                                                         | Maximum bytes to capture per body (64 KB)                                       |
+| `redact.headers`       | `string[]`               | `['authorization', 'cookie', 'set-cookie', 'x-api-key', 'proxy-authorization']` | Header names to redact                                                          |
+| `redact.bodyKeys`      | `string[]`               | `['password', 'token', 'secret', 'apiKey', 'authorization']`                    | Object keys to redact in request/response bodies                                |
+| `dashboard.auth`       | `DashboardAuth \| false` | `undefined`                                                                     | Optional basic auth for dashboard; required if `enabled: true` in production    |
+
+### Mounting at a Custom Path
+
+If you mount the dashboard at a path other than `/telescope`, you **must** set `dashboardPath` to the same value:
+
+```typescript
+const telescope = createTelescope({ dashboardPath: '/admin/debug' });
+app.route('/admin/debug', telescope.dashboard());
+```
+
+The middleware uses `dashboardPath` to avoid recording the dashboard's own traffic, and the dashboard uses it to construct its base URL.
+
+## Database Queries
+
+Pass your database client to Telescope for query instrumentation. Prisma returns a new client—use the returned one:
+
+```typescript
+import { createTelescope } from 'hono-telescope';
+import { PrismaClient } from '@prisma/client';
+
+const telescope = createTelescope();
+const prisma = telescope.instrumentPrisma(new PrismaClient());
+// Use the returned `prisma` client, not the original
+```
+
+Supported databases:
+
+```typescript
+telescope.instrumentPrisma(new PrismaClient()); // Returns a new client
+telescope.instrumentSequelize(sequelize);
+telescope.instrumentMongo(mongoClient); // Requires `monitorCommands: true` on MongoClient
+telescope.instrumentBunSqlite(db);
+```
+
+> **Note**: Automatic database interception was removed in 1.0 because it never worked under Node ESM and captured only raw SQL where it did run. Explicit per-client instrumentation is now required.
+
+## Security
+
+The dashboard exposes request and response bodies, headers, and SQL. Telescope is therefore disabled when `NODE_ENV === 'production'`. If you enable it there anyway, you must supply `dashboard.auth`; mounting without it throws.
+
+Sensitive headers (`authorization`, `cookie`, `set-cookie`, `x-api-key`, `proxy-authorization`) and body keys (`password`, `token`, `secret`, `apiKey`, `authorization`) are redacted by default, at any nesting depth. Redaction is recursive through nested objects and arrays, case-insensitive, and replaces values with `[REDACTED]` rather than deleting them.
+
+## Upgrading from 0.x
+
+The 1.0 release introduces a new API centered on `createTelescope()`:
+
+**0.x (Old API)**
 
 ```typescript
 import { setupTelescope } from 'hono-telescope';
 
 setupTelescope(app, {
-  enabled: true, // Enable/disable Telescope
-  max_entries: 1000, // Maximum entries to store
-  sanitize_headers: ['authorization', 'cookie'], // Headers to redact before storing
+  enabled: true,
+  max_entries: 1000,
+  sanitize_headers: ['authorization'],
 });
 ```
 
-All options are optional — `setupTelescope(app)` works with the defaults.
+**1.0 (New API)**
 
-## Database Query Monitoring
+```typescript
+import { createTelescope, memoryStorage } from 'hono-telescope';
 
-Hono Telescope automatically intercepts and monitors queries from:
+const telescope = createTelescope({
+  storage: memoryStorage({ maxEntries: 1000 }),
+  redact: { headers: ['authorization'] },
+});
+app.use('*', telescope.middleware());
+app.route('/telescope', telescope.dashboard());
+```
 
-- **Prisma** - Full ORM support with $queryRaw and $executeRaw
-- **Sequelize** - SQL ORM query tracking
-- **MongoDB** - NoSQL document operations
-- **Bun SQLite** - Native SQLite database queries
+**Key changes:**
 
-Queries are automatically captured with:
-
-- ⏱️ Execution time
-- 📋 Query text and bindings
-- 🔗 Parent request context
-- 🚨 Error information if query fails
+- `setupTelescope(app, config)` is replaced by `createTelescope(config)` with explicit middleware and dashboard mounting
+- Configuration keys are now camelCase (e.g., `max_entries` → `maxEntries`, `sanitize_headers` → `redact.headers`)
+- Database interception is now explicit per-client; automatic interception was removed
+- Axios interception was removed (axios on Node does not use `fetch`)
+- A request whose handler throws is recorded with the status your own `onError` returned, and the exception is recorded as a child entry of that request
 
 ## Development
 
@@ -228,7 +218,7 @@ bun run build
 
 ### Running in Development Mode
 
-Hono Telescope requires three separate processes running simultaneously for full development experience. Open three terminal windows:
+Start the TypeScript watcher and example app:
 
 **Terminal 1 - TypeScript Compilation (Watch Mode)**
 
@@ -247,3 +237,16 @@ bun run dev:example
 This starts the example Hono application with hot reload at `http://localhost:3000`
 
 - Example API endpoints: `http://localhost:3000/api/...`
+- Dashboard: `http://localhost:3000/telescope`
+
+Test all endpoints at once with the test script:
+
+```bash
+bash src/example/test-all-endpoints.sh
+```
+
+This will automatically test all endpoints and populate the dashboard with data.
+
+## License
+
+[MIT](LICENSE)
