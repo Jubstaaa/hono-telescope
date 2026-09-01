@@ -14,6 +14,5 @@ export default defineConfig({
     environment: 'node',
     include: ['src/**/*.test.ts'],
     restoreMocks: true,
-    dangerouslyIgnoreUnhandledErrors: true,
   },
 });

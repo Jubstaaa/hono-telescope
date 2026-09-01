@@ -12,9 +12,13 @@ const build = () => {
 describe('exceptionCollector', () => {
   it('records an uncaught exception', async () => {
     const { storage, recorder } = build();
-    const uninstall = exceptionCollector().install(recorder);
+    const before = process.listeners('uncaughtException');
 
-    process.emit('uncaughtException', new Error('boom'));
+    const uninstall = exceptionCollector().install(recorder);
+    const added = process.listeners('uncaughtException').filter((l) => !before.includes(l));
+    expect(added).toHaveLength(1);
+
+    (added[0] as (error: Error) => void)(new Error('boom'));
     await vi.waitFor(async () => expect(await storage.count('exception')).toBe(1));
     uninstall();
 
@@ -23,9 +27,13 @@ describe('exceptionCollector', () => {
 
   it('records an unhandled rejection, coercing a non-Error reason', async () => {
     const { storage, recorder } = build();
-    const uninstall = exceptionCollector().install(recorder);
+    const before = process.listeners('unhandledRejection');
 
-    process.emit('unhandledRejection', 'nope', Promise.resolve());
+    const uninstall = exceptionCollector().install(recorder);
+    const added = process.listeners('unhandledRejection').filter((l) => !before.includes(l));
+    expect(added).toHaveLength(1);
+
+    (added[0] as (reason: unknown, promise: Promise<unknown>) => void)('nope', Promise.resolve());
     await vi.waitFor(async () => expect(await storage.count('exception')).toBe(1));
     uninstall();
 
