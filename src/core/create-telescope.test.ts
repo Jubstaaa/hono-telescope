@@ -69,4 +69,16 @@ describe('createTelescope', () => {
     telescope.stop();
     expect(() => telescope.stop()).not.toThrow();
   });
+
+  it('installs nothing when an explicit empty collector list is given', () => {
+    const originalLog = console.log;
+    const originalFetch = globalThis.fetch;
+
+    const telescope = createTelescope({ storage: memoryStorage(), enabled: true, collectors: [] });
+
+    expect(console.log).toBe(originalLog);
+    expect(globalThis.fetch).toBe(originalFetch);
+
+    telescope.stop();
+  });
 });
