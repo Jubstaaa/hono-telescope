@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
-import type { CreateInputMap, EntryMap, EntryType, QueryCreateInput } from '@/types';
-import type { ListOptions, StorageAdapter } from './storage/storage-adapter';
-import type { ContextStrategy } from './context/context-strategy';
+import type { CreateInputMap, EntryMap, EntryType, QueryCreateInput } from '../types/index.js';
+import type { ListOptions, StorageAdapter } from './storage/storage-adapter.js';
+import type { ContextStrategy } from './context/context-strategy.js';
 
 export class Recorder {
   constructor(

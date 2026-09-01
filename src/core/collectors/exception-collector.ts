@@ -1,6 +1,6 @@
-import type { Recorder } from '../recorder';
-import { getExceptionClassCode } from '../utils/helpers';
-import type { Collector } from './collector';
+import type { Recorder } from '../recorder.js';
+import { getExceptionClassCode } from '../utils/helpers.js';
+import type { Collector } from './collector.js';
 
 export function exceptionCollector(): Collector {
   let installed = false;

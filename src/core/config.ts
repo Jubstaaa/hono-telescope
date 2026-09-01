@@ -1,13 +1,13 @@
-import type { ResolvedConfig, TelescopeConfig } from '@/types';
+import type { ResolvedConfig, TelescopeConfig } from '../types/index.js';
 import {
   DEFAULT_DASHBOARD_PATH,
   DEFAULT_MAX_BODY_SIZE,
   DEFAULT_REDACT_BODY_KEYS,
   DEFAULT_REDACT_HEADERS,
   IGNORED_PATHS,
-} from './constants';
-import { memoryStorage } from './storage/memory-storage';
-import { alsContext } from './context/als-context';
+} from './constants.js';
+import { memoryStorage } from './storage/memory-storage.js';
+import { alsContext } from './context/als-context.js';
 
 function normalisePath(path: string): string {
   const withLeading = path.startsWith('/') ? path : `/${path}`;

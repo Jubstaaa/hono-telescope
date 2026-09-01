@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import type { StorageAdapter } from './storage-adapter';
-import { memoryStorage } from './memory-storage';
-import type { LogEntry } from '@/types';
+import type { StorageAdapter } from './storage-adapter.js';
+import { memoryStorage } from './memory-storage.js';
+import type { LogEntry } from '../../types/index.js';
 
 function logEntry(id: string, parentId?: string): LogEntry {
   return {

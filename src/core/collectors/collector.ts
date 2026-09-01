@@ -1,4 +1,4 @@
-import type { Recorder } from '../recorder';
+import type { Recorder } from '../recorder.js';
 
 export interface Collector {
   name: string;

@@ -1,15 +1,15 @@
 import { Hono } from 'hono';
 import { basicAuth } from 'hono/basic-auth';
-import type { EntryType, ResolvedConfig } from '@/types';
-import type { Recorder } from '../recorder';
+import type { EntryType, ResolvedConfig } from '../../types/index.js';
+import type { Recorder } from '../recorder.js';
 import {
   mapException,
   mapIncomingRequest,
   mapLog,
   mapOutgoingRequest,
   mapQuery,
-} from '../utils/mappers';
-import { DASHBOARD_ASSETS, DASHBOARD_HTML } from './dashboard-assets';
+} from '../utils/mappers.js';
+import { DASHBOARD_ASSETS, DASHBOARD_HTML } from './dashboard-assets.js';
 
 const RESOURCES: Record<string, EntryType> = {
   'incoming-requests': 'incoming_request',

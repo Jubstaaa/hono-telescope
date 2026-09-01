@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { redactBody, redactHeaders } from './redact';
+import { redactBody, redactHeaders } from './redact.js';
 
 describe('redactHeaders', () => {
   it('redacts case-insensitively and leaves others alone', () => {

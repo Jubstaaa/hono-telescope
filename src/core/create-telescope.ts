@@ -1,17 +1,17 @@
 import { Hono } from 'hono';
 import type { MiddlewareHandler } from 'hono';
-import type { ResolvedConfig, TelescopeConfig } from '@/types';
-import { resolveConfig } from './config';
-import { Recorder } from './recorder';
-import { consoleCollector } from './collectors/console-collector';
-import { exceptionCollector } from './collectors/exception-collector';
-import { fetchCollector } from './collectors/fetch-collector';
-import { createMiddleware } from './hono/middleware';
-import { createDashboard } from './hono/dashboard';
-import { instrumentPrisma } from './instrumentation/prisma';
-import { instrumentSequelize } from './instrumentation/sequelize';
-import { instrumentMongo } from './instrumentation/mongo';
-import { instrumentBunSqlite } from './instrumentation/bun-sqlite';
+import type { ResolvedConfig, TelescopeConfig } from '../types/index.js';
+import { resolveConfig } from './config.js';
+import { Recorder } from './recorder.js';
+import { consoleCollector } from './collectors/console-collector.js';
+import { exceptionCollector } from './collectors/exception-collector.js';
+import { fetchCollector } from './collectors/fetch-collector.js';
+import { createMiddleware } from './hono/middleware.js';
+import { createDashboard } from './hono/dashboard.js';
+import { instrumentPrisma } from './instrumentation/prisma.js';
+import { instrumentSequelize } from './instrumentation/sequelize.js';
+import { instrumentMongo } from './instrumentation/mongo.js';
+import { instrumentBunSqlite } from './instrumentation/bun-sqlite.js';
 
 export interface Telescope {
   readonly recorder: Recorder;

@@ -1,8 +1,8 @@
-import type { Recorder } from '../recorder';
-import { DEFAULT_REDACT_HEADERS } from '../constants';
-import { redactHeaders } from '../utils/redact';
-import { captureResponseBody } from '../utils/capture-body';
-import type { Collector } from './collector';
+import type { Recorder } from '../recorder.js';
+import { DEFAULT_REDACT_HEADERS } from '../constants.js';
+import { redactHeaders } from '../utils/redact.js';
+import { captureResponseBody } from '../utils/capture-body.js';
+import type { Collector } from './collector.js';
 
 export interface FetchCollectorOptions {
   redactHeaders?: string[];

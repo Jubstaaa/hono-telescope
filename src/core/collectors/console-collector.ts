@@ -1,6 +1,6 @@
-import { LogLevel } from '@/types';
-import type { Recorder } from '../recorder';
-import type { Collector } from './collector';
+import { LogLevel } from '../../types/index.js';
+import type { Recorder } from '../recorder.js';
+import type { Collector } from './collector.js';
 
 type ConsoleMethod = 'log' | 'info' | 'warn' | 'error' | 'debug';
 

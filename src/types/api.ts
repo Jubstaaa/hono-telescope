@@ -4,7 +4,7 @@ import {
   ExceptionEntry,
   LogEntry,
   QueryEntry,
-} from './entries';
+} from './entries.js';
 
 export interface DashboardStats {
   incomingRequests: {

@@ -1,11 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Hono } from 'hono';
-import { createDashboard } from './dashboard';
-import { Recorder } from '../recorder';
-import { memoryStorage } from '../storage/memory-storage';
-import { alsContext } from '../context/als-context';
-import { resolveConfig } from '../config';
-import type { TelescopeConfig } from '@/types';
+import { createDashboard } from './dashboard.js';
+import { Recorder } from '../recorder.js';
+import { memoryStorage } from '../storage/memory-storage.js';
+import { alsContext } from '../context/als-context.js';
+import { resolveConfig } from '../config.js';
+import type { TelescopeConfig } from '../../types/index.js';
 
 afterEach(() => {
   vi.unstubAllEnvs();
@@ -125,7 +125,7 @@ describe('createDashboard', () => {
 
   it('gates the asset route behind auth', async () => {
     const { app } = build({ dashboard: { auth: { username: 'a', password: 'b' } } });
-    const { DASHBOARD_ASSETS } = await import('./dashboard-assets');
+    const { DASHBOARD_ASSETS } = await import('./dashboard-assets.js');
     const [file] = Object.entries(DASHBOARD_ASSETS)[0];
 
     expect((await app.request(`/telescope/assets/${file}`)).status).toBe(401);
@@ -144,7 +144,7 @@ describe('createDashboard', () => {
 
   it('serves an inlined asset with its content type', async () => {
     const { app } = build();
-    const { DASHBOARD_ASSETS } = await import('./dashboard-assets');
+    const { DASHBOARD_ASSETS } = await import('./dashboard-assets.js');
     const [file, asset] = Object.entries(DASHBOARD_ASSETS)[0];
 
     const response = await app.request(`/telescope/assets/${file}`);

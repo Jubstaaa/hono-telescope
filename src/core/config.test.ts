@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { resolveConfig } from './config';
-import { memoryStorage } from './storage/memory-storage';
+import { resolveConfig } from './config.js';
+import { memoryStorage } from './storage/memory-storage.js';
 
 afterEach(() => {
   vi.unstubAllEnvs();

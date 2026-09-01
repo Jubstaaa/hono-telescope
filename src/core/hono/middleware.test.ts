@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { Hono } from 'hono';
-import { createMiddleware } from './middleware';
-import { Recorder } from '../recorder';
-import { memoryStorage } from '../storage/memory-storage';
-import { alsContext } from '../context/als-context';
-import { resolveConfig } from '../config';
-import type { TelescopeConfig } from '@/types';
+import { createMiddleware } from './middleware.js';
+import { Recorder } from '../recorder.js';
+import { memoryStorage } from '../storage/memory-storage.js';
+import { alsContext } from '../context/als-context.js';
+import { resolveConfig } from '../config.js';
+import type { TelescopeConfig } from '../../types/index.js';
 
 function build(overrides: TelescopeConfig = {}) {
   const storage = memoryStorage();

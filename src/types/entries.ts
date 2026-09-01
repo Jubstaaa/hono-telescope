@@ -1,5 +1,5 @@
-import { BaseEntry } from './base';
-import { LogLevel, ExceptionClass } from './enums';
+import { BaseEntry } from './base.js';
+import { LogLevel, ExceptionClass } from './enums.js';
 
 // ============ INCOMING REQUEST ============
 

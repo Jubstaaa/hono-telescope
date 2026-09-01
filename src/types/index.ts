@@ -1,14 +1,14 @@
 // Base types
-export * from './base';
+export * from './base.js';
 
 // Enums
-export * from './enums';
+export * from './enums.js';
 
 // Entry types
-export * from './entries';
+export * from './entries.js';
 
 // API types
-export * from './api';
+export * from './api.js';
 
 // Config types
-export * from './config';
+export * from './config.js';

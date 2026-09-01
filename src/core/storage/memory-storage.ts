@@ -1,5 +1,5 @@
-import type { BaseEntry, EntryMap, EntryType } from '@/types';
-import type { ListOptions, StorageAdapter } from './storage-adapter';
+import type { BaseEntry, EntryMap, EntryType } from '../../types/index.js';
+import type { ListOptions, StorageAdapter } from './storage-adapter.js';
 
 export interface MemoryStorageOptions {
   maxEntries?: number;
