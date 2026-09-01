@@ -5,12 +5,7 @@ export interface BaseEntry {
   parent_id?: string;
 }
 
-export type EntryType =
-  | 'incoming_request'
-  | 'outgoing_request'
-  | 'exception'
-  | 'log'
-  | 'query';
+export type EntryType = 'incoming_request' | 'outgoing_request' | 'exception' | 'log' | 'query';
 
 export const ENTRY_TYPES: readonly EntryType[] = [
   'incoming_request',
