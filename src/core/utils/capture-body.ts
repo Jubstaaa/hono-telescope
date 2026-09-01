@@ -26,11 +26,11 @@ export async function readCappedText(
     for (;;) {
       const { done, value } = await reader.read();
       if (done) break;
-      if (!value) continue;
 
       const remaining = maxBytes - size;
-      if (value.byteLength >= remaining) {
+      if (value.byteLength > remaining) {
         chunks.push(value.subarray(0, remaining));
+        size = maxBytes;
         truncated = true;
         break;
       }

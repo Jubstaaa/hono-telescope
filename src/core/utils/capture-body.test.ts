@@ -33,6 +33,44 @@ describe('readCappedText', () => {
     expect(result.truncated).toBe(true);
     expect(result.text.length).toBeLessThanOrEqual(20);
   });
+
+  it('does not report truncation when body is exactly maxBytes (single chunk)', async () => {
+    const text = 'x'.repeat(20);
+    const response = new Response(text);
+
+    const result = await readCappedText(response.body, 20);
+    expect(result.truncated).toBe(false);
+    expect(result.text).toBe(text);
+  });
+
+  it('does not report truncation when body is exactly maxBytes (split chunks)', async () => {
+    const chunk1 = new Uint8Array(10);
+    chunk1.fill(120); // 'x'
+    const chunk2 = new Uint8Array(10);
+    chunk2.fill(120); // 'x'
+
+    const stream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(chunk1);
+        controller.enqueue(chunk2);
+        controller.close();
+      },
+    });
+
+    const result = await readCappedText(stream, 20);
+    expect(result.truncated).toBe(false);
+    expect(result.text).toBe('x'.repeat(20));
+  });
+
+  it('reports truncation when body exceeds maxBytes by one byte', async () => {
+    const text = 'x'.repeat(21);
+    const response = new Response(text);
+
+    const result = await readCappedText(response.body, 20);
+    expect(result.truncated).toBe(true);
+    expect(result.text.length).toBe(20);
+    expect(result.text).toBe('x'.repeat(20));
+  });
 });
 
 describe('captureResponseBody', () => {
@@ -76,5 +114,15 @@ describe('captureResponseBody', () => {
     expect(
       await captureResponseBody(response, { ...capture, responseBody: false })
     ).toBeUndefined();
+  });
+
+  it('parses JSON body of exactly maxBodySize bytes', async () => {
+    const jsonBody = JSON.stringify({ data: 'x'.repeat(6) }); // 20 bytes exactly
+    const response = new Response(jsonBody, {
+      headers: { 'content-type': 'application/json' },
+    });
+
+    const result = await captureResponseBody(response, capture);
+    expect(result).toEqual({ data: 'xxxxxx' });
   });
 });
