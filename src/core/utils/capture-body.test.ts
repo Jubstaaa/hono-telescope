@@ -108,6 +108,23 @@ describe('captureResponseBody', () => {
     expect(response.bodyUsed).toBe(false);
   });
 
+  it('reports metadata only for an oversize body read without a declared content-length, dropping the secret fragment', async () => {
+    const secret = 'eyJhbGciOi.SECRET';
+    const bodyText = JSON.stringify({ token: secret, filler: 'x'.repeat(200) });
+    const stream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode(bodyText));
+        controller.close();
+      },
+    });
+    const response = new Response(stream, { headers: { 'content-type': 'application/json' } });
+    expect(response.headers.get('content-length')).toBeNull();
+
+    const result = await captureResponseBody(response, { ...capture, maxBodySize: 20 }, ['token']);
+    expect(result).toEqual({ truncated: true, size: 20 });
+    expect(JSON.stringify(result)).not.toContain(secret);
+  });
+
   it('returns undefined when response capture is disabled', async () => {
     const response = new Response('hi', { headers: { 'content-type': 'text/plain' } });
 

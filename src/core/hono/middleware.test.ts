@@ -235,4 +235,28 @@ describe('createMiddleware', () => {
     });
     expect((await storage.list('incoming_request'))[0].payload).toEqual({ name: 'ada' });
   });
+
+  it('records an empty payload for a bodyless JSON POST', async () => {
+    const { app, storage } = build();
+    app.post('/empty', (c) => c.json({ ok: true }));
+
+    await app.request('/empty', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+    });
+
+    expect((await storage.list('incoming_request'))[0].payload).toEqual({});
+  });
+
+  it('records an empty payload for a GET carrying a JSON content-type', async () => {
+    const { app, storage } = build();
+    app.get('/nobody', (c) => c.json({ ok: true }));
+
+    await app.request('/nobody', {
+      method: 'GET',
+      headers: { 'content-type': 'application/json' },
+    });
+
+    expect((await storage.list('incoming_request'))[0].payload).toEqual({});
+  });
 });

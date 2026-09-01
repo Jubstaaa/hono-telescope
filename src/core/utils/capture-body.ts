@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer';
 import type { CaptureConfig } from '../../types/index.js';
 import { redactBody } from './redact.js';
 
@@ -89,7 +90,7 @@ export async function captureResponseBody(
   }
 
   const { text, truncated } = await readCappedText(response.clone().body, capture.maxBodySize);
-  if (truncated) return { truncated: true, response: text };
+  if (truncated) return { truncated: true, size: Buffer.byteLength(text) };
 
   return redactBody(parse(text), redactBodyKeys) as Record<string, unknown>;
 }
