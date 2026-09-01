@@ -1,11 +1,16 @@
 import type { Recorder } from '../recorder.js';
-import { DEFAULT_REDACT_HEADERS } from '../constants.js';
+import {
+  DEFAULT_MAX_BODY_SIZE,
+  DEFAULT_REDACT_BODY_KEYS,
+  DEFAULT_REDACT_HEADERS,
+} from '../constants.js';
 import { redactHeaders } from '../utils/redact.js';
 import { captureResponseBody } from '../utils/capture-body.js';
 import type { Collector } from './collector.js';
 
 export interface FetchCollectorOptions {
   redactHeaders?: string[];
+  redactBodyKeys?: string[];
   maxBodySize?: number;
 }
 
@@ -46,7 +51,8 @@ function responseHeadersOf(response: Response, keys: string[]): Record<string, u
 
 export function fetchCollector(options: FetchCollectorOptions = {}): Collector {
   const redactKeys = options.redactHeaders ?? [...DEFAULT_REDACT_HEADERS];
-  const maxBodySize = options.maxBodySize ?? 65536;
+  const redactBodyKeys = options.redactBodyKeys ?? [...DEFAULT_REDACT_BODY_KEYS];
+  const maxBodySize = options.maxBodySize ?? DEFAULT_MAX_BODY_SIZE;
   let installed = false;
   let uninstall = () => {};
 
@@ -64,17 +70,19 @@ export function fetchCollector(options: FetchCollectorOptions = {}): Collector {
         const uri = urlOf(input);
         const method = init?.method ?? (input instanceof Request ? input.method : 'GET');
 
+        const requestHeaders = headersOf(input, init, redactKeys);
+
         try {
           const response = await original(input, init);
 
           let captured: Record<string, unknown> = {};
           try {
             captured =
-              (await captureResponseBody(response, {
-                requestBody: false,
-                responseBody: true,
-                maxBodySize,
-              })) ?? {};
+              (await captureResponseBody(
+                response,
+                { requestBody: false, responseBody: true, maxBodySize },
+                redactBodyKeys
+              )) ?? {};
           } catch {
             captured = { error: 'response capture failed' };
           }
@@ -83,7 +91,7 @@ export function fetchCollector(options: FetchCollectorOptions = {}): Collector {
             .record('outgoing_request', {
               method,
               uri,
-              headers: headersOf(input, init, redactKeys),
+              headers: requestHeaders,
               payload: {},
               response_status: response.status,
               response_headers: responseHeadersOf(response, redactKeys),
@@ -98,7 +106,7 @@ export function fetchCollector(options: FetchCollectorOptions = {}): Collector {
             .record('outgoing_request', {
               method,
               uri,
-              headers: headersOf(input, init, redactKeys),
+              headers: requestHeaders,
               payload: {},
               response_status: 0,
               response_headers: {},

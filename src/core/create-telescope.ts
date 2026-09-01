@@ -40,7 +40,11 @@ export function createTelescope(config: TelescopeConfig = {}): Telescope {
   const collectors = config.collectors ?? [
     consoleCollector(),
     exceptionCollector(),
-    fetchCollector(),
+    fetchCollector({
+      redactHeaders: resolved.redact.headers,
+      redactBodyKeys: resolved.redact.bodyKeys,
+      maxBodySize: resolved.capture.maxBodySize,
+    }),
   ];
 
   const uninstalls = resolved.enabled

@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer';
 import { randomUUID } from 'node:crypto';
 import type { Context, MiddlewareHandler } from 'hono';
 import type { ResolvedConfig } from '../../types/index.js';
@@ -34,10 +35,29 @@ async function readRequestBody(
   }
 
   try {
-    const parsed = isForm ? await c.req.parseBody() : await c.req.json();
-    return (redactBody(parsed, config.redact.bodyKeys) ?? {}) as Record<string, unknown>;
+    const body = isForm ? await c.req.parseBody() : await readTextBody(c, config);
+    return (redactBody(body, config.redact.bodyKeys) ?? {}) as Record<string, unknown>;
   } catch {
     return {};
+  }
+}
+
+/**
+ * `c.req.text()` is cached by Hono, so the handler can still read the body afterwards. A
+ * chunked request declares no content-length, so the cap has to be applied to what we read.
+ */
+async function readTextBody(c: Context, config: ResolvedConfig): Promise<unknown> {
+  const text = await c.req.text();
+  const size = Buffer.byteLength(text);
+  if (size > config.capture.maxBodySize) return { truncated: true, size };
+
+  if (!(c.req.header('content-type') ?? '').toLowerCase().includes('json')) return { body: text };
+
+  try {
+    const parsed: unknown = JSON.parse(text);
+    return parsed !== null && typeof parsed === 'object' ? parsed : { body: parsed };
+  } catch {
+    return { body: text };
   }
 }
 
@@ -125,7 +145,8 @@ export function createMiddleware(recorder: Recorder, config: ResolvedConfig): Mi
 
         let capturedResponse: Record<string, unknown> = {};
         try {
-          capturedResponse = (await captureResponseBody(response, config.capture)) ?? {};
+          capturedResponse =
+            (await captureResponseBody(response, config.capture, config.redact.bodyKeys)) ?? {};
         } catch {
           capturedResponse = { error: 'response capture failed' };
         }

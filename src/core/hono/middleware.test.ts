@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { Hono } from 'hono';
+import { streamText } from 'hono/streaming';
 import { createMiddleware } from './middleware.js';
 import { Recorder } from '../recorder.js';
 import { memoryStorage } from '../storage/memory-storage.js';
@@ -128,5 +129,101 @@ describe('createMiddleware', () => {
 
     expect(await response.text()).toBe('data: 1\n\n');
     expect((await storage.list('incoming_request'))[0].response).toEqual({});
+  });
+
+  it('releases a streamText response before the stream finishes', async () => {
+    const { app, storage } = build();
+    app.get('/tokens', (c) =>
+      streamText(c, async (stream) => {
+        for (const token of ['alpha ', 'beta ', 'gamma']) {
+          await stream.write(token);
+          await stream.sleep(200);
+        }
+      })
+    );
+
+    const startTime = Date.now();
+    const response = await app.request('/tokens');
+    const elapsed = Date.now() - startTime;
+
+    expect(elapsed).toBeLessThan(100);
+    expect(await response.text()).toBe('alpha beta gamma');
+
+    const [entry] = await storage.list('incoming_request');
+    expect(entry.response).toEqual({});
+    expect(JSON.stringify(entry.response)).not.toContain('alpha');
+  });
+
+  it('redacts sensitive keys in the recorded response body', async () => {
+    const { app, storage } = build();
+    app.post('/login', (c) =>
+      c.json({ token: 'eyJhbGciOi.SECRET', user: { password: 'hunter2' } })
+    );
+
+    await app.request('/login', { method: 'POST' });
+
+    expect((await storage.list('incoming_request'))[0].response).toEqual({
+      token: '[REDACTED]',
+      user: { password: '[REDACTED]' },
+    });
+  });
+
+  it('caps a chunked request body that declares no content-length', async () => {
+    const { app, storage } = build({ capture: { maxBodySize: 100 } });
+    app.post('/bulk', (c) => c.json({ ok: true }));
+
+    const body = JSON.stringify({ data: 'x'.repeat(4096) });
+    await app.request('/bulk', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: new ReadableStream<Uint8Array>({
+        start(controller) {
+          controller.enqueue(new TextEncoder().encode(body));
+          controller.close();
+        },
+      }),
+      // @ts-expect-error duplex is required by Node for a streamed request body
+      duplex: 'half',
+    });
+
+    const [entry] = await storage.list('incoming_request');
+    expect(entry.payload).toMatchObject({ truncated: true });
+    expect(JSON.stringify(entry.payload).length).toBeLessThan(200);
+  });
+
+  it('records a text body under `body` and leaves it readable by the handler', async () => {
+    const { app, storage } = build();
+    app.post('/notes', async (c) => c.text(await c.req.text()));
+
+    const response = await app.request('/notes', {
+      method: 'POST',
+      headers: { 'content-type': 'text/plain' },
+      body: 'plain note',
+    });
+
+    expect(await response.text()).toBe('plain note');
+    expect((await storage.list('incoming_request'))[0].payload).toEqual({ body: 'plain note' });
+  });
+
+  it('leaves a JSON body readable by the handler through both text() and json()', async () => {
+    const { app, storage } = build();
+    app.post('/echo', async (c) => {
+      const text = await c.req.text();
+      const json = await c.req.json();
+
+      return c.json({ text, json });
+    });
+
+    const response = await app.request('/echo', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ name: 'ada' }),
+    });
+
+    expect(await response.json()).toEqual({
+      text: '{"name":"ada"}',
+      json: { name: 'ada' },
+    });
+    expect((await storage.list('incoming_request'))[0].payload).toEqual({ name: 'ada' });
   });
 });
