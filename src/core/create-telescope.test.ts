@@ -17,6 +17,32 @@ describe('createTelescope', () => {
     expect(globalThis.fetch).toBe(originalFetch);
   });
 
+  it('honours the resolved redact and capture config in the default fetch collector', async () => {
+    const storage = memoryStorage();
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = (async () =>
+      new Response(JSON.stringify({ token: 'jwt' }), {
+        headers: { 'content-type': 'application/json' },
+      })) as unknown as typeof fetch;
+
+    const telescope = createTelescope({
+      storage,
+      enabled: true,
+      redact: { headers: ['x-internal-token'], bodyKeys: ['token'] },
+    });
+
+    try {
+      await fetch('https://example.test/x', { headers: { 'x-internal-token': 'plaintext' } });
+    } finally {
+      telescope.stop();
+      globalThis.fetch = originalFetch;
+    }
+
+    const [entry] = await storage.list('outgoing_request');
+    expect(entry.headers['x-internal-token']).toBe('[REDACTED]');
+    expect(entry.response).toEqual({ token: '[REDACTED]' });
+  });
+
   it('records through the mounted middleware', async () => {
     const storage = memoryStorage();
     const telescope = createTelescope({ storage, enabled: true });

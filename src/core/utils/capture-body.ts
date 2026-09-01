@@ -1,4 +1,5 @@
 import type { CaptureConfig } from '../../types/index.js';
+import { redactBody } from './redact.js';
 
 const CAPTURABLE = [/^application\/json\b/, /\+json\b/, /^text\//];
 
@@ -9,6 +10,19 @@ export function isCapturableContentType(contentType: string | null): boolean {
   if (value.startsWith('text/event-stream')) return false;
 
   return CAPTURABLE.some((pattern) => pattern.test(value));
+}
+
+/**
+ * Hono's stream helpers set `Transfer-Encoding: chunked`; `streamText` also declares
+ * `text/plain`, which would otherwise look capturable. Reading such a body would hold the
+ * response until the handler finished streaming.
+ */
+export function isStreamedResponse(response: Response): boolean {
+  const contentType = response.headers.get('content-type')?.toLowerCase() ?? '';
+  if (contentType.startsWith('text/event-stream')) return true;
+
+  const transferEncoding = response.headers.get('transfer-encoding')?.toLowerCase() ?? '';
+  return transferEncoding.includes('chunked');
 }
 
 export async function readCappedText(
@@ -60,9 +74,11 @@ function concat(chunks: Uint8Array[]): Uint8Array {
 
 export async function captureResponseBody(
   response: Response,
-  capture: CaptureConfig
+  capture: CaptureConfig,
+  redactBodyKeys: string[]
 ): Promise<Record<string, unknown> | undefined> {
   if (!capture.responseBody) return undefined;
+  if (isStreamedResponse(response)) return undefined;
 
   const contentType = response.headers.get('content-type');
   if (!isCapturableContentType(contentType)) return undefined;
@@ -75,8 +91,12 @@ export async function captureResponseBody(
   const { text, truncated } = await readCappedText(response.clone().body, capture.maxBodySize);
   if (truncated) return { truncated: true, response: text };
 
+  return redactBody(parse(text), redactBodyKeys) as Record<string, unknown>;
+}
+
+function parse(text: string): Record<string, unknown> {
   try {
-    const parsed = JSON.parse(text);
+    const parsed: unknown = JSON.parse(text);
     return parsed !== null && typeof parsed === 'object'
       ? (parsed as Record<string, unknown>)
       : { response: parsed };

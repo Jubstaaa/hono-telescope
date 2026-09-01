@@ -79,7 +79,7 @@ describe('captureResponseBody', () => {
       headers: { 'content-type': 'application/json' },
     });
 
-    expect(await captureResponseBody(response, capture)).toEqual({ ok: true });
+    expect(await captureResponseBody(response, capture, [])).toEqual({ ok: true });
   });
 
   it('wraps non-JSON text under a `response` key', async () => {
@@ -87,7 +87,7 @@ describe('captureResponseBody', () => {
       headers: { 'content-type': 'text/plain' },
     });
 
-    expect(await captureResponseBody(response, capture)).toEqual({ response: 'plain text' });
+    expect(await captureResponseBody(response, capture, [])).toEqual({ response: 'plain text' });
   });
 
   it('skips an event stream without reading it', async () => {
@@ -95,7 +95,7 @@ describe('captureResponseBody', () => {
       headers: { 'content-type': 'text/event-stream' },
     });
 
-    expect(await captureResponseBody(response, capture)).toBeUndefined();
+    expect(await captureResponseBody(response, capture, [])).toBeUndefined();
     expect(response.bodyUsed).toBe(false);
   });
 
@@ -104,7 +104,7 @@ describe('captureResponseBody', () => {
       headers: { 'content-type': 'text/plain', 'content-length': '50' },
     });
 
-    expect(await captureResponseBody(response, capture)).toEqual({ truncated: true, size: 50 });
+    expect(await captureResponseBody(response, capture, [])).toEqual({ truncated: true, size: 50 });
     expect(response.bodyUsed).toBe(false);
   });
 
@@ -112,8 +112,30 @@ describe('captureResponseBody', () => {
     const response = new Response('hi', { headers: { 'content-type': 'text/plain' } });
 
     expect(
-      await captureResponseBody(response, { ...capture, responseBody: false })
+      await captureResponseBody(response, { ...capture, responseBody: false }, [])
     ).toBeUndefined();
+  });
+
+  it('skips a chunked streaming response without reading it', async () => {
+    const response = new Response('chunk', {
+      headers: { 'content-type': 'text/plain', 'transfer-encoding': 'chunked' },
+    });
+
+    expect(await captureResponseBody(response, capture, [])).toBeUndefined();
+    expect(response.bodyUsed).toBe(false);
+  });
+
+  it('redacts the configured body keys at any depth', async () => {
+    const response = new Response(JSON.stringify({ token: 'jwt', user: { password: 'hunter2' } }), {
+      headers: { 'content-type': 'application/json' },
+    });
+
+    const roomy: CaptureConfig = { ...capture, maxBodySize: 1024 };
+
+    expect(await captureResponseBody(response, roomy, ['token', 'password'])).toEqual({
+      token: '[REDACTED]',
+      user: { password: '[REDACTED]' },
+    });
   });
 
   it('parses JSON body of exactly maxBodySize bytes', async () => {
@@ -124,7 +146,7 @@ describe('captureResponseBody', () => {
       headers: { 'content-type': 'application/json' },
     });
 
-    const result = await captureResponseBody(response, capture);
+    const result = await captureResponseBody(response, capture, []);
     expect(result).toEqual({ data: 'xxxxxxxxx' });
   });
 });
