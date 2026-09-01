@@ -48,6 +48,8 @@ async function readRequestBody(
  */
 async function readTextBody(c: Context, config: ResolvedConfig): Promise<unknown> {
   const text = await c.req.text();
+  if (text === '') return {};
+
   const size = Buffer.byteLength(text);
   if (size > config.capture.maxBodySize) return { truncated: true, size };
 

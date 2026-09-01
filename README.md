@@ -197,8 +197,14 @@ Sensitive headers (`authorization`, `cookie`, `set-cookie`, `x-api-key`, `proxy-
   URL, headers, status and response body; the request payload panel stays empty.
 - **Streamed responses are not captured.** Responses produced by Hono's `streamText` and
   `streamSSE` are recorded without a body, so that recording never buffers or delays a stream.
-- **Request bodies larger than `capture.maxBodySize` are recorded as metadata only**
-  (`{ truncated: true, size }`), and a non-JSON `text/*` body is recorded as `{ body: text }`.
+  Detection relies on the `Transfer-Encoding: chunked` header those helpers set (the bare
+  `stream()` helper sets no content-type, so it is skipped too); a hand-rolled
+  `new Response(readableStream, { headers: { 'content-type': 'text/plain' } })` sets neither
+  header, so it is read and buffered before being recorded. Set `Transfer-Encoding: chunked`
+  or a non-text content type on such a response to opt it out of capture.
+- **Request and response bodies larger than `capture.maxBodySize` are recorded as metadata
+  only** (`{ truncated: true, size }`), and a non-JSON `text/*` request body is recorded as
+  `{ body: text }`.
 
 ## Custom Storage Adapters
 
