@@ -1,71 +1,57 @@
-import type {
-  IncomingRequestEntry,
-  OutgoingRequestEntry,
-  BaseEntry,
-  ExceptionEntry,
-  LogEntry,
-  QueryEntry,
-} from '@/types';
+import type { BaseEntry, EntryMap, EntryType } from '@/types';
+import type { ListOptions, StorageAdapter } from './storage-adapter';
 
-class BaseRepository<T extends BaseEntry> {
-  protected entries: T[] = [];
-  protected maxEntries: number;
-
-  constructor(maxEntries: number = 1000) {
-    this.maxEntries = maxEntries;
-  }
-
-  protected trimIfNeeded(): void {
-    if (this.entries.length > this.maxEntries) {
-      this.entries.splice(0, this.entries.length - this.maxEntries);
-    }
-  }
-
-  async create(entry: T): Promise<string> {
-    this.entries.push(entry);
-    this.trimIfNeeded();
-    return entry.id;
-  }
-
-  async findAll(): Promise<T[]> {
-    return this.entries;
-  }
-
-  async findById(id: string): Promise<T | null> {
-    return this.entries.find((e) => e.id === id) ?? null;
-  }
-
-  async findByParentId(parentId: string): Promise<T[]> {
-    return this.entries.filter((e) => e.parent_id === parentId);
-  }
-
-  async count(): Promise<number> {
-    return this.entries.length;
-  }
-
-  async clear(): Promise<void> {
-    this.entries = [];
-  }
+export interface MemoryStorageOptions {
+  maxEntries?: number;
 }
 
-export class IncomingRequestRepository extends BaseRepository<IncomingRequestEntry> {}
-export class OutgoingRequestRepository extends BaseRepository<OutgoingRequestEntry> {}
-export class ExceptionRepository extends BaseRepository<ExceptionEntry> {}
-export class LogRepository extends BaseRepository<LogEntry> {}
-export class QueryRepository extends BaseRepository<QueryEntry> {}
+export function memoryStorage(options: MemoryStorageOptions = {}): StorageAdapter {
+  const maxEntries = options.maxEntries ?? 1000;
+  const buckets = new Map<EntryType, BaseEntry[]>();
 
-export class MemoryStorage {
-  readonly incomingRequests: IncomingRequestRepository;
-  readonly outgoingRequests: OutgoingRequestRepository;
-  readonly exceptions: ExceptionRepository;
-  readonly logs: LogRepository;
-  readonly queries: QueryRepository;
+  const bucket = (type: EntryType): BaseEntry[] => {
+    const existing = buckets.get(type);
+    if (existing) return existing;
 
-  constructor(maxEntries: number = 1000) {
-    this.incomingRequests = new IncomingRequestRepository(maxEntries);
-    this.outgoingRequests = new OutgoingRequestRepository(maxEntries);
-    this.exceptions = new ExceptionRepository(maxEntries);
-    this.logs = new LogRepository(maxEntries);
-    this.queries = new QueryRepository(maxEntries);
-  }
+    const created: BaseEntry[] = [];
+    buckets.set(type, created);
+    return created;
+  };
+
+  return {
+    async record(type, entry) {
+      const entries = bucket(type);
+      entries.push(entry);
+      if (entries.length > maxEntries) {
+        entries.splice(0, entries.length - maxEntries);
+      }
+    },
+
+    async list<T extends EntryType>(type: T, opts: ListOptions = {}) {
+      const newestFirst = [...bucket(type)].reverse();
+      const offset = opts.offset ?? 0;
+      const sliced =
+        opts.limit === undefined
+          ? newestFirst.slice(offset)
+          : newestFirst.slice(offset, offset + opts.limit);
+      return sliced as EntryMap[T][];
+    },
+
+    async find<T extends EntryType>(type: T, id: string) {
+      const found = bucket(type).find((entry) => entry.id === id);
+      return (found ?? null) as EntryMap[T] | null;
+    },
+
+    async findByParent<T extends EntryType>(type: T, parentId: string) {
+      return bucket(type).filter((entry) => entry.parent_id === parentId) as EntryMap[T][];
+    },
+
+    async count(type) {
+      return bucket(type).length;
+    },
+
+    async clear() {
+      buckets.clear();
+    },
+  };
 }
