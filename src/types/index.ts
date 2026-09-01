@@ -9,3 +9,6 @@ export * from './entries';
 
 // API types
 export * from './api';
+
+// Config types
+export * from './config';
