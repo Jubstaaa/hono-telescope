@@ -28,7 +28,7 @@ const MAPPERS = {
 } as const;
 
 function renderHtml(basePath: string): string {
-  const script = `<script>window.__TELESCOPE_BASE__=${JSON.stringify(basePath)};</script>`;
+  const script = `<script>window.__TELESCOPE_BASE__=${JSON.stringify(basePath).replace(/</g, '\\u003C')};</script>`;
   const withBase = DASHBOARD_HTML.replace(
     /(src|href)=["']\.?\/?assets\//g,
     `$1="${basePath}/assets/`
