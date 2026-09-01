@@ -117,12 +117,14 @@ describe('captureResponseBody', () => {
   });
 
   it('parses JSON body of exactly maxBodySize bytes', async () => {
-    const jsonBody = JSON.stringify({ data: 'x'.repeat(6) }); // 20 bytes exactly
-    const response = new Response(jsonBody, {
+    const body = JSON.stringify({ data: 'x'.repeat(9) });
+    expect(new TextEncoder().encode(body).byteLength).toBe(capture.maxBodySize);
+
+    const response = new Response(body, {
       headers: { 'content-type': 'application/json' },
     });
 
     const result = await captureResponseBody(response, capture);
-    expect(result).toEqual({ data: 'xxxxxx' });
+    expect(result).toEqual({ data: 'xxxxxxxxx' });
   });
 });
