@@ -44,6 +44,71 @@ describe('instrumentPrisma', () => {
     expect(entry).toMatchObject({ connection: 'prisma', query: 'User.findMany' });
     expect(typeof entry.time).toBe('number');
   });
+
+  it('still resolves and records when args contain a BigInt that cannot be JSON.stringify-ed', async () => {
+    const { storage, recorder } = build();
+
+    let captured: ((args: Record<string, unknown>) => Promise<unknown>) | undefined;
+
+    const client = {
+      $extends(extension: {
+        query: { $allOperations: (args: Record<string, unknown>) => Promise<unknown> };
+      }) {
+        captured = extension.query.$allOperations;
+        return {};
+      },
+    };
+
+    instrumentPrisma(client, recorder);
+
+    const result = await captured!({
+      model: 'User',
+      operation: 'findMany',
+      args: { where: { id: 5n } },
+      query: async () => [{ id: 5n }],
+    });
+
+    expect(result).toEqual([{ id: 5n }]);
+
+    await vi.waitFor(async () => expect(await storage.count('query')).toBe(1));
+
+    const [entry] = await storage.list('query');
+    expect(entry.bindings).toEqual(['<unserializable>']);
+  });
+
+  it('still resolves and records when args are circular', async () => {
+    const { storage, recorder } = build();
+
+    let captured: ((args: Record<string, unknown>) => Promise<unknown>) | undefined;
+
+    const client = {
+      $extends(extension: {
+        query: { $allOperations: (args: Record<string, unknown>) => Promise<unknown> };
+      }) {
+        captured = extension.query.$allOperations;
+        return {};
+      },
+    };
+
+    instrumentPrisma(client, recorder);
+
+    const circular: Record<string, unknown> = {};
+    circular.self = circular;
+
+    const result = await captured!({
+      model: 'User',
+      operation: 'findMany',
+      args: circular,
+      query: async () => [{ id: 1 }],
+    });
+
+    expect(result).toEqual([{ id: 1 }]);
+
+    await vi.waitFor(async () => expect(await storage.count('query')).toBe(1));
+
+    const [entry] = await storage.list('query');
+    expect(entry.bindings).toEqual(['<unserializable>']);
+  });
 });
 
 describe('instrumentSequelize', () => {
@@ -122,5 +187,30 @@ describe('instrumentBunSqlite', () => {
       connection: 'bun:sqlite',
       query: 'SELECT 1',
     });
+  });
+
+  it('does not re-wrap a cached statement returned for the same SQL', async () => {
+    const { storage, recorder } = build();
+    const cache = new Map<string, { sql: string; all: () => unknown[] }>();
+
+    const db = {
+      query(sql: string) {
+        const existing = cache.get(sql);
+        if (existing) return existing;
+
+        const statement = { sql, all: () => [{ id: 1 }] };
+        cache.set(sql, statement);
+        return statement;
+      },
+    };
+
+    const wrapped = instrumentBunSqlite(db, recorder);
+    (wrapped as typeof db).query('SELECT 1');
+    const statement = (wrapped as typeof db).query('SELECT 1');
+    statement.all();
+
+    await vi.waitFor(async () => expect(await storage.count('query')).toBe(1));
+
+    expect(await storage.count('query')).toBe(1);
   });
 });
