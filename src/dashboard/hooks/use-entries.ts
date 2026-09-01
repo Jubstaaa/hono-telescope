@@ -86,7 +86,8 @@ export function useClearData(): { clearData: () => Promise<void>; isLoading: boo
   const clearData = useCallback(async () => {
     setIsLoading(true);
     try {
-      await fetch(`${DASHBOARD_BASE()}/api/clear`, { method: 'POST' });
+      const response = await fetch(`${DASHBOARD_BASE()}/api/clear`, { method: 'POST' });
+      if (!response.ok) throw new Error(`Request failed with ${response.status}`);
     } finally {
       setIsLoading(false);
     }
