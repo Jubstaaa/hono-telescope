@@ -12,8 +12,7 @@ import {
 import { useTheme } from '../contexts/ThemeContext';
 import { Sidebar } from '../components/Sidebar';
 import TelescopeIcon from '../telescope-icon.svg';
-import { useClearDataMutation, telescopeApi } from '../api/telescopeApi';
-import { useDispatch } from 'react-redux';
+import { useClearData, refreshAllEntries } from '../hooks/use-entries';
 
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
@@ -25,8 +24,7 @@ export const MainLayout = () => {
   const { token } = theme.useToken();
   const navigate = useNavigate();
   const location = useLocation();
-  const dispatch = useDispatch();
-  const [clearData, { isLoading: isClearLoading }] = useClearDataMutation();
+  const { clearData, isLoading: isClearLoading } = useClearData();
   const [liveMode, setLiveMode] = useState(false);
 
   const isDashboard = location.pathname === '/' || location.pathname === '';
@@ -36,27 +34,15 @@ export const MainLayout = () => {
     if (!liveMode) return;
 
     const interval = setInterval(() => {
-      dispatch(
-        telescopeApi.util.invalidateTags([
-          'Stats',
-          'IncomingRequests',
-          'OutgoingRequests',
-          'Exceptions',
-          'Queries',
-          'Logs',
-        ])
-      );
+      refreshAllEntries();
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [liveMode, dispatch]);
+  }, [liveMode]);
 
   const handleClearData = async () => {
-    try {
-      await clearData().unwrap();
-    } catch {
-      // silently handled by RTK Query
-    }
+    await clearData();
+    window.location.reload();
   };
 
   return (

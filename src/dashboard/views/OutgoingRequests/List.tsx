@@ -1,13 +1,18 @@
 import { Button, Flex, Typography, theme } from 'antd';
 import { ReloadOutlined } from '@ant-design/icons';
 import { OutgoingRequestTable } from '../../components/Table/OutgoingRequestTable';
-import { useGetOutgoingRequestsQuery } from '../../api/telescopeApi';
+import { useList } from '../../hooks/use-entries';
+import type { OutgoingRequestResponse } from '@/types';
 
 const { Title } = Typography;
 
 export const OutgoingRequestList = () => {
   const { token } = theme.useToken();
-  const { data: entries = [], isLoading, refetch } = useGetOutgoingRequestsQuery();
+  const {
+    data: entries,
+    isLoading,
+    refetch,
+  } = useList<OutgoingRequestResponse>('outgoing-requests');
 
   return (
     <Flex vertical gap="large">

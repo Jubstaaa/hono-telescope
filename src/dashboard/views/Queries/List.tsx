@@ -1,13 +1,14 @@
 import { Button, Flex, Typography, theme } from 'antd';
 import { ReloadOutlined } from '@ant-design/icons';
 import { QueryTable } from '../../components/Table/QueryTable';
-import { useGetQueriesQuery } from '../../api/telescopeApi';
+import { useList } from '../../hooks/use-entries';
+import type { QueryResponse } from '@/types';
 
 const { Title } = Typography;
 
 export const QueryList = () => {
   const { token } = theme.useToken();
-  const { data: entries = [], isLoading, refetch } = useGetQueriesQuery();
+  const { data: entries, isLoading, refetch } = useList<QueryResponse>('queries');
 
   return (
     <Flex vertical gap="large">

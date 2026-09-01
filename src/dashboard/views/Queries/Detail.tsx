@@ -1,6 +1,7 @@
 import { useParams } from 'react-router';
 import { Card, Typography, Alert, Descriptions, Tag, theme, Flex, Grid } from 'antd';
-import { useGetQueryQuery } from '../../api/telescopeApi';
+import { useDetail } from '../../hooks/use-entries';
+import type { QueryDetailResponse } from '@/types';
 import { formatDate } from '../../utils/helpers';
 import Loader from '../../components/Loader';
 import DurationTag from '../../components/Tag/DurationTag';
@@ -12,7 +13,7 @@ export const QueryDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { token } = theme.useToken();
   const screens = useBreakpoint();
-  const { data: query, isLoading, error } = useGetQueryQuery(id!, { skip: !id });
+  const { data: query, isLoading, error } = useDetail<QueryDetailResponse>('queries', id);
 
   if (isLoading) {
     return <Loader />;

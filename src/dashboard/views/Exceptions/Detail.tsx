@@ -1,6 +1,7 @@
 import { useParams } from 'react-router';
 import { Card, Typography, Alert, Descriptions, theme, Flex, Grid } from 'antd';
-import { useGetExceptionQuery } from '../../api/telescopeApi';
+import { useDetail } from '../../hooks/use-entries';
+import type { ExceptionDetailResponse } from '@/types';
 import { formatDate } from '../../utils/helpers';
 import Loader from '../../components/Loader';
 import ExceptionTag from '../../components/Tag/ExceptionTag';
@@ -13,7 +14,7 @@ export const ExceptionDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { token } = theme.useToken();
   const screens = useBreakpoint();
-  const { data: entry, isLoading, error } = useGetExceptionQuery(id!, { skip: !id });
+  const { data: entry, isLoading, error } = useDetail<ExceptionDetailResponse>('exceptions', id);
 
   if (isLoading) {
     return <Loader />;

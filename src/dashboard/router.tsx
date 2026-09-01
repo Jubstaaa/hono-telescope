@@ -65,6 +65,8 @@ const routes: RouteObject[] = [
   },
 ];
 
+const basename = window.__TELESCOPE_BASE__ ?? '/telescope';
+
 export const router = createBrowserRouter(routes, {
-  basename: '/telescope',
+  basename,
 });

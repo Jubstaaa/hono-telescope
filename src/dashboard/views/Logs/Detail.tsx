@@ -1,6 +1,7 @@
 import { useParams } from 'react-router';
 import { Card, Typography, Alert, Descriptions, theme, Flex, Grid } from 'antd';
-import { useGetLogQuery } from '../../api/telescopeApi';
+import { useDetail } from '../../hooks/use-entries';
+import type { LogDetailResponse } from '@/types';
 import { formatDate } from '../../utils/helpers';
 import { JsonViewer } from '../../components/JsonViewer';
 import Loader from '../../components/Loader';
@@ -13,7 +14,7 @@ export const LogDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { token } = theme.useToken();
   const screens = useBreakpoint();
-  const { data: entry, isLoading, error } = useGetLogQuery(id!, { skip: !id });
+  const { data: entry, isLoading, error } = useDetail<LogDetailResponse>('logs', id);
 
   if (isLoading) {
     return <Loader />;
