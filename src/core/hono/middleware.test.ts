@@ -109,6 +109,15 @@ describe('createMiddleware', () => {
     expect(await storage.count('incoming_request')).toBe(0);
   });
 
+  it('ignores the default `.well-known` prefix', async () => {
+    const { app, storage } = build();
+    app.get('/.well-known/acme-challenge/:token', (c) => c.text('ok'));
+
+    await app.request('/.well-known/acme-challenge/abc');
+
+    expect(await storage.count('incoming_request')).toBe(0);
+  });
+
   it('records a static asset path when the option is off', async () => {
     const { app, storage } = build({ ignoreStaticAssets: false });
     app.get('/app.css', (c) => c.text('body{}'));

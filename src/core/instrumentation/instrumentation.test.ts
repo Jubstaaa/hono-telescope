@@ -213,4 +213,22 @@ describe('instrumentBunSqlite', () => {
 
     expect(await storage.count('query')).toBe(1);
   });
+
+  it('returns the query result when a binding cannot be stringified', async () => {
+    const { storage, recorder } = build();
+    const statement = { sql: 'SELECT ?', all: (...bindings: unknown[]) => bindings.length };
+    const db = { query: () => statement };
+
+    const wrapped = instrumentBunSqlite(db, recorder);
+    const hostile = {
+      toString() {
+        throw new Error('cannot stringify');
+      },
+    };
+
+    expect((wrapped as typeof db).query().all(hostile)).toBe(1);
+
+    await vi.waitFor(async () => expect(await storage.count('query')).toBe(1));
+    expect((await storage.list('query'))[0].bindings).toEqual(['<unstringifiable>']);
+  });
 });

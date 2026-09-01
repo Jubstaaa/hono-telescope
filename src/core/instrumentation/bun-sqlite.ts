@@ -38,11 +38,18 @@ export function instrumentBunSqlite<T>(db: T, recorder: Recorder): T {
           try {
             return (originalMethod as (...args: unknown[]) => unknown).apply(statement, bindings);
           } finally {
+            let recorded: string[];
+            try {
+              recorded = bindings.map((binding) => String(binding));
+            } catch {
+              recorded = ['<unstringifiable>'];
+            }
+
             void recorder
               .recordQuery({
                 connection: 'bun:sqlite',
                 query: sql,
-                bindings: bindings.map((binding) => String(binding)),
+                bindings: recorded,
                 time: Date.now() - startTime,
               })
               .catch(() => undefined);
