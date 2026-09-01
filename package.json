@@ -96,7 +96,7 @@
   },
   "scripts": {
     "start": "bun dist/example",
-    "build": "rm -rf src/core/dashboard/assets && vite build && tsc && cp -r src/core/dashboard/assets dist/core/dashboard/ && cp src/core/dashboard/index.html dist/core/dashboard/",
+    "build": "rm -rf src/core/dashboard/assets && vite build && bun run scripts/inline-assets.ts && tsc",
     "publishBuild": "bun run build && rm -rf dist/example dist/dashboard",
     "dev": "tsc --watch",
     "dev:example": "bun --hot src/example/index.ts",

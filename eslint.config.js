@@ -14,6 +14,7 @@ export default [
       '**/*.d.ts',
       '.venv',
       'venv',
+      'src/core/hono/dashboard-assets.ts',
     ],
   },
   js.configs.recommended,

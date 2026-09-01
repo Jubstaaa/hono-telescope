@@ -9,3 +9,4 @@ coverage
 .venv
 venv
 CHANGELOG.md
+src/core/hono/dashboard-assets.ts
