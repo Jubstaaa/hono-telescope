@@ -78,7 +78,6 @@ Visit `/telescope`. Telescope is on by default outside production and off inside
 ## Configuration
 
 ```typescript
-import { Hono } from 'hono';
 import { createTelescope, memoryStorage, alsContext, consoleCollector } from 'hono-telescope';
 
 const telescope = createTelescope({
@@ -96,7 +95,7 @@ const telescope = createTelescope({
   },
   redact: {
     headers: ['authorization', 'cookie', 'set-cookie', 'x-api-key', 'proxy-authorization'],
-    bodyKeys: ['password', 'token', 'secret', 'apiKey', 'authorization'],
+    bodyKeys: ['password', 'token', 'secret', 'apikey', 'authorization'],
   },
   dashboard: {
     auth: { username: 'admin', password: 'telescope' },
@@ -119,7 +118,7 @@ All options are optional — `createTelescope()` works with the defaults.
 | `capture.responseBody` | `boolean`                | `true`                                                                          | Capture outgoing response bodies                                                |
 | `capture.maxBodySize`  | `number`                 | `65536`                                                                         | Maximum bytes to capture per body (64 KB)                                       |
 | `redact.headers`       | `string[]`               | `['authorization', 'cookie', 'set-cookie', 'x-api-key', 'proxy-authorization']` | Header names to redact                                                          |
-| `redact.bodyKeys`      | `string[]`               | `['password', 'token', 'secret', 'apiKey', 'authorization']`                    | Object keys to redact in request/response bodies                                |
+| `redact.bodyKeys`      | `string[]`               | `['password', 'token', 'secret', 'apikey', 'authorization']`                    | Object keys to redact in request/response bodies                                |
 | `dashboard.auth`       | `DashboardAuth \| false` | `undefined`                                                                     | Optional basic auth for dashboard; required if `enabled: true` in production    |
 
 ### Mounting at a Custom Path
@@ -149,9 +148,10 @@ const prisma = telescope.instrumentPrisma(new PrismaClient());
 Supported databases:
 
 ```typescript
-telescope.instrumentPrisma(new PrismaClient()); // Returns a new client
+const prisma = telescope.instrumentPrisma(new PrismaClient());
 telescope.instrumentSequelize(sequelize);
-telescope.instrumentMongo(mongoClient); // Requires `monitorCommands: true` on MongoClient
+const mongoClient = new MongoClient(url, { monitorCommands: true });
+telescope.instrumentMongo(mongoClient);
 telescope.instrumentBunSqlite(db);
 ```
 
@@ -161,7 +161,27 @@ telescope.instrumentBunSqlite(db);
 
 The dashboard exposes request and response bodies, headers, and SQL. Telescope is therefore disabled when `NODE_ENV === 'production'`. If you enable it there anyway, you must supply `dashboard.auth`; mounting without it throws.
 
-Sensitive headers (`authorization`, `cookie`, `set-cookie`, `x-api-key`, `proxy-authorization`) and body keys (`password`, `token`, `secret`, `apiKey`, `authorization`) are redacted by default, at any nesting depth. Redaction is recursive through nested objects and arrays, case-insensitive, and replaces values with `[REDACTED]` rather than deleting them.
+You have two options for production:
+
+1. **Supply credentials** to protect the dashboard with basic auth:
+
+```typescript
+createTelescope({
+  enabled: true,
+  dashboard: { auth: { username: 'admin', password: 'secret' } },
+});
+```
+
+2. **Explicitly opt out of auth** to acknowledge full exposure (no auth, dashboard fully open):
+
+```typescript
+createTelescope({
+  enabled: true,
+  dashboard: { auth: false },
+});
+```
+
+Sensitive headers (`authorization`, `cookie`, `set-cookie`, `x-api-key`, `proxy-authorization`) and body keys (`password`, `token`, `secret`, `apikey`, `authorization`) are redacted by default, at any nesting depth. Redaction is recursive through nested objects and arrays, case-insensitive, and replaces values with `[REDACTED]` rather than deleting them.
 
 ## Upgrading from 0.x
 
