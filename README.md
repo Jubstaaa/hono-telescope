@@ -16,7 +16,7 @@ A powerful debugging and monitoring tool for Hono applications, inspired by Lara
 
 **Currently Available:**
 
-- 🔍 **HTTP Request Monitoring** - Track all incoming and outgoing requests with detailed headers and payloads
+- 🔍 **HTTP Request Monitoring** - Track incoming requests with headers, payloads and response bodies, and outgoing `fetch` calls with headers and responses
 - 🚨 **Exception Tracking** - Capture and monitor application errors with stack traces
 - 📝 **Log Monitoring** - Monitor console logs with different severity levels
 - 🗄️ **Database Query Monitoring** - Explicit per-client instrumentation for Prisma, Sequelize, MongoDB, and Bun SQLite with execution time
@@ -157,6 +157,14 @@ telescope.instrumentBunSqlite(db);
 
 > **Note**: Automatic database interception was removed in 1.0 because it never worked under Node ESM and captured only raw SQL where it did run. Explicit per-client instrumentation is now required.
 
+Call each `instrument*` method **once per client**. Unlike the collectors, they are not
+idempotent (only `instrumentBunSqlite` guards against double wrapping), so instrumenting the
+same client twice records every query twice.
+
+`instrumentBunSqlite` wraps the `query` and `prepare` statement factories, so statement calls
+(`all`, `get`, `run`, `values`) are recorded. Queries issued directly on the database —
+`db.exec`, `db.run`, `db.all`, `db.get` — are not captured.
+
 ## Security
 
 The dashboard exposes request and response bodies, headers, and SQL. Telescope is therefore disabled when `NODE_ENV === 'production'`. If you enable it there anyway, you must supply `dashboard.auth`; mounting without it throws.
@@ -182,6 +190,31 @@ createTelescope({
 ```
 
 Sensitive headers (`authorization`, `cookie`, `set-cookie`, `x-api-key`, `proxy-authorization`) and body keys (`password`, `token`, `secret`, `apikey`, `authorization`) are redacted by default, at any nesting depth. Redaction is recursive through nested objects and arrays, case-insensitive, and replaces values with `[REDACTED]` rather than deleting them.
+
+## Limitations
+
+- **Outgoing request bodies are not captured.** Outgoing `fetch` entries record the method,
+  URL, headers, status and response body; the request payload panel stays empty.
+- **Streamed responses are not captured.** Responses produced by Hono's `streamText` and
+  `streamSSE` are recorded without a body, so that recording never buffers or delays a stream.
+- **Request bodies larger than `capture.maxBodySize` are recorded as metadata only**
+  (`{ truncated: true, size }`), and a non-JSON `text/*` body is recorded as `{ body: text }`.
+
+## Custom Storage Adapters
+
+Implement `StorageAdapter` and verify it against the contract suite that ships with the
+package:
+
+```typescript
+import { runStorageContract } from 'hono-telescope/testing';
+import { myStorage } from './my-storage';
+
+runStorageContract('myStorage', () => myStorage());
+```
+
+The suite (a Vitest suite; run it with your own test runner installed) pins the two ordering
+guarantees the dashboard relies on: `list` returns newest first, and `findByParent` returns
+oldest first.
 
 ## Upgrading from 0.x
 
