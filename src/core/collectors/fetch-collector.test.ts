@@ -63,4 +63,103 @@ describe('fetchCollector', () => {
     uninstallA();
     expect(globalThis.fetch).toBe(original);
   });
+
+  it('returns original response when body capture fails', async () => {
+    const { storage, recorder } = build();
+    const original = globalThis.fetch;
+    globalThis.fetch = vi.fn(
+      async () =>
+        new Response(
+          new ReadableStream({
+            start(controller) {
+              controller.error(new Error('stream boom'));
+            },
+          }),
+          {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          }
+        )
+    ) as unknown as typeof fetch;
+
+    const uninstall = fetchCollector().install(recorder);
+    const response = await fetch('https://example.test/fail-capture');
+    uninstall();
+    globalThis.fetch = original;
+
+    const [entry] = await storage.list('outgoing_request');
+    expect(entry).toMatchObject({
+      response_status: 200,
+      response: { error: 'response capture failed' },
+    });
+    expect(response.status).toBe(200);
+  });
+
+  it('captures headers from Request when no init provided', async () => {
+    const { storage, recorder } = build();
+    const original = globalThis.fetch;
+    globalThis.fetch = vi.fn(async () => new Response('ok')) as unknown as typeof fetch;
+
+    const uninstall = fetchCollector().install(recorder);
+    await fetch(
+      new Request('https://example.test/headers', {
+        headers: { authorization: 'Bearer secret', accept: 'application/json' },
+      })
+    );
+    uninstall();
+    globalThis.fetch = original;
+
+    const [entry] = await storage.list('outgoing_request');
+    expect(entry.headers).toMatchObject({
+      authorization: '[REDACTED]',
+      accept: 'application/json',
+    });
+  });
+
+  it('prefers init.headers over Request headers', async () => {
+    const { storage, recorder } = build();
+    const original = globalThis.fetch;
+    globalThis.fetch = vi.fn(async () => new Response('ok')) as unknown as typeof fetch;
+
+    const uninstall = fetchCollector().install(recorder);
+    await fetch(
+      new Request('https://example.test/headers', {
+        headers: { authorization: 'Bearer ignored', accept: 'ignored' },
+      }),
+      {
+        headers: { authorization: 'Bearer override', 'x-custom': 'value' },
+      }
+    );
+    uninstall();
+    globalThis.fetch = original;
+
+    const [entry] = await storage.list('outgoing_request');
+    expect(entry.headers).toMatchObject({
+      authorization: '[REDACTED]',
+      'x-custom': 'value',
+    });
+    expect(entry.headers.accept).toBeUndefined();
+  });
+
+  it('captures response headers on success', async () => {
+    const { storage, recorder } = build();
+    const original = globalThis.fetch;
+    globalThis.fetch = vi.fn(
+      async () =>
+        new Response('{"data":123}', {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        })
+    ) as unknown as typeof fetch;
+
+    const uninstall = fetchCollector().install(recorder);
+    await fetch('https://example.test/json');
+    uninstall();
+    globalThis.fetch = original;
+
+    const [entry] = await storage.list('outgoing_request');
+    expect(entry.response_headers).toMatchObject({
+      'content-type': 'application/json',
+    });
+  });
 });
