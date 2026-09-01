@@ -1,7 +1,6 @@
 import { Hono } from 'hono';
 import { getDatabase, User } from './database';
 import axios, { AxiosError } from 'axios';
-import { setupTelescope } from '@/core';
 import dayjs from 'dayjs';
 
 (globalThis as unknown as Record<string, unknown>).axios = axios;
@@ -12,12 +11,6 @@ const formatDate = (): string => {
 
 const app = new Hono();
 const db = getDatabase();
-
-setupTelescope(app, {
-  enabled: true,
-  sanitize_headers: ['x-forwarded-for', 'x-real-ip', 'do-connecting-ip'],
-  max_entries: 100,
-});
 
 app.get('/', (c) => {
   console.log(`${formatDate()} GET /`);
