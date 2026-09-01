@@ -9,16 +9,21 @@ export function redactHeaders(
   const lowered = new Set(keys.map((key) => key.toLowerCase()));
   const result: Record<string, unknown> = {};
 
-  for (const [key, value] of Object.entries(headers)) {
-    result[key] = lowered.has(key.toLowerCase()) ? REDACTED : value;
+  for (const key of Object.getOwnPropertyNames(headers)) {
+    const value = headers[key];
+    const finalValue = lowered.has(key.toLowerCase()) ? REDACTED : value;
+    Object.defineProperty(result, key, {
+      value: finalValue,
+      enumerable: true,
+      writable: true,
+      configurable: true,
+    });
   }
 
   return result;
 }
 
 export function redactBody(value: unknown, keys: string[]): unknown {
-  if (keys.length === 0) return value;
-
   const lowered = new Set(keys.map((key) => key.toLowerCase()));
 
   const walk = (input: unknown): unknown => {
@@ -26,8 +31,16 @@ export function redactBody(value: unknown, keys: string[]): unknown {
 
     if (input !== null && typeof input === 'object') {
       const result: Record<string, unknown> = {};
-      for (const [key, nested] of Object.entries(input as Record<string, unknown>)) {
-        result[key] = lowered.has(key.toLowerCase()) ? REDACTED : walk(nested);
+      const inputObj = input as Record<string, unknown>;
+      for (const key of Object.getOwnPropertyNames(inputObj)) {
+        const nested = inputObj[key];
+        const finalValue = lowered.has(key.toLowerCase()) ? REDACTED : walk(nested);
+        Object.defineProperty(result, key, {
+          value: finalValue,
+          enumerable: true,
+          writable: true,
+          configurable: true,
+        });
       }
       return result;
     }
