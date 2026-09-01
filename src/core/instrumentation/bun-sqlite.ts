@@ -3,6 +3,7 @@ import type { Recorder } from '../recorder';
 type Statement = Record<string, unknown> & { sql?: string };
 
 const WRAPPED_METHODS = ['all', 'get', 'run', 'values'] as const;
+const WRAPPED = Symbol('hono-telescope.wrapped');
 
 export function instrumentBunSqlite<T>(db: T, recorder: Recorder): T {
   const database = db as {
@@ -16,6 +17,16 @@ export function instrumentBunSqlite<T>(db: T, recorder: Recorder): T {
 
     database[factory] = function wrapped(sql: string): Statement {
       const statement = original.call(database, sql);
+
+      if ((statement as Record<PropertyKey, unknown>)[WRAPPED] === true) {
+        return statement;
+      }
+
+      Object.defineProperty(statement, WRAPPED, {
+        value: true,
+        enumerable: false,
+        configurable: true,
+      });
 
       for (const method of WRAPPED_METHODS) {
         const originalMethod = statement[method];

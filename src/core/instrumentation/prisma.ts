@@ -26,11 +26,18 @@ export function instrumentPrisma<T>(client: T, recorder: Recorder): T {
         try {
           return await query(args);
         } finally {
+          let bindings: string[];
+          try {
+            bindings = [JSON.stringify(args ?? {})];
+          } catch {
+            bindings = ['<unserializable>'];
+          }
+
           void recorder
             .recordQuery({
               connection: 'prisma',
               query: model ? `${model}.${operation}` : operation,
-              bindings: [JSON.stringify(args ?? {})],
+              bindings,
               time: Date.now() - startTime,
             })
             .catch(() => undefined);
