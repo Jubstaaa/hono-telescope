@@ -21,6 +21,10 @@ export interface Telescope {
   instrumentSequelize<T>(sequelize: T): T;
   instrumentMongo<T>(client: T): T;
   instrumentBunSqlite<T>(db: T): T;
+  /**
+   * Uninstalls the collectors. It does not stop middleware recording —
+   * a middleware already mounted keeps recording `incoming_request` entries after this call.
+   */
   stop(): void;
 }
 
