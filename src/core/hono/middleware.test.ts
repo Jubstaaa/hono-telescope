@@ -74,6 +74,7 @@ describe('createMiddleware', () => {
     const [exception] = await storage.list('exception');
     expect(exception).toMatchObject({ message: 'kaboom' });
     expect(exception.parent_id).toBe((await storage.list('incoming_request'))[0].id);
+    expect((await storage.list('incoming_request'))[0].response_status).toBe(503);
   });
 
   it('correlates child entries with the request', async () => {
