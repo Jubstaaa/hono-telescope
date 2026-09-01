@@ -5,16 +5,17 @@ export interface BaseEntry {
   parent_id?: string;
 }
 
-export enum EntryType {
-  INCOMING_REQUEST = 'incoming_request',
-  OUTGOING_REQUEST = 'outgoing_request',
-  EXCEPTION = 'exception',
-  LOG = 'log',
-  QUERY = 'query',
-}
+export type EntryType =
+  | 'incoming_request'
+  | 'outgoing_request'
+  | 'exception'
+  | 'log'
+  | 'query';
 
-export interface TelescopeConfig {
-  enabled: boolean;
-  max_entries: number;
-  sanitize_headers?: string[];
-}
+export const ENTRY_TYPES: readonly EntryType[] = [
+  'incoming_request',
+  'outgoing_request',
+  'exception',
+  'log',
+  'query',
+];
