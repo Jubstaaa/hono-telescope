@@ -112,6 +112,30 @@ describe('createDashboard', () => {
     expect(authorised.status).toBe(200);
   });
 
+  it('gates the dashboard html route behind auth', async () => {
+    const { app } = build({ dashboard: { auth: { username: 'a', password: 'b' } } });
+
+    expect((await app.request('/telescope')).status).toBe(401);
+
+    const authorised = await app.request('/telescope', {
+      headers: { authorization: `Basic ${btoa('a:b')}` },
+    });
+    expect(authorised.status).toBe(200);
+  });
+
+  it('gates the asset route behind auth', async () => {
+    const { app } = build({ dashboard: { auth: { username: 'a', password: 'b' } } });
+    const { DASHBOARD_ASSETS } = await import('./dashboard-assets');
+    const [file] = Object.entries(DASHBOARD_ASSETS)[0];
+
+    expect((await app.request(`/telescope/assets/${file}`)).status).toBe(401);
+
+    const authorised = await app.request(`/telescope/assets/${file}`, {
+      headers: { authorization: `Basic ${btoa('a:b')}` },
+    });
+    expect(authorised.status).toBe(200);
+  });
+
   it('refuses to mount in production without auth', () => {
     vi.stubEnv('NODE_ENV', 'production');
 
