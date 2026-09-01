@@ -1,4 +1,26 @@
-export const IGNORED_PATHS = ['/telescope', '.well-known'] as const;
+export const IGNORED_PATHS = ['.well-known'] as const;
+
+export const DEFAULT_DASHBOARD_PATH = '/telescope';
+
+export const DEFAULT_MAX_BODY_SIZE = 65536;
+
+export const DEFAULT_REDACT_HEADERS = [
+  'authorization',
+  'cookie',
+  'set-cookie',
+  'x-api-key',
+  'proxy-authorization',
+] as const;
+
+export const DEFAULT_REDACT_BODY_KEYS = [
+  'password',
+  'token',
+  'secret',
+  'apikey',
+  'authorization',
+] as const;
+
+export const REDACTED = '[REDACTED]';
 
 export const IGNORED_STATIC_EXTENSIONS = [
   '.js',
