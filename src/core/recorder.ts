@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import type { CreateInputMap, EntryMap, EntryType, QueryCreateInput } from '@/types';
 import type { ListOptions, StorageAdapter } from './storage/storage-adapter';
 import type { ContextStrategy } from './context/context-strategy';
@@ -19,7 +20,7 @@ export class Recorder {
 
     const entry = {
       ...input,
-      id: id ?? crypto.randomUUID(),
+      id: id ?? randomUUID(),
       timestamp: Date.now(),
       created_at: new Date().toISOString(),
       parent_id: explicitParent ?? inheritedParent,
