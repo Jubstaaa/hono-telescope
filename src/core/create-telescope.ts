@@ -7,6 +7,7 @@ import { consoleCollector } from './collectors/console-collector';
 import { exceptionCollector } from './collectors/exception-collector';
 import { fetchCollector } from './collectors/fetch-collector';
 import { createMiddleware } from './hono/middleware';
+import { createDashboard } from './hono/dashboard';
 import { instrumentPrisma } from './instrumentation/prisma';
 import { instrumentSequelize } from './instrumentation/sequelize';
 import { instrumentMongo } from './instrumentation/mongo';
@@ -55,7 +56,7 @@ export function createTelescope(config: TelescopeConfig = {}): Telescope {
     },
 
     dashboard() {
-      return new Hono();
+      return resolved.enabled ? createDashboard(recorder, resolved) : new Hono();
     },
 
     instrumentPrisma(client) {
