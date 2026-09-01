@@ -16,23 +16,3 @@ export const getExceptionClassCode = (errorName: string): number => {
       return ExceptionClass.ERROR;
   }
 };
-
-export function sanitizeHeaders(
-  headers: Record<string, unknown>,
-  headersToRedact?: string[]
-): Record<string, unknown> {
-  if (!headersToRedact || headersToRedact.length === 0) {
-    return headers;
-  }
-
-  const lowerRedactList = headersToRedact.map((h) => h.toLowerCase());
-  const sanitized = { ...headers };
-
-  for (const key in sanitized) {
-    if (lowerRedactList.includes(key.toLowerCase())) {
-      sanitized[key] = '[SENSITIVE]';
-    }
-  }
-
-  return sanitized;
-}
