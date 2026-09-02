@@ -12,6 +12,29 @@ A powerful debugging and monitoring tool for Hono applications, inspired by Lara
 
 ---
 
+## 🌐 Live Demo
+
+A hosted instance of [the example app](./src/example/index.ts), running 1.0. No installation needed.
+
+**[📊 Open the dashboard](https://hono-telescope.onrender.com/telescope)** — API base: `https://hono-telescope.onrender.com`
+
+Hit a few endpoints and watch the entries appear:
+
+```bash
+BASE=https://hono-telescope.onrender.com
+
+curl $BASE/api/users                # incoming request + Bun SQLite queries
+curl -X POST $BASE/api/import-users # outgoing fetch to JSONPlaceholder, plus inserts
+curl $BASE/api/mixed-clients-test   # the fetch call is captured, the axios call is not
+curl $BASE/api/slow                 # 2s handler, to see the duration column
+curl $BASE/api/error                # exception recorded as a child of its request
+```
+
+The demo runs with `memoryStorage({ maxEntries: 500 })` and no dashboard auth, so entries are
+public, capped at 500 and gone on restart. Don't send anything you wouldn't publish.
+
+---
+
 ## ✨ Features
 
 **Currently Available:**
