@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import type { DashboardStats } from '@/types';
 
-import { DASHBOARD_BASE } from '../config';
+import { DASHBOARD_BASE } from '../constants/dashboard';
 
 const REFRESH_EVENT = 'telescope:refresh';
 
