@@ -1,6 +1,7 @@
 export const SUPPORTED_PROTOCOL_VERSIONS = ['2026-07-28', '2025-11-25'] as const;
 
 export const RPC_ERRORS = {
+  internal: -32603,
   invalidParams: -32602,
   invalidRequest: -32600,
   methodNotFound: -32601,

@@ -58,6 +58,9 @@
   "peerDependencies": {
     "hono": ">=4.0.0"
   },
+  "bin": {
+    "hono-telescope": "./dist/cli/index.js"
+  },
   "bugs": {
     "url": "https://github.com/jubstaaa/hono-telescope/issues"
   },
@@ -108,7 +111,7 @@
     "start": "bun dist/example",
     "build": "rm -rf dist src/core/dashboard/assets && vite build && bun run scripts/inline-assets.ts && tsc",
     "publishBuild": "bun run build && rm -rf dist/example dist/dashboard && find dist -name '*.test.*' -delete && rm -f dist/tsconfig.tsbuildinfo && bun run verify:dist",
-    "verify:dist": "test ! -d dist/src || (echo 'dist/src/ exists — tsc emitted a duplicated tree, the entry point is stale' && exit 1) && node -e \"import('./dist/index.js').then(()=>console.log('dist loads on node'))\" && bun -e \"import('./dist/index.js').then(()=>console.log('dist loads on bun'))\"",
+    "verify:dist": "test ! -d dist/src || (echo 'dist/src/ exists — tsc emitted a duplicated tree, the entry point is stale' && exit 1) && node -e \"import('./dist/index.js').then(()=>console.log('dist loads on node'))\" && bun -e \"import('./dist/index.js').then(()=>console.log('dist loads on bun'))\" && head -1 dist/cli/index.js | grep -q '^#!/usr/bin/env node' && node dist/cli/index.js --version && bun dist/cli/index.js --version",
     "dev": "tsc --watch",
     "dev:example": "bun --hot src/example/index.ts",
     "dev:dashboard": "vite dev",
