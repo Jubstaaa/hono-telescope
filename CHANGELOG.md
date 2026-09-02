@@ -10,6 +10,22 @@
   `stats`) over the existing `StorageAdapter`, with no new runtime dependency and no change to
   the storage contract. Streamable HTTP (`2026-07-28`, with `2025-11-25` accepted), covered by
   `dashboard.auth` and the production guard.
+* **instrumentation:** record a failed query distinctly from a successful one — new optional
+  `failed` and `error` fields on the query entry, populated by the Prisma, MongoDB and Bun
+  SQLite instrumentations, surfaced in the dashboard and over MCP. Prisma and Bun SQLite
+  previously recorded a throwing query as if it had succeeded; the error is still rethrown
+  untouched. Sequelize is not covered — see the README.
+* **collectors:** capture the request payload of an outgoing `fetch` when the body is already
+  in memory (string, `URLSearchParams`, `ArrayBuffer`), with the same cap and redaction as
+  every other body. Stream, `FormData`, `Blob` and `Request`-object bodies are skipped so that
+  recording never consumes what the caller is sending.
+
+
+### 🐛 Bug Fixes
+
+* **capture:** wrap a JSON array body so a recorded body is always an object — `{ body: [...] }`
+  for requests, `{ response: [...] }` for responses. An array was previously stored raw while
+  the entry type declared an object.
 
 
 ## [1.0.0](https://github.com/jubstaaa/hono-telescope/compare/0.1.18...1.0.0) (2026-09-02)
