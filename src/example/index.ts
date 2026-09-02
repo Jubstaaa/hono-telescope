@@ -12,7 +12,14 @@ const formatDate = (): string => {
 };
 
 const app = new Hono();
-const telescope = createTelescope({ storage: memoryStorage({ maxEntries: 500 }) });
+// The hosted demo runs with NODE_ENV=production, where Telescope disables itself and
+// refuses to mount the dashboard without credentials. `auth: false` is the documented
+// acknowledgement that this instance is deliberately public.
+const telescope = createTelescope({
+  enabled: true,
+  storage: memoryStorage({ maxEntries: 500 }),
+  dashboard: { auth: false },
+});
 
 app.use('*', telescope.middleware());
 app.route('/telescope', telescope.dashboard());
