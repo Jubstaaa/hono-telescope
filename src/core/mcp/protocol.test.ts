@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { TELESCOPE_VERSION } from '../constants.js';
 import {
@@ -118,8 +119,12 @@ describe('response builders', () => {
 });
 
 describe('TELESCOPE_VERSION', () => {
-  it('matches the published package version', async () => {
-    const pkg = (await import('../../../package.json')) as unknown as { version: string };
+  it('matches the published package version', () => {
+    // Read, not imported: importing package.json makes it a TypeScript program input, which
+    // moves tsc's inferred root directory up and emits the whole tree under `dist/src/`.
+    const pkg = JSON.parse(
+      readFileSync(new URL('../../../package.json', import.meta.url), 'utf-8')
+    ) as { version: string };
 
     expect(TELESCOPE_VERSION).toBe(pkg.version);
   });

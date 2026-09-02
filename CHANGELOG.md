@@ -1,5 +1,18 @@
 
 
+## [1.1.1](https://github.com/jubstaaa/hono-telescope/compare/1.1.0...1.1.1) (2026-09-02)
+
+
+### 🐛 Bug Fixes
+
+* **build:** publish the current compiled tree. A test that imported `package.json` made it a
+  TypeScript program input, which moved tsc's inferred root directory up a level and emitted
+  everything under `dist/src/` while `exports` kept pointing at the stale `dist/index.js` left
+  over from an earlier build. 1.1.0 therefore shipped without the failed-query, outgoing-payload
+  and array-wrapping changes its own entry advertises, and is deprecated on npm. `build` now
+  removes `dist` first, and `verify:dist` fails if a `dist/src/` tree ever reappears.
+
+
 ## [1.1.0](https://github.com/jubstaaa/hono-telescope/compare/1.0.0...1.1.0) (2026-09-02)
 
 
