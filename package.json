@@ -61,7 +61,7 @@
   "bugs": {
     "url": "https://github.com/jubstaaa/hono-telescope/issues"
   },
-  "description": "A powerful debugging and monitoring tool for Hono applications, inspired by Laravel Telescope",
+  "description": "Laravel Telescope-style debugging for Hono, with an MCP server so AI coding agents can read your app's live requests, exceptions and queries. Zero runtime dependencies.",
   "engines": {
     "node": ">=18.0.0",
     "bun": ">=1.0.0"
@@ -85,6 +85,9 @@
   "homepage": "https://github.com/jubstaaa/hono-telescope#readme",
   "keywords": [
     "hono",
+    "mcp",
+    "model-context-protocol",
+    "ai",
     "debugging",
     "monitoring",
     "telescope",
