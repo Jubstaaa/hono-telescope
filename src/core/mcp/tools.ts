@@ -1,6 +1,12 @@
 import type { McpReader } from './reader.js';
 
+export interface ToolAnnotations {
+  openWorldHint: boolean;
+  readOnlyHint: boolean;
+}
+
 export interface ToolDefinition {
+  annotations: ToolAnnotations;
   description: string;
   inputSchema: Record<string, unknown>;
   name: string;
@@ -16,8 +22,11 @@ export type ToolOutcome =
     }
   | { kind: 'invalidParams'; message: string };
 
-const limitSchema = (max: number, fallback: number) => ({
+const READ_ONLY: ToolAnnotations = { openWorldHint: false, readOnlyHint: true };
+
+const limitSchema = (max: number, fallback: number, description: string) => ({
   default: fallback,
+  description,
   maximum: max,
   minimum: 1,
   type: 'integer',
@@ -25,27 +34,37 @@ const limitSchema = (max: number, fallback: number) => ({
 
 export const TOOL_DEFINITIONS: readonly ToolDefinition[] = [
   {
+    annotations: READ_ONLY,
     description:
       "The most recent exceptions, each with the request that produced it and that request's logs, queries and outgoing calls. Start here when something failed.",
     inputSchema: {
       additionalProperties: false,
-      properties: { limit: limitSchema(50, 5) },
+      properties: {
+        limit: limitSchema(50, 5, 'How many exceptions to return, most recent first.'),
+      },
       type: 'object',
     },
     name: 'recent_exceptions',
     title: 'Recent exceptions',
   },
   {
+    annotations: READ_ONLY,
     description:
       'Recent incoming requests with child counts. Filter with minStatus: 400 to find failures that returned an error status without throwing.',
     inputSchema: {
       additionalProperties: false,
       properties: {
-        limit: limitSchema(100, 20),
-        minDuration: { description: 'Minimum duration in milliseconds', type: 'number' },
+        limit: limitSchema(100, 20, 'How many requests to return, most recent first.'),
+        minDuration: {
+          description: 'Only requests that took at least this many milliseconds.',
+          type: 'number',
+        },
         minStatus: { description: 'Inclusive lower bound on response status', type: 'integer' },
         status: { description: 'Exact response status', type: 'integer' },
-        uriContains: { type: 'string' },
+        uriContains: {
+          description: 'Case-sensitive substring the request path must contain.',
+          type: 'string',
+        },
       },
       type: 'object',
     },
@@ -53,11 +72,18 @@ export const TOOL_DEFINITIONS: readonly ToolDefinition[] = [
     title: 'Recent requests',
   },
   {
+    annotations: READ_ONLY,
     description:
-      'One request in full — headers, payload, response body — with every log, query, exception and outgoing call recorded inside it. Nothing is truncated.',
+      'One request in full — headers, payload, response body — with every log, query, exception and outgoing call recorded inside it. Nothing is truncated. Reach for it once a list tool has narrowed the search to one request.',
     inputSchema: {
       additionalProperties: false,
-      properties: { id: { type: 'string' } },
+      properties: {
+        id: {
+          description:
+            'An incoming request id: the `id` of a recent_requests result, or the `request.id` attached to a recent_exceptions or slow_queries result.',
+          type: 'string',
+        },
+      },
       required: ['id'],
       type: 'object',
     },
@@ -65,12 +91,19 @@ export const TOOL_DEFINITIONS: readonly ToolDefinition[] = [
     title: 'Request detail',
   },
   {
-    description: 'Recent database queries sorted slowest first, each with the request it ran in.',
+    annotations: READ_ONLY,
+    description:
+      'Recent database queries sorted slowest first, each with the request it ran in. Use request_detail on that request to see everything else it did.',
     inputSchema: {
       additionalProperties: false,
       properties: {
-        limit: limitSchema(100, 10),
-        minMs: { default: 0, minimum: 0, type: 'number' },
+        limit: limitSchema(100, 10, 'How many queries to return, slowest first.'),
+        minMs: {
+          default: 0,
+          description: 'Only queries that took at least this many milliseconds.',
+          minimum: 0,
+          type: 'number',
+        },
       },
       type: 'object',
     },
@@ -78,7 +111,9 @@ export const TOOL_DEFINITIONS: readonly ToolDefinition[] = [
     title: 'Slow queries',
   },
   {
-    description: 'How many entries of each type have been recorded.',
+    annotations: READ_ONLY,
+    description:
+      'How many entries of each type Telescope is holding right now. The counts cover what is still retained: the oldest entries are dropped once storage reaches maxEntries. Read it first to see whether there is anything to look at, then drill in with recent_exceptions or recent_requests.',
     inputSchema: { additionalProperties: false, properties: {}, type: 'object' },
     name: 'stats',
     title: 'Telemetry counts',

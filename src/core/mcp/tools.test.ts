@@ -14,6 +14,24 @@ function build() {
 }
 
 describe('TOOL_DEFINITIONS', () => {
+  it('documents every input parameter, so a client never sees a bare schema', () => {
+    for (const tool of TOOL_DEFINITIONS) {
+      const properties = (tool.inputSchema as { properties: Record<string, unknown> }).properties;
+
+      for (const [parameter, schema] of Object.entries(properties)) {
+        const { description } = schema as { description?: string };
+
+        expect(description, `${tool.name}.${parameter} has no description`).toBeTruthy();
+      }
+    }
+  });
+
+  it('annotates every tool as read-only and closed-world', () => {
+    for (const tool of TOOL_DEFINITIONS) {
+      expect(tool.annotations, tool.name).toEqual({ openWorldHint: false, readOnlyHint: true });
+    }
+  });
+
   it('declares the five read-only tools', () => {
     expect(TOOL_DEFINITIONS.map((tool) => tool.name)).toEqual([
       'recent_exceptions',

@@ -1,5 +1,19 @@
 
 
+## Unreleased
+
+
+### ✨ Features
+
+* **mcp:** declare `annotations: { readOnlyHint: true, openWorldHint: false }` on all five tools
+  and give every input parameter a description, so an agent can tell a tool is safe to call and
+  what each argument means without reading the source. `stats` now says its counts cover only
+  the entries still retained — the oldest are dropped at `maxEntries` — and points at the tools
+  to drill in with; `request_detail` says where a request id comes from; `slow_queries` and
+  `request_detail` name the sibling tool to reach for next. A test pins parameter-description
+  coverage, so a future parameter cannot ship bare.
+
+
 ## [1.2.0](https://github.com/jubstaaa/hono-telescope/compare/1.1.1...1.2.0) (2026-09-02)
 
 
