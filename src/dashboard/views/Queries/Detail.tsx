@@ -1,4 +1,4 @@
-import { useParams } from 'react-router';
+import { Link, useParams } from 'react-router';
 import { Card, Typography, Alert, Descriptions, Tag, theme, Flex, Grid } from 'antd';
 import { useDetail } from '../../hooks/use-entries';
 import type { QueryDetailResponse } from '@/types';
@@ -40,7 +40,7 @@ export const QueryDetail = () => {
               <Tag color="blue">{query.connection || 'default'}</Tag>
             </Descriptions.Item>
             <Descriptions.Item label="Duration" span={1}>
-              <DurationTag value={query.time} />
+              <DurationTag value={query.time} warnAt={50} slowAt={200} />
             </Descriptions.Item>
             <Descriptions.Item label="Status" span={1}>
               {query.failed ? <Tag color="red">failed</Tag> : <Tag color="green">ok</Tag>}
@@ -48,6 +48,13 @@ export const QueryDetail = () => {
             <Descriptions.Item label="Time" span={1}>
               {formatDate(query.created_at)}
             </Descriptions.Item>
+            {query.parent_id && (
+              <Descriptions.Item label="Request" span={descriptionsColumn}>
+                <Link to={`/incoming-requests/${query.parent_id}`}>
+                  Open the request this query ran in
+                </Link>
+              </Descriptions.Item>
+            )}
           </Descriptions>
         </Card>
 
@@ -62,7 +69,16 @@ export const QueryDetail = () => {
 
         {query.query && (
           <Card title="Query" size="small" style={{ backgroundColor: token.colorBgContainer }}>
-            {query.query}
+            <Text
+              style={{
+                display: 'block',
+                whiteSpace: 'pre-wrap',
+                fontFamily: 'monospace',
+                fontSize: 13,
+              }}
+            >
+              {query.query}
+            </Text>
           </Card>
         )}
 

@@ -1,5 +1,17 @@
 import { useEffect, useState } from 'react';
-import { Layout, Button, Space, Typography, theme, Flex, Image, Grid, Alert } from 'antd';
+import {
+  Layout,
+  Button,
+  Space,
+  Typography,
+  theme,
+  Flex,
+  Image,
+  Grid,
+  Alert,
+  Tooltip,
+  Popconfirm,
+} from 'antd';
 import { Outlet, useNavigate, useLocation } from 'react-router';
 import {
   ArrowLeftOutlined,
@@ -99,55 +111,76 @@ export const MainLayout = () => {
           }}
         >
           <Space size="small">
-            <Button
-              icon={<ArrowLeftOutlined />}
-              onClick={() => navigate(-1)}
-              disabled={!canGoBack}
-              style={{ color: token.colorText }}
-            />
+            <Tooltip title="Back">
+              <Button
+                aria-label="Back"
+                icon={<ArrowLeftOutlined />}
+                onClick={() => navigate(-1)}
+                disabled={!canGoBack}
+                style={{ color: token.colorText }}
+              />
+            </Tooltip>
           </Space>
           <Space size="middle">
-            <Button
-              danger
-              icon={<DeleteOutlined style={{ fontSize: '16px' }} />}
-              onClick={handleClearData}
-              loading={isClearLoading}
-              disabled={isClearLoading}
-              title="Clear all data"
-            />
-            <Button
-              icon={
-                <RadarChartOutlined
-                  className={liveMode ? 'live-mode-pulse' : ''}
-                  style={
-                    {
-                      fontSize: '16px',
-                      color: liveMode ? token.colorPrimary : token.colorText,
-                      '--live-color': liveMode ? token.colorPrimary : token.colorText,
-                    } as React.CSSProperties & { '--live-color': string }
-                  }
+            <Popconfirm
+              title="Clear all data?"
+              description="Every recorded request, query, log and exception is deleted. This cannot be undone."
+              okText="Clear everything"
+              okButtonProps={{ danger: true }}
+              cancelText="Cancel"
+              onConfirm={handleClearData}
+            >
+              <Tooltip title="Clear all data">
+                <Button
+                  danger
+                  aria-label="Clear all data"
+                  icon={<DeleteOutlined style={{ fontSize: '16px' }} />}
+                  loading={isClearLoading}
+                  disabled={isClearLoading}
                 />
-              }
-              onClick={() => setLiveMode(!liveMode)}
-              title={liveMode ? 'Live mode: ON' : 'Live mode: OFF'}
-            />
-            <Button
-              icon={
-                isDark ? (
-                  <SunOutlined style={{ fontSize: '16px' }} />
-                ) : (
-                  <MoonOutlined style={{ fontSize: '16px' }} />
-                )
-              }
-              onClick={toggleTheme}
-              title={isDark ? 'Light mode' : 'Dark mode'}
-            />
-            <Button
-              icon={<GithubOutlined style={{ fontSize: '16px' }} />}
-              href="https://github.com/Jubstaaa/hono-telescope"
-              target="_blank"
-              title="GitHub"
-            />
+              </Tooltip>
+            </Popconfirm>
+            <Tooltip
+              title={liveMode ? 'Live mode is on — refreshing every second' : 'Turn on live mode'}
+            >
+              <Button
+                aria-label={liveMode ? 'Turn off live mode' : 'Turn on live mode'}
+                icon={
+                  <RadarChartOutlined
+                    className={liveMode ? 'live-mode-pulse' : ''}
+                    style={
+                      {
+                        fontSize: '16px',
+                        color: liveMode ? token.colorPrimary : token.colorText,
+                        '--live-color': liveMode ? token.colorPrimary : token.colorText,
+                      } as React.CSSProperties & { '--live-color': string }
+                    }
+                  />
+                }
+                onClick={() => setLiveMode(!liveMode)}
+              />
+            </Tooltip>
+            <Tooltip title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}>
+              <Button
+                aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+                icon={
+                  isDark ? (
+                    <SunOutlined style={{ fontSize: '16px' }} />
+                  ) : (
+                    <MoonOutlined style={{ fontSize: '16px' }} />
+                  )
+                }
+                onClick={toggleTheme}
+              />
+            </Tooltip>
+            <Tooltip title="View the project on GitHub">
+              <Button
+                aria-label="View the project on GitHub"
+                icon={<GithubOutlined style={{ fontSize: '16px' }} />}
+                href="https://github.com/Jubstaaa/hono-telescope"
+                target="_blank"
+              />
+            </Tooltip>
           </Space>
         </Header>
 

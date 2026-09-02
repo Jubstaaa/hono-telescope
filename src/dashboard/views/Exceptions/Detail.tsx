@@ -1,4 +1,4 @@
-import { useParams } from 'react-router';
+import { Link, useParams } from 'react-router';
 import { Card, Typography, Alert, Descriptions, theme, Flex, Grid } from 'antd';
 import { useDetail } from '../../hooks/use-entries';
 import type { ExceptionDetailResponse } from '@/types';
@@ -41,6 +41,13 @@ export const ExceptionDetail = () => {
               <ExceptionTag classNum={entry.class} />
             </Descriptions.Item>
             <Descriptions.Item label="Time">{formatDate(entry.created_at)}</Descriptions.Item>
+            {entry.parent_id && (
+              <Descriptions.Item label="Request" span={descriptionsColumn}>
+                <Link to={`/incoming-requests/${entry.parent_id}`}>
+                  Open the request that produced this exception
+                </Link>
+              </Descriptions.Item>
+            )}
           </Descriptions>
         </Card>
 
@@ -50,7 +57,16 @@ export const ExceptionDetail = () => {
 
         {entry.trace && entry.trace.length > 0 && (
           <Card title="Stack Trace" style={{ backgroundColor: token.colorBgContainer }}>
-            <Text code>{entry.trace}</Text>
+            <Text
+              style={{
+                display: 'block',
+                whiteSpace: 'pre-wrap',
+                fontFamily: 'monospace',
+                fontSize: 13,
+              }}
+            >
+              {entry.trace}
+            </Text>
           </Card>
         )}
 
