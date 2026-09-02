@@ -18,6 +18,8 @@ trace. Nothing else in the Hono ecosystem does that.
 
 Zero runtime dependencies. Works on Node.js and Bun.
 
+![The Telescope dashboard: a request list, one request with the queries it ran, the failed query marked with the driver's own error, and an exception with its stack trace](https://raw.githubusercontent.com/jubstaaa/hono-telescope/main/.github/telescope.gif)
+
 ---
 
 ## 🌐 Live Demo
