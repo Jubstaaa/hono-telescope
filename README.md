@@ -1,5 +1,6 @@
 # hono-telescope
 
+[![hono-telescope MCP server](https://glama.ai/mcp/servers/Jubstaaa/hono-telescope/badges/score.svg)](https://glama.ai/mcp/servers/Jubstaaa/hono-telescope)
 [![npm version](https://badge.fury.io/js/hono-telescope.svg)](https://badge.fury.io/js/hono-telescope)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
