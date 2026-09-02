@@ -51,4 +51,4 @@ export const IGNORED_STATIC_EXTENSIONS = [
 ] as const;
 
 /** Reported to MCP clients as `serverInfo.version`. Pinned to package.json by a test. */
-export const TELESCOPE_VERSION = '1.1.1';
+export const TELESCOPE_VERSION = '1.2.0';
