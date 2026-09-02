@@ -34,6 +34,8 @@ jobs:
     permissions:
       contents: read
       packages: write
+    outputs:
+      digest: ${{ steps.push.outputs.digest }}
     steps:
       - uses: actions/checkout@v7
       - uses: docker/setup-buildx-action@v4
@@ -42,9 +44,10 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      # :latest is what the droplet runs; :sha stays behind as the rollback
-      # target (`docker compose` pinned to it, or a manual docker run).
-      - uses: docker/build-push-action@v7
+      # Both tags are for humans — `docker pull`, the package page, a manual run.
+      # The droplet is pinned to this step's digest, see the deploy job.
+      - id: push
+        uses: docker/build-push-action@v7
         with:
           context: .
           push: true
@@ -80,13 +83,18 @@ jobs:
           host: ${{ secrets.DO_HOST }}
           username: ${{ secrets.DO_USER }}
           key: ${{ secrets.DO_SSH_KEY }}
-          envs: GHCR_TOKEN,GHCR_USER
+          envs: GHCR_TOKEN,GHCR_USER,IMAGE_DIGEST
+          # `set -e` because the last command used to decide the step's fate: a
+          # failing pull was masked by `docker image prune -f` exiting 0.
           script: |
+            set -e
             echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
             cd /opt/hono-telescope
+            printf 'TELESCOPE_IMAGE=ghcr.io/jubstaaa/hono-telescope@%s\n' "$IMAGE_DIGEST" > .env
             docker compose pull
             docker compose up -d
             docker image prune -f
         env:
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GHCR_USER: ${{ github.actor }}
+          IMAGE_DIGEST: ${{ needs.build.outputs.digest }}

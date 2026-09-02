@@ -5,7 +5,12 @@
 # the deploy workflow.
 services:
   app:
-    image: ghcr.io/jubstaaa/hono-telescope:latest
+    # A digest, not `:latest`, written into .env by the deploy workflow. Twice on
+    # 2026-09-02 a pull that ran ~30s after the push resolved `:latest` to the
+    # previous manifest, so `up -d` found nothing to change, left the old
+    # container running and still reported a successful deploy. A digest cannot
+    # go stale. Rollback is editing .env to an earlier one.
+    image: ${TELESCOPE_IMAGE}
     container_name: hono-telescope
     restart: unless-stopped
     # One bundled Bun process holding at most 500 entries in memory; measured
