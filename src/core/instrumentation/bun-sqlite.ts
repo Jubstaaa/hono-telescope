@@ -1,4 +1,5 @@
 import type { Recorder } from '../recorder.js';
+import { failureFields } from './failure.js';
 
 type Statement = Record<string, unknown> & { sql?: string };
 
@@ -35,8 +36,13 @@ export function instrumentBunSqlite<T>(db: T, recorder: Recorder): T {
         statement[method] = function timed(...bindings: unknown[]) {
           const startTime = Date.now();
 
+          let failure: unknown;
+
           try {
             return (originalMethod as (...args: unknown[]) => unknown).apply(statement, bindings);
+          } catch (error) {
+            failure = error ?? new Error('failed');
+            throw error;
           } finally {
             let recorded: string[];
             try {
@@ -51,6 +57,7 @@ export function instrumentBunSqlite<T>(db: T, recorder: Recorder): T {
                 query: sql,
                 bindings: recorded,
                 time: Date.now() - startTime,
+                ...failureFields(failure),
               })
               .catch(() => undefined);
           }

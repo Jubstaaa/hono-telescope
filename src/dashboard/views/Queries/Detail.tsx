@@ -42,11 +42,23 @@ export const QueryDetail = () => {
             <Descriptions.Item label="Duration" span={1}>
               <DurationTag value={query.time} />
             </Descriptions.Item>
-            <Descriptions.Item label="Time" span={2}>
+            <Descriptions.Item label="Status" span={1}>
+              {query.failed ? <Tag color="red">failed</Tag> : <Tag color="green">ok</Tag>}
+            </Descriptions.Item>
+            <Descriptions.Item label="Time" span={1}>
               {formatDate(query.created_at)}
             </Descriptions.Item>
           </Descriptions>
         </Card>
+
+        {query.failed && (
+          <Alert
+            message="This query failed"
+            description={query.error ?? 'The database client reported no message.'}
+            type="error"
+            showIcon
+          />
+        )}
 
         {query.query && (
           <Card title="Query" size="small" style={{ backgroundColor: token.colorBgContainer }}>

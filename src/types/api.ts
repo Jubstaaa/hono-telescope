@@ -40,7 +40,10 @@ export type ExceptionResponse = Pick<ExceptionEntry, 'id' | 'class' | 'message' 
 
 export type LogResponse = Pick<LogEntry, 'id' | 'level' | 'message' | 'created_at'>;
 
-export type QueryResponse = Pick<QueryEntry, 'id' | 'connection' | 'query' | 'time' | 'created_at'>;
+export type QueryResponse = Pick<
+  QueryEntry,
+  'id' | 'connection' | 'query' | 'time' | 'created_at' | 'failed'
+>;
 
 export type TelescopeListResponse =
   | IncomingRequestResponse

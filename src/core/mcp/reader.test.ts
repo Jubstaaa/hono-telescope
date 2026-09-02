@@ -269,6 +269,22 @@ describe('slowQueries', () => {
     expect(queries[0]).toMatchObject({ request: { uri: '/api/users/1' } });
   });
 
+  it('carries the failure flag and message through to the agent', async () => {
+    const { recorder, reader } = build();
+    await recorder.record('query', {
+      connection: 'mongodb',
+      query: 'app.insert',
+      bindings: [],
+      time: 9,
+      failed: true,
+      error: 'E11000 duplicate key',
+    });
+
+    const { queries } = await reader.slowQueries({ limit: 10, minMs: 0 });
+
+    expect(queries[0]).toMatchObject({ failed: true, error: 'E11000 duplicate key' });
+  });
+
   it('applies minMs and limit', async () => {
     const { recorder, reader } = build();
     for (const time of [1, 50, 80]) {

@@ -232,3 +232,94 @@ describe('instrumentBunSqlite', () => {
     expect((await storage.list('query'))[0].bindings).toEqual(['<unstringifiable>']);
   });
 });
+
+describe('failed queries', () => {
+  it('marks a failed mongo command and keeps a succeeded one clean', async () => {
+    const { storage, recorder } = build();
+    const listeners: Record<string, (event: unknown) => void> = {};
+
+    const client = {
+      on(event: string, handler: (payload: unknown) => void) {
+        listeners[event] = handler;
+      },
+    };
+
+    instrumentMongo(client, recorder);
+
+    listeners.commandSucceeded({ commandName: 'find', databaseName: 'app', duration: 4 });
+    listeners.commandFailed({
+      commandName: 'insert',
+      databaseName: 'app',
+      duration: 9,
+      failure: new Error('E11000 duplicate key'),
+    });
+
+    await vi.waitFor(async () => expect(await storage.count('query')).toBe(2));
+
+    const [failed, succeeded] = await storage.list('query');
+    expect(failed).toMatchObject({ query: 'app.insert', failed: true });
+    expect(failed.error).toContain('E11000 duplicate key');
+    expect(succeeded).toMatchObject({ query: 'app.find' });
+    expect(succeeded.failed).toBeUndefined();
+    expect(succeeded.error).toBeUndefined();
+  });
+
+  it('marks a throwing prisma operation as failed and still rethrows', async () => {
+    const { storage, recorder } = build();
+    let captured: ((args: Record<string, unknown>) => Promise<unknown>) | undefined;
+
+    const client = {
+      $extends(extension: {
+        query: { $allOperations: (args: Record<string, unknown>) => Promise<unknown> };
+      }) {
+        captured = extension.query.$allOperations;
+        return {};
+      },
+    };
+
+    instrumentPrisma(client, recorder);
+
+    await expect(
+      captured!({
+        model: 'User',
+        operation: 'create',
+        args: {},
+        query: async () => {
+          throw new Error('connection lost');
+        },
+      })
+    ).rejects.toThrow('connection lost');
+
+    await vi.waitFor(async () => expect(await storage.count('query')).toBe(1));
+
+    const [entry] = await storage.list('query');
+    expect(entry).toMatchObject({ query: 'User.create', failed: true });
+    expect(entry.error).toContain('connection lost');
+  });
+
+  it('marks a throwing bun:sqlite statement as failed and still rethrows', async () => {
+    const { storage, recorder } = build();
+
+    const db = {
+      query(sql: string) {
+        return {
+          sql,
+          all: () => {
+            throw new Error('no such table: users');
+          },
+        };
+      },
+    };
+
+    const wrapped = instrumentBunSqlite(db, recorder);
+    const statement = (wrapped as typeof db).query('SELECT * FROM users');
+
+    expect(() => statement.all()).toThrow('no such table: users');
+
+    await vi.waitFor(async () => expect(await storage.count('query')).toBe(1));
+
+    const [entry] = await storage.list('query');
+    expect(entry).toMatchObject({ query: 'SELECT * FROM users', failed: true });
+    expect(entry.error).toContain('no such table: users');
+  });
+});

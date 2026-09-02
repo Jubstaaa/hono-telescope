@@ -180,6 +180,12 @@ telescope.instrumentBunSqlite(db);
 
 > **Note**: Automatic database interception was removed in 1.0 because it never worked under Node ESM and captured only raw SQL where it did run. Explicit per-client instrumentation is now required.
 
+A query that fails is recorded too, marked `failed` with the client's own error message, so a
+failed command is distinguishable from a slow one in the dashboard and over MCP. This covers
+Prisma, MongoDB and Bun SQLite. **Sequelize is the exception**: it is instrumented through the
+`afterQuery` hook, which does not appear to run when a query fails, so failed Sequelize queries
+are currently not recorded at all. Fixing that needs verification against a real Sequelize.
+
 Call each `instrument*` method **once per client**. Unlike the collectors, they are not
 idempotent (only `instrumentBunSqlite` guards against double wrapping), so instrumenting the
 same client twice records every query twice.

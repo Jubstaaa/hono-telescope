@@ -49,4 +49,5 @@ export const mapQuery = (q: QueryEntry): QueryResponse => ({
   query: q.query,
   time: q.time,
   created_at: q.created_at,
+  failed: q.failed,
 });

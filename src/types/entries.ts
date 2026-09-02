@@ -74,6 +74,8 @@ export interface QueryEntryData {
   query: string;
   bindings: string[];
   time: number;
+  failed?: boolean;
+  error?: string;
 }
 
 export interface QueryEntry extends BaseEntry, QueryEntryData {}

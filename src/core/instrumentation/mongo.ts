@@ -1,9 +1,11 @@
 import type { Recorder } from '../recorder.js';
+import { failureFields } from './failure.js';
 
 interface MongoCommandEvent {
   commandName: string;
   databaseName?: string;
   duration?: number;
+  failure?: unknown;
 }
 
 interface MongoMonitorable {
@@ -13,7 +15,7 @@ interface MongoMonitorable {
 export function instrumentMongo<T>(client: T, recorder: Recorder): T {
   const monitorable = client as MongoMonitorable;
 
-  const record = (event: MongoCommandEvent) => {
+  const record = (event: MongoCommandEvent, failure?: unknown) => {
     void recorder
       .recordQuery({
         connection: 'mongodb',
@@ -22,12 +24,13 @@ export function instrumentMongo<T>(client: T, recorder: Recorder): T {
           : event.commandName,
         bindings: [],
         time: event.duration ?? 0,
+        ...failureFields(failure),
       })
       .catch(() => undefined);
   };
 
-  monitorable.on('commandSucceeded', record);
-  monitorable.on('commandFailed', record);
+  monitorable.on('commandSucceeded', (event) => record(event));
+  monitorable.on('commandFailed', (event) => record(event, event.failure ?? new Error('failed')));
 
   return client;
 }

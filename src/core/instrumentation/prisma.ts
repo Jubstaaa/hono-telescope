@@ -1,4 +1,5 @@
 import type { Recorder } from '../recorder.js';
+import { failureFields } from './failure.js';
 
 interface PrismaOperationArgs {
   model?: string;
@@ -23,8 +24,13 @@ export function instrumentPrisma<T>(client: T, recorder: Recorder): T {
       async $allOperations({ model, operation, args, query }: PrismaOperationArgs) {
         const startTime = Date.now();
 
+        let failure: unknown;
+
         try {
           return await query(args);
+        } catch (error) {
+          failure = error ?? new Error('failed');
+          throw error;
         } finally {
           let bindings: string[];
           try {
@@ -39,6 +45,7 @@ export function instrumentPrisma<T>(client: T, recorder: Recorder): T {
               query: model ? `${model}.${operation}` : operation,
               bindings,
               time: Date.now() - startTime,
+              ...failureFields(failure),
             })
             .catch(() => undefined);
         }

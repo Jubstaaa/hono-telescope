@@ -97,6 +97,7 @@ const querySummary = (query: QueryEntry) => {
     bindings: query.bindings,
     time: query.time,
     created_at: query.created_at,
+    ...(query.failed ? { failed: true as const, error: query.error } : {}),
     ...(sql.truncated ? { truncated: true as const } : {}),
   };
 };

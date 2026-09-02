@@ -1,3 +1,4 @@
+import { Tag } from 'antd';
 import type { QueryResponse } from '@/types';
 import { formatDate } from '../../utils/helpers';
 import DurationTag from '../Tag/DurationTag';
@@ -15,6 +16,12 @@ export const QueryTable = ({ entries, loading }: QueryTableProps) => {
       dataIndex: 'query',
       key: 'query',
       render: (query: string) => query,
+    },
+    {
+      title: 'Status',
+      dataIndex: 'failed',
+      key: 'failed',
+      render: (failed?: boolean) => (failed ? <Tag color="red">failed</Tag> : null),
     },
     {
       title: 'Duration',
