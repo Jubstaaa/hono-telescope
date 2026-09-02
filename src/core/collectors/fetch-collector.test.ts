@@ -9,6 +9,23 @@ const build = () => {
   return { storage, recorder: new Recorder(storage, alsContext()) };
 };
 
+const SETTLE_LIMIT_MS = 1000;
+
+async function settleWithin(work: Promise<unknown>): Promise<'completed' | 'stalled'> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+
+  try {
+    return await Promise.race([
+      work.then(() => 'completed' as const),
+      new Promise<'stalled'>((resolve) => {
+        timer = setTimeout(() => resolve('stalled'), SETTLE_LIMIT_MS);
+      }),
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 describe('fetchCollector', () => {
   it('records an outgoing request', async () => {
     const { storage, recorder } = build();
@@ -176,6 +193,31 @@ describe('fetchCollector', () => {
     const [entry] = await storage.list('outgoing_request');
     expect(entry.response_headers).toMatchObject({
       'content-type': 'application/json',
+    });
+  });
+
+  it('completes an oversize json response and leaves the body readable', async () => {
+    const { storage, recorder } = build();
+    const payload = { data: 'x'.repeat(500) };
+    const original = globalThis.fetch;
+    globalThis.fetch = vi.fn(
+      async () =>
+        new Response(JSON.stringify(payload), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        })
+    ) as unknown as typeof fetch;
+
+    const uninstall = fetchCollector({ maxBodySize: 50 }).install(recorder);
+    const call = fetch('https://example.test/big');
+    uninstall();
+    globalThis.fetch = original;
+
+    expect(await settleWithin(call)).toBe('completed');
+    expect(await (await call).json()).toEqual(payload);
+    expect((await storage.list('outgoing_request'))[0].response).toEqual({
+      truncated: true,
+      size: 50,
     });
   });
 });

@@ -54,7 +54,9 @@ export async function readCappedText(
       size += value.byteLength;
     }
   } finally {
-    await reader.cancel().catch(() => undefined);
+    // Never awaited: cancelling a `Response.clone()` branch mid-stream does not resolve on Node
+    // until the other branch is drained, which would hang the caller on the truncation path.
+    void reader.cancel().catch(() => undefined);
   }
 
   return { text: new TextDecoder().decode(concat(chunks)), truncated };
