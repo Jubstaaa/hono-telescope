@@ -141,6 +141,42 @@ The transport is the current Streamable HTTP revision (`2026-07-28`), with `2025
 accepted for older clients. `GET` and `DELETE` answer `405`: this revision has no SSE stream
 and no sessions.
 
+### Clients that only speak stdio
+
+Many editors cannot point an MCP client at a URL. The package ships a bridge for them: it reads
+one JSON-RPC message per line on stdin, forwards it to the endpoint your app already serves, and
+writes the reply back on stdout.
+
+```bash
+claude mcp add telescope -- npx -y hono-telescope mcp-stdio \
+  --url http://localhost:3000/telescope/mcp
+```
+
+```json
+{
+  "mcpServers": {
+    "telescope": {
+      "command": "npx",
+      "args": ["-y", "hono-telescope", "mcp-stdio"],
+      "env": { "TELESCOPE_URL": "http://localhost:3000/telescope/mcp" }
+    }
+  }
+}
+```
+
+`--url` (or `TELESCOPE_URL`) is the only required option. For a dashboard behind
+`dashboard.auth`, pass credentials as a header — `--header` is repeatable, and
+`TELESCOPE_HEADER` takes one for clients that can only set environment variables:
+
+```bash
+npx -y hono-telescope mcp-stdio --url https://example.com/telescope/mcp \
+  --header "Authorization: Basic $(printf 'user:pass' | base64)"
+```
+
+The bridge forwards; it does not implement the protocol a second time. Your app stays the only
+place that answers MCP, so the bridge adds no tools, no session state and no new dependency —
+and it needs the app to already be running.
+
 > **The MCP endpoint exposes exactly what the dashboard exposes** — request and response
 > bodies, headers and SQL — to whatever agent you connect. It is covered by `dashboard.auth`
 > and by the same production refusal: with `enabled: true` under `NODE_ENV=production`,

@@ -1,5 +1,21 @@
 
 
+## Unreleased
+
+
+### ✨ Features
+
+* **cli:** bridge a stdio-only MCP client to the HTTP endpoint the dashboard serves — new
+  `hono-telescope mcp-stdio --url <endpoint>` bin. It relays one JSON-RPC message per line
+  between stdin/stdout and the endpoint, forwarding requests concurrently so a slow tool call
+  never blocks the ones behind it, and it keeps a non-JSON response (a `404`, an HTML page, a
+  dead connection) out of stdout by answering with a JSON-RPC error carrying the request's own
+  `id`. Method dispatch, version negotiation and error codes stay in the HTTP server: the
+  bridge implements no protocol of its own and adds no runtime dependency. Auth travels as a
+  repeatable `--header`, or `TELESCOPE_HEADER` for clients that can only pass environment
+  variables.
+
+
 ## [1.1.1](https://github.com/jubstaaa/hono-telescope/compare/1.1.0...1.1.1) (2026-09-02)
 
 
