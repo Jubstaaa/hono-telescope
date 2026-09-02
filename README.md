@@ -25,6 +25,8 @@ BASE=https://hono-telescope.ilkerbalcilar.com
 
 curl $BASE/api/users                # incoming request + Bun SQLite queries
 curl -X POST $BASE/api/import-users # outgoing fetch to JSONPlaceholder, plus inserts
+curl -X POST $BASE/api/webhook      # outgoing POST whose payload is recorded, `token` redacted
+curl -X POST $BASE/api/db-error     # UNIQUE violation, recorded as a failed query; 409, no exception
 curl $BASE/api/mixed-clients-test   # the fetch call is captured, the axios call is not
 curl $BASE/api/slow                 # 2s handler, to see the duration column
 curl $BASE/api/error                # exception recorded as a child of its request

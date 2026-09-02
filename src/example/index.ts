@@ -41,6 +41,11 @@ app.get('/', (c) => {
       },
       external: {
         'POST /api/import-users': 'Import users from JSONPlaceholder',
+        'POST /api/webhook': 'Outgoing POST whose payload is recorded and redacted',
+      },
+      failures: {
+        'POST /api/db-error': 'Deliberate UNIQUE violation, recorded as a failed query',
+        'GET /api/error': 'Throws, recorded as an exception under its request',
       },
       telescope: '/telescope - Dashboard',
     },
@@ -324,6 +329,51 @@ app.post('/api/import-users', async (c) => {
       500
     );
   }
+});
+
+app.post('/api/db-error', (c) => {
+  console.log(`${formatDate()} POST /api/db-error`);
+
+  const email = 'duplicate@telescope.demo';
+  if (!db.getUserByEmail(email)) {
+    db.createUser({ name: 'Telescope Demo', email, username: 'telescope-demo' });
+  }
+
+  try {
+    db.createUser({ name: 'Telescope Demo', email, username: 'telescope-demo' });
+
+    return c.json(
+      { success: false, error: 'expected a UNIQUE violation and did not get one' },
+      500
+    );
+  } catch (error) {
+    return c.json(
+      {
+        success: false,
+        error: 'Insert rejected by the UNIQUE constraint, on purpose',
+        details: error instanceof Error ? error.message : 'Unknown error',
+        note: 'The failing INSERT is recorded as a failed query. Nothing threw out of the handler, so this request has no exception entry — find it with recent_requests({ minStatus: 400 }).',
+      },
+      409
+    );
+  }
+});
+
+app.post('/api/webhook', async (c) => {
+  console.log(`${formatDate()} POST /api/webhook`);
+
+  const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ title: 'telescope', userId: 1, token: 'super-secret-token' }),
+  });
+
+  return c.json({
+    success: true,
+    upstream_status: response.status,
+    data: await response.json(),
+    note: 'The outgoing entry records this request payload, with `token` redacted.',
+  });
 });
 
 app.get('/api/error', (_) => {
