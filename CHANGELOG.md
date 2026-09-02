@@ -1,6 +1,6 @@
 
 
-## [1.1.0](https://github.com/jubstaaa/hono-telescope/compare/1.0.0...1.1.0) (YYYY-MM-DD)
+## [1.1.0](https://github.com/jubstaaa/hono-telescope/compare/1.0.0...1.1.0) (2026-09-02)
 
 
 ### ✨ Features

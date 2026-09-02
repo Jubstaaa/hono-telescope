@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { TELESCOPE_VERSION } from '../constants.js';
 import {
   RPC_ERRORS,
   SUPPORTED_PROTOCOL_VERSIONS,
@@ -113,5 +114,13 @@ describe('response builders', () => {
       id: null,
       error: { data: { requested: '1900-01-01' } },
     });
+  });
+});
+
+describe('TELESCOPE_VERSION', () => {
+  it('matches the published package version', async () => {
+    const pkg = (await import('../../../package.json')) as unknown as { version: string };
+
+    expect(TELESCOPE_VERSION).toBe(pkg.version);
   });
 });

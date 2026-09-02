@@ -1,5 +1,6 @@
 import type { Hono } from 'hono';
 import type { Recorder } from '../recorder.js';
+import { TELESCOPE_VERSION } from '../constants.js';
 import {
   RPC_ERRORS,
   SUPPORTED_PROTOCOL_VERSIONS,
@@ -12,7 +13,7 @@ import {
 import { createMcpReader } from './reader.js';
 import { TOOL_DEFINITIONS, callTool } from './tools.js';
 
-const SERVER_INFO = { name: 'hono-telescope', version: '1.0.0' };
+const SERVER_INFO = { name: 'hono-telescope', version: TELESCOPE_VERSION };
 
 export function mountMcp(app: Hono, recorder: Recorder): void {
   const reader = createMcpReader(recorder);
