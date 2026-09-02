@@ -1,6 +1,8 @@
 import { Hono } from 'hono';
 import { basicAuth } from 'hono/basic-auth';
+
 import type { EntryType, ResolvedConfig } from '../../types/index.js';
+import { mountMcp } from '../mcp/routes.js';
 import type { Recorder } from '../recorder.js';
 import {
   mapException,
@@ -9,22 +11,22 @@ import {
   mapOutgoingRequest,
   mapQuery,
 } from '../utils/mappers.js';
-import { mountMcp } from '../mcp/routes.js';
+
 import { DASHBOARD_ASSETS, DASHBOARD_HTML } from './dashboard-assets.js';
 
 const RESOURCES: Record<string, EntryType> = {
-  'incoming-requests': 'incoming_request',
-  'outgoing-requests': 'outgoing_request',
   exceptions: 'exception',
+  'incoming-requests': 'incoming_request',
   logs: 'log',
+  'outgoing-requests': 'outgoing_request',
   queries: 'query',
 };
 
 const MAPPERS = {
-  incoming_request: mapIncomingRequest,
-  outgoing_request: mapOutgoingRequest,
   exception: mapException,
+  incoming_request: mapIncomingRequest,
   log: mapLog,
+  outgoing_request: mapOutgoingRequest,
   query: mapQuery,
 } as const;
 
@@ -77,17 +79,17 @@ export function createDashboard(recorder: Recorder, config: ResolvedConfig): Hon
     ]);
 
     return c.json({
-      incomingRequests: { total: incomingRequests },
-      outgoingRequests: { total: outgoingRequests },
       exceptions: { total: exceptions },
-      queries: { total: queries },
+      incomingRequests: { total: incomingRequests },
       logs: { total: logs },
+      outgoingRequests: { total: outgoingRequests },
+      queries: { total: queries },
     });
   });
 
   app.post('/api/clear', async (c) => {
     await recorder.clear();
-    return c.json({ success: true, message: 'All data cleared successfully' });
+    return c.json({ message: 'All data cleared successfully', success: true });
   });
 
   app.get('/api/:resource', async (c) => {
@@ -119,10 +121,10 @@ export function createDashboard(recorder: Recorder, config: ResolvedConfig): Hon
     return c.json({
       ...entry,
       relation_entries: {
-        logs: logs.map(mapLog),
-        queries: queries.map(mapQuery),
         exceptions: exceptions.map(mapException),
+        logs: logs.map(mapLog),
         outgoing_requests: outgoingRequests.map(mapOutgoingRequest),
+        queries: queries.map(mapQuery),
       },
     });
   });

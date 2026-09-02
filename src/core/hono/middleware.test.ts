@@ -1,21 +1,23 @@
-import { describe, expect, it } from 'vitest';
 import { Hono } from 'hono';
 import { streamText } from 'hono/streaming';
-import { createMiddleware } from './middleware.js';
+import { describe, expect, it } from 'vitest';
+
+import type { TelescopeConfig } from '../../types/index.js';
+import { resolveConfig } from '../config.js';
+import { alsContext } from '../context/als-context.js';
 import { Recorder } from '../recorder.js';
 import { memoryStorage } from '../storage/memory-storage.js';
-import { alsContext } from '../context/als-context.js';
-import { resolveConfig } from '../config.js';
-import type { TelescopeConfig } from '../../types/index.js';
+
+import { createMiddleware } from './middleware.js';
 
 function build(overrides: TelescopeConfig = {}) {
   const storage = memoryStorage();
-  const config = resolveConfig({ storage, context: alsContext(), ...overrides });
+  const config = resolveConfig({ context: alsContext(), storage, ...overrides });
   const recorder = new Recorder(config.storage, config.context);
   const app = new Hono();
   app.use('*', createMiddleware(recorder, config));
 
-  return { app, storage, recorder, config };
+  return { app, config, recorder, storage };
 }
 
 const SETTLE_LIMIT_MS = 1000;
@@ -43,7 +45,7 @@ describe('createMiddleware', () => {
     await app.request('/hello');
     const [entry] = await storage.list('incoming_request');
 
-    expect(entry).toMatchObject({ method: 'GET', uri: '/hello', response_status: 200 });
+    expect(entry).toMatchObject({ method: 'GET', response_status: 200, uri: '/hello' });
     expect(entry.response).toEqual({ ok: true });
     expect(typeof entry.duration).toBe('number');
   });
@@ -53,9 +55,9 @@ describe('createMiddleware', () => {
     app.post('/echo', async (c) => c.json(await c.req.json()));
 
     const response = await app.request('/echo', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ name: 'ada' }),
+      headers: { 'content-type': 'application/json' },
+      method: 'POST',
     });
 
     expect(await response.json()).toEqual({ name: 'ada' });
@@ -67,9 +69,9 @@ describe('createMiddleware', () => {
     app.post('/login', (c) => c.json({ ok: true }));
 
     await app.request('/login', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', authorization: 'Bearer secret' },
       body: JSON.stringify({ password: 'hunter2' }),
+      headers: { authorization: 'Bearer secret', 'content-type': 'application/json' },
+      method: 'POST',
     });
 
     const [entry] = await storage.list('incoming_request');
@@ -96,7 +98,7 @@ describe('createMiddleware', () => {
   });
 
   it('correlates child entries with the request', async () => {
-    const { app, storage, recorder } = build();
+    const { app, recorder, storage } = build();
     app.get('/work', async (c) => {
       await recorder.record('log', { level: 1, message: 'inside' });
       return c.json({ ok: true });
@@ -200,8 +202,6 @@ describe('createMiddleware', () => {
 
     const body = JSON.stringify({ data: 'x'.repeat(4096) });
     await app.request('/bulk', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
       body: new ReadableStream<Uint8Array>({
         start(controller) {
           controller.enqueue(new TextEncoder().encode(body));
@@ -210,6 +210,8 @@ describe('createMiddleware', () => {
       }),
       // @ts-expect-error duplex is required by Node for a streamed request body
       duplex: 'half',
+      headers: { 'content-type': 'application/json' },
+      method: 'POST',
     });
 
     const [entry] = await storage.list('incoming_request');
@@ -222,9 +224,9 @@ describe('createMiddleware', () => {
     app.post('/notes', async (c) => c.text(await c.req.text()));
 
     const response = await app.request('/notes', {
-      method: 'POST',
-      headers: { 'content-type': 'text/plain' },
       body: 'plain note',
+      headers: { 'content-type': 'text/plain' },
+      method: 'POST',
     });
 
     expect(await response.text()).toBe('plain note');
@@ -237,18 +239,18 @@ describe('createMiddleware', () => {
       const text = await c.req.text();
       const json = await c.req.json();
 
-      return c.json({ text, json });
+      return c.json({ json, text });
     });
 
     const response = await app.request('/echo', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ name: 'ada' }),
+      headers: { 'content-type': 'application/json' },
+      method: 'POST',
     });
 
     expect(await response.json()).toEqual({
-      text: '{"name":"ada"}',
       json: { name: 'ada' },
+      text: '{"name":"ada"}',
     });
     expect((await storage.list('incoming_request'))[0].payload).toEqual({ name: 'ada' });
   });
@@ -258,9 +260,9 @@ describe('createMiddleware', () => {
     app.post('/bulk', (c) => c.json({ ok: true }));
 
     await app.request('/bulk', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
       body: JSON.stringify([{ password: 'hunter2' }, { name: 'ada' }]),
+      headers: { 'content-type': 'application/json' },
+      method: 'POST',
     });
 
     expect((await storage.list('incoming_request'))[0].payload).toEqual({
@@ -282,8 +284,8 @@ describe('createMiddleware', () => {
     app.post('/empty', (c) => c.json({ ok: true }));
 
     await app.request('/empty', {
-      method: 'POST',
       headers: { 'content-type': 'application/json' },
+      method: 'POST',
     });
 
     expect((await storage.list('incoming_request'))[0].payload).toEqual({});
@@ -294,8 +296,8 @@ describe('createMiddleware', () => {
     app.get('/nobody', (c) => c.json({ ok: true }));
 
     await app.request('/nobody', {
-      method: 'GET',
       headers: { 'content-type': 'application/json' },
+      method: 'GET',
     });
 
     expect((await storage.list('incoming_request'))[0].payload).toEqual({});
@@ -311,8 +313,8 @@ describe('createMiddleware', () => {
 
     expect(await (await request).json()).toEqual(payload);
     expect((await storage.list('incoming_request'))[0].response).toEqual({
-      truncated: true,
       size: 50,
+      truncated: true,
     });
   });
 
@@ -326,8 +328,8 @@ describe('createMiddleware', () => {
 
     expect(await (await request).text()).toBe(body);
     expect((await storage.list('incoming_request'))[0].response).toEqual({
-      truncated: true,
       size: 50,
+      truncated: true,
     });
   });
 });

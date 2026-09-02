@@ -1,18 +1,20 @@
 import { describe, expect, it, vi } from 'vitest';
-import { consoleCollector } from './console-collector.js';
+
+import { LogLevel } from '../../types/index.js';
+import { alsContext } from '../context/als-context.js';
 import { Recorder } from '../recorder.js';
 import { memoryStorage } from '../storage/memory-storage.js';
-import { alsContext } from '../context/als-context.js';
-import { LogLevel } from '../../types/index.js';
+
+import { consoleCollector } from './console-collector.js';
 
 const build = () => {
   const storage = memoryStorage();
-  return { storage, recorder: new Recorder(storage, alsContext()) };
+  return { recorder: new Recorder(storage, alsContext()), storage };
 };
 
 describe('consoleCollector', () => {
   it('records a log entry and still writes to the real console', async () => {
-    const { storage, recorder } = build();
+    const { recorder, storage } = build();
     const spy = vi.spyOn(process.stdout, 'write').mockReturnValue(true);
     const uninstall = consoleCollector().install(recorder);
 
@@ -23,13 +25,13 @@ describe('consoleCollector', () => {
     spy.mockRestore();
 
     expect((await storage.list('log'))[0]).toMatchObject({
-      message: 'hello',
       level: LogLevel.INFO,
+      message: 'hello',
     });
   });
 
   it('maps each console method to a level', async () => {
-    const { storage, recorder } = build();
+    const { recorder, storage } = build();
     vi.spyOn(process.stdout, 'write').mockReturnValue(true);
     vi.spyOn(process.stderr, 'write').mockReturnValue(true);
     const uninstall = consoleCollector().install(recorder);
@@ -56,7 +58,7 @@ describe('consoleCollector', () => {
   });
 
   it('is idempotent: a second install does not double-patch', async () => {
-    const { storage, recorder } = build();
+    const { recorder, storage } = build();
     vi.spyOn(process.stdout, 'write').mockReturnValue(true);
     const collector = consoleCollector();
 
@@ -71,7 +73,7 @@ describe('consoleCollector', () => {
   });
 
   it('does not record an exception entry for console.error', async () => {
-    const { storage, recorder } = build();
+    const { recorder, storage } = build();
     vi.spyOn(process.stderr, 'write').mockReturnValue(true);
     const uninstall = consoleCollector().install(recorder);
 

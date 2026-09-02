@@ -1,68 +1,70 @@
-import { RouteObject, createBrowserRouter } from 'react-router';
+import type { RouteObject } from 'react-router';
+import { createBrowserRouter } from 'react-router';
+
 import { DASHBOARD_BASE } from './config';
-import { Dashboard } from './views/Dashboard/Dashboard';
-import { IncomingRequestList } from './views/IncomingRequests/List';
-import { OutgoingRequestList } from './views/OutgoingRequests/List';
-import { QueryList } from './views/Queries/List';
-import { ExceptionList } from './views/Exceptions/List';
-import { LogList } from './views/Logs/List';
-import { IncomingRequestDetail } from './views/IncomingRequests/Detail';
-import { OutgoingRequestDetail } from './views/OutgoingRequests/Detail';
-import { QueryDetail } from './views/Queries/Detail';
-import { ExceptionDetail } from './views/Exceptions/Detail';
-import { LogDetail } from './views/Logs/Detail';
 import { MainLayout } from './layouts/MainLayout';
+import { Dashboard } from './views/Dashboard/Dashboard';
+import { ExceptionDetail } from './views/Exceptions/Detail';
+import { ExceptionList } from './views/Exceptions/List';
+import { IncomingRequestDetail } from './views/IncomingRequests/Detail';
+import { IncomingRequestList } from './views/IncomingRequests/List';
+import { LogDetail } from './views/Logs/Detail';
+import { LogList } from './views/Logs/List';
+import { OutgoingRequestDetail } from './views/OutgoingRequests/Detail';
+import { OutgoingRequestList } from './views/OutgoingRequests/List';
+import { QueryDetail } from './views/Queries/Detail';
+import { QueryList } from './views/Queries/List';
 
 const routes: RouteObject[] = [
   {
-    path: '/',
-    element: <MainLayout />,
     children: [
       {
-        index: true,
         element: <Dashboard />,
+        index: true,
       },
       {
-        path: 'incoming-requests',
         element: <IncomingRequestList />,
+        path: 'incoming-requests',
       },
       {
-        path: 'incoming-requests/:id',
         element: <IncomingRequestDetail />,
+        path: 'incoming-requests/:id',
       },
       {
-        path: 'outgoing-requests',
         element: <OutgoingRequestList />,
+        path: 'outgoing-requests',
       },
       {
-        path: 'outgoing-requests/:id',
         element: <OutgoingRequestDetail />,
+        path: 'outgoing-requests/:id',
       },
       {
-        path: 'queries',
         element: <QueryList />,
+        path: 'queries',
       },
       {
-        path: 'queries/:id',
         element: <QueryDetail />,
+        path: 'queries/:id',
       },
       {
-        path: 'exceptions',
         element: <ExceptionList />,
+        path: 'exceptions',
       },
       {
-        path: 'exceptions/:id',
         element: <ExceptionDetail />,
+        path: 'exceptions/:id',
       },
       {
-        path: 'logs',
         element: <LogList />,
+        path: 'logs',
       },
       {
-        path: 'logs/:id',
         element: <LogDetail />,
+        path: 'logs/:id',
       },
     ],
+    element: <MainLayout />,
+    path: '/',
   },
 ];
 

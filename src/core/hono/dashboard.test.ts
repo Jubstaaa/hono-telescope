@@ -1,11 +1,13 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Hono } from 'hono';
-import { createDashboard } from './dashboard.js';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+
+import type { TelescopeConfig } from '../../types/index.js';
+import { resolveConfig } from '../config.js';
+import { alsContext } from '../context/als-context.js';
 import { Recorder } from '../recorder.js';
 import { memoryStorage } from '../storage/memory-storage.js';
-import { alsContext } from '../context/als-context.js';
-import { resolveConfig } from '../config.js';
-import type { TelescopeConfig } from '../../types/index.js';
+
+import { createDashboard } from './dashboard.js';
 
 afterEach(() => {
   vi.unstubAllEnvs();
@@ -13,12 +15,12 @@ afterEach(() => {
 
 function build(overrides: TelescopeConfig = {}) {
   const storage = memoryStorage();
-  const config = resolveConfig({ storage, context: alsContext(), enabled: true, ...overrides });
+  const config = resolveConfig({ context: alsContext(), enabled: true, storage, ...overrides });
   const recorder = new Recorder(config.storage, config.context);
   const app = new Hono();
   app.route(config.dashboardPath, createDashboard(recorder, config));
 
-  return { app, recorder, config };
+  return { app, config, recorder };
 }
 
 describe('createDashboard', () => {
@@ -65,14 +67,14 @@ describe('createDashboard', () => {
     const requestId = await recorder.record(
       'incoming_request',
       {
-        method: 'GET',
-        uri: '/x',
-        headers: {},
-        payload: {},
-        response_status: 200,
-        response_headers: {},
-        response: {},
         duration: 1,
+        headers: {},
+        method: 'GET',
+        payload: {},
+        response: {},
+        response_headers: {},
+        response_status: 200,
+        uri: '/x',
       },
       'req-1'
     );
@@ -102,7 +104,7 @@ describe('createDashboard', () => {
   });
 
   it('rejects unauthenticated requests when auth is configured', async () => {
-    const { app } = build({ dashboard: { auth: { username: 'a', password: 'b' } } });
+    const { app } = build({ dashboard: { auth: { password: 'b', username: 'a' } } });
 
     expect((await app.request('/telescope/api/stats')).status).toBe(401);
 
@@ -113,7 +115,7 @@ describe('createDashboard', () => {
   });
 
   it('gates the dashboard html route behind auth', async () => {
-    const { app } = build({ dashboard: { auth: { username: 'a', password: 'b' } } });
+    const { app } = build({ dashboard: { auth: { password: 'b', username: 'a' } } });
 
     expect((await app.request('/telescope')).status).toBe(401);
 
@@ -136,7 +138,7 @@ describe('createDashboard', () => {
   });
 
   it('gates the asset route behind auth', async () => {
-    const { app } = build({ dashboard: { auth: { username: 'a', password: 'b' } } });
+    const { app } = build({ dashboard: { auth: { password: 'b', username: 'a' } } });
     const { DASHBOARD_ASSETS } = await import('./dashboard-assets.js');
     const [file] = Object.entries(DASHBOARD_ASSETS)[0];
 

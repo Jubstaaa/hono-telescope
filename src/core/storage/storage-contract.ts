@@ -1,15 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import type { StorageAdapter } from './storage-adapter.js';
+
 import type { LogEntry } from '../../types/index.js';
+
+import type { StorageAdapter } from './storage-adapter.js';
 
 function logEntry(id: string, parentId?: string): LogEntry {
   return {
-    id,
-    timestamp: Date.now(),
     created_at: new Date().toISOString(),
-    parent_id: parentId,
+    id,
     level: 1,
     message: `message ${id}`,
+    parent_id: parentId,
+    timestamp: Date.now(),
   };
 }
 
@@ -43,7 +45,7 @@ export function runStorageContract(name: string, factory: () => StorageAdapter):
       await storage.record('log', logEntry('c'));
 
       expect((await storage.list('log', { limit: 2 })).map((e) => e.id)).toEqual(['c', 'b']);
-      expect((await storage.list('log', { offset: 1, limit: 1 })).map((e) => e.id)).toEqual(['b']);
+      expect((await storage.list('log', { limit: 1, offset: 1 })).map((e) => e.id)).toEqual(['b']);
     });
 
     it('finds children by parent id, oldest first', async () => {

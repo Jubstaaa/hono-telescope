@@ -1,4 +1,5 @@
 import type { Recorder } from '../recorder.js';
+
 import { failureFields } from './failure.js';
 
 interface MongoCommandEvent {
@@ -18,11 +19,11 @@ export function instrumentMongo<T>(client: T, recorder: Recorder): T {
   const record = (event: MongoCommandEvent, failure?: unknown) => {
     void recorder
       .recordQuery({
+        bindings: [],
         connection: 'mongodb',
         query: event.databaseName
           ? `${event.databaseName}.${event.commandName}`
           : event.commandName,
-        bindings: [],
         time: event.duration ?? 0,
         ...failureFields(failure),
       })

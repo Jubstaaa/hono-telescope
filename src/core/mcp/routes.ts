@@ -1,17 +1,19 @@
 import type { Hono } from 'hono';
-import type { Recorder } from '../recorder.js';
+
 import { TELESCOPE_VERSION } from '../constants.js';
+import type { Recorder } from '../recorder.js';
+
 import {
-  RPC_ERRORS,
-  SUPPORTED_PROTOCOL_VERSIONS,
   negotiate,
   parseRpc,
   requestedVersion,
+  RPC_ERRORS,
   rpcError,
   rpcResult,
+  SUPPORTED_PROTOCOL_VERSIONS,
 } from './protocol.js';
 import { createMcpReader } from './reader.js';
-import { TOOL_DEFINITIONS, callTool } from './tools.js';
+import { callTool, TOOL_DEFINITIONS } from './tools.js';
 
 const SERVER_INFO = { name: 'hono-telescope', version: TELESCOPE_VERSION };
 
@@ -39,8 +41,8 @@ export function mountMcp(app: Hono, recorder: Recorder): void {
     if (!version.ok) {
       return c.json(
         rpcError(call.id, RPC_ERRORS.unsupportedProtocolVersion, 'Unsupported protocol version', {
-          supported: [...SUPPORTED_PROTOCOL_VERSIONS],
           requested: version.requested,
+          supported: [...SUPPORTED_PROTOCOL_VERSIONS],
         })
       );
     }
@@ -49,8 +51,8 @@ export function mountMcp(app: Hono, recorder: Recorder): void {
       case 'initialize':
         return c.json(
           rpcResult(call.id, {
-            protocolVersion: version.version,
             capabilities: { tools: {} },
+            protocolVersion: version.version,
             serverInfo: SERVER_INFO,
           })
         );
@@ -69,8 +71,8 @@ export function mountMcp(app: Hono, recorder: Recorder): void {
 
         return c.json(
           rpcResult(call.id, {
-            resultType: 'complete',
             content: outcome.content,
+            resultType: 'complete',
             structuredContent: outcome.structuredContent,
             ...(outcome.isError === undefined ? {} : { isError: outcome.isError }),
           })

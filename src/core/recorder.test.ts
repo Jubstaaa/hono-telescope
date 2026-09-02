@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vitest';
+
+import { alsContext } from './context/als-context.js';
 import { Recorder } from './recorder.js';
 import { memoryStorage } from './storage/memory-storage.js';
-import { alsContext } from './context/als-context.js';
 
 const build = () => {
   const storage = memoryStorage();
   const context = alsContext();
-  return { storage, context, recorder: new Recorder(storage, context) };
+  return { context, recorder: new Recorder(storage, context), storage };
 };
 
 describe('Recorder', () => {
@@ -28,9 +29,9 @@ describe('Recorder', () => {
   });
 
   it('inherits parent_id from the ambient context', async () => {
-    const { recorder, context, storage } = build();
+    const { context, recorder, storage } = build();
 
-    await context.run({ requestId: 'req-1', method: 'GET', uri: '/x', startTime: 0 }, () =>
+    await context.run({ method: 'GET', requestId: 'req-1', startTime: 0, uri: '/x' }, () =>
       recorder.record('log', { level: 1, message: 'hi' })
     );
 
@@ -38,20 +39,20 @@ describe('Recorder', () => {
   });
 
   it('never makes an incoming_request its own parent', async () => {
-    const { recorder, context, storage } = build();
+    const { context, recorder, storage } = build();
 
-    await context.run({ requestId: 'req-1', method: 'GET', uri: '/x', startTime: 0 }, () =>
+    await context.run({ method: 'GET', requestId: 'req-1', startTime: 0, uri: '/x' }, () =>
       recorder.record(
         'incoming_request',
         {
-          method: 'GET',
-          uri: '/x',
-          headers: {},
-          payload: {},
-          response_status: 200,
-          response_headers: {},
-          response: {},
           duration: 1,
+          headers: {},
+          method: 'GET',
+          payload: {},
+          response: {},
+          response_headers: {},
+          response_status: 200,
+          uri: '/x',
         },
         'req-1'
       )
@@ -61,9 +62,9 @@ describe('Recorder', () => {
   });
 
   it('prefers an explicit parent_id over the ambient one', async () => {
-    const { recorder, context, storage } = build();
+    const { context, recorder, storage } = build();
 
-    await context.run({ requestId: 'req-1', method: 'GET', uri: '/x', startTime: 0 }, () =>
+    await context.run({ method: 'GET', requestId: 'req-1', startTime: 0, uri: '/x' }, () =>
       recorder.record('log', { level: 1, message: 'hi', parent_id: 'explicit' })
     );
 

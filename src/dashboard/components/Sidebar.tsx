@@ -1,44 +1,45 @@
-import { Menu, theme } from 'antd';
 import { useLocation, useNavigate } from 'react-router';
+
 import {
   DashboardOutlined,
-  ExceptionOutlined,
   DatabaseOutlined,
-  FileTextOutlined,
   DownloadOutlined,
+  ExceptionOutlined,
+  FileTextOutlined,
   UploadOutlined,
 } from '@ant-design/icons';
+import { Menu, theme } from 'antd';
 
 const menuItems = [
   {
+    icon: <DashboardOutlined />,
     key: 'dashboard',
     label: 'Dashboard',
-    icon: <DashboardOutlined />,
   },
   {
+    icon: <DownloadOutlined />,
     key: 'incoming-requests',
     label: 'Incoming Requests',
-    icon: <DownloadOutlined />,
   },
   {
+    icon: <UploadOutlined />,
     key: 'outgoing-requests',
     label: 'Outgoing Requests',
-    icon: <UploadOutlined />,
   },
   {
+    icon: <DatabaseOutlined />,
     key: 'queries',
     label: 'Queries',
-    icon: <DatabaseOutlined />,
   },
   {
+    icon: <ExceptionOutlined />,
     key: 'exceptions',
     label: 'Exceptions',
-    icon: <ExceptionOutlined />,
   },
   {
+    icon: <FileTextOutlined />,
     key: 'logs',
     label: 'Logs',
-    icon: <FileTextOutlined />,
   },
 ];
 
@@ -70,11 +71,11 @@ export const Sidebar = () => {
 
   return (
     <Menu
+      items={menuItems}
       mode="inline"
       selectedKeys={[getSelectedKey()]}
-      items={menuItems}
+      style={{ backgroundColor: token.colorBgContainer, border: 'none' }}
       onClick={handleMenuClick}
-      style={{ border: 'none', backgroundColor: token.colorBgContainer }}
     />
   );
 };

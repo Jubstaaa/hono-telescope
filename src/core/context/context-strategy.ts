@@ -1,11 +1,11 @@
 export interface RequestContext {
-  requestId: string;
   method: string;
-  uri: string;
+  requestId: string;
   startTime: number;
+  uri: string;
 }
 
 export interface ContextStrategy {
-  run<T>(ctx: RequestContext, fn: () => T): T;
   current(): RequestContext | undefined;
+  run<T>(ctx: RequestContext, fn: () => T): T;
 }

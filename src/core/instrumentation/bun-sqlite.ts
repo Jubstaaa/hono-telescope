@@ -1,4 +1,5 @@
 import type { Recorder } from '../recorder.js';
+
 import { failureFields } from './failure.js';
 
 type Statement = Record<string, unknown> & { sql?: string };
@@ -8,8 +9,8 @@ const WRAPPED = Symbol('hono-telescope.wrapped');
 
 export function instrumentBunSqlite<T>(db: T, recorder: Recorder): T {
   const database = db as {
-    query?: (sql: string) => Statement;
     prepare?: (sql: string) => Statement;
+    query?: (sql: string) => Statement;
   };
 
   for (const factory of ['query', 'prepare'] as const) {
@@ -24,9 +25,9 @@ export function instrumentBunSqlite<T>(db: T, recorder: Recorder): T {
       }
 
       Object.defineProperty(statement, WRAPPED, {
-        value: true,
-        enumerable: false,
         configurable: true,
+        enumerable: false,
+        value: true,
       });
 
       for (const method of WRAPPED_METHODS) {
@@ -53,9 +54,9 @@ export function instrumentBunSqlite<T>(db: T, recorder: Recorder): T {
 
             void recorder
               .recordQuery({
+                bindings: recorded,
                 connection: 'bun:sqlite',
                 query: sql,
-                bindings: recorded,
                 time: Date.now() - startTime,
                 ...failureFields(failure),
               })

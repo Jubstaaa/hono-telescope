@@ -1,4 +1,5 @@
 import { Tag } from 'antd';
+
 import { getLevelColor, getLevelName } from '../../utils/helpers';
 
 function LevelTag({ level }: { level: number }) {

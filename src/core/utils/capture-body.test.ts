@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { captureResponseBody, isCapturableContentType, readCappedText } from './capture-body.js';
+
 import type { CaptureConfig } from '../../types/index.js';
 
-const capture: CaptureConfig = { requestBody: true, responseBody: true, maxBodySize: 20 };
+import { captureResponseBody, isCapturableContentType, readCappedText } from './capture-body.js';
+
+const capture: CaptureConfig = { maxBodySize: 20, requestBody: true, responseBody: true };
 
 describe('isCapturableContentType', () => {
   it('accepts json and text', () => {
@@ -101,16 +103,16 @@ describe('captureResponseBody', () => {
 
   it('reports metadata only when content-length exceeds the cap', async () => {
     const response = new Response('x'.repeat(50), {
-      headers: { 'content-type': 'text/plain', 'content-length': '50' },
+      headers: { 'content-length': '50', 'content-type': 'text/plain' },
     });
 
-    expect(await captureResponseBody(response, capture, [])).toEqual({ truncated: true, size: 50 });
+    expect(await captureResponseBody(response, capture, [])).toEqual({ size: 50, truncated: true });
     expect(response.bodyUsed).toBe(false);
   });
 
   it('reports metadata only for an oversize body read without a declared content-length, dropping the secret fragment', async () => {
     const secret = 'eyJhbGciOi.SECRET';
-    const bodyText = JSON.stringify({ token: secret, filler: 'x'.repeat(200) });
+    const bodyText = JSON.stringify({ filler: 'x'.repeat(200), token: secret });
     const stream = new ReadableStream<Uint8Array>({
       start(controller) {
         controller.enqueue(new TextEncoder().encode(bodyText));
@@ -121,7 +123,7 @@ describe('captureResponseBody', () => {
     expect(response.headers.get('content-length')).toBeNull();
 
     const result = await captureResponseBody(response, { ...capture, maxBodySize: 20 }, ['token']);
-    expect(result).toEqual({ truncated: true, size: 20 });
+    expect(result).toEqual({ size: 20, truncated: true });
     expect(JSON.stringify(result)).not.toContain(secret);
   });
 

@@ -1,21 +1,21 @@
-import type { StorageAdapter } from '../core/storage/storage-adapter.js';
-import type { ContextStrategy } from '../core/context/context-strategy.js';
 import type { Collector } from '../core/collectors/collector.js';
+import type { ContextStrategy } from '../core/context/context-strategy.js';
+import type { StorageAdapter } from '../core/storage/storage-adapter.js';
 
 export interface CaptureConfig {
+  maxBodySize: number;
   requestBody: boolean;
   responseBody: boolean;
-  maxBodySize: number;
 }
 
 export interface RedactConfig {
-  headers: string[];
   bodyKeys: string[];
+  headers: string[];
 }
 
 export interface DashboardAuth {
-  username: string;
   password: string;
+  username: string;
 }
 
 export interface DashboardConfig {
@@ -25,26 +25,26 @@ export interface DashboardConfig {
 }
 
 export interface ResolvedConfig {
-  enabled: boolean;
-  storage: StorageAdapter;
+  capture: CaptureConfig;
   context: ContextStrategy;
+  dashboard: DashboardConfig;
   dashboardPath: string;
+  enabled: boolean;
   ignorePaths: string[];
   ignoreStaticAssets: boolean;
-  capture: CaptureConfig;
   redact: RedactConfig;
-  dashboard: DashboardConfig;
+  storage: StorageAdapter;
 }
 
 export interface TelescopeConfig {
-  enabled?: boolean;
-  storage?: StorageAdapter;
-  context?: ContextStrategy;
+  capture?: Partial<CaptureConfig>;
   collectors?: Collector[];
+  context?: ContextStrategy;
+  dashboard?: Partial<DashboardConfig>;
   dashboardPath?: string;
+  enabled?: boolean;
   ignorePaths?: string[];
   ignoreStaticAssets?: boolean;
-  capture?: Partial<CaptureConfig>;
   redact?: Partial<RedactConfig>;
-  dashboard?: Partial<DashboardConfig>;
+  storage?: StorageAdapter;
 }

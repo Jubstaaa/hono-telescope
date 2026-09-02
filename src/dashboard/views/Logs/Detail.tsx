@@ -1,11 +1,14 @@
 import { useParams } from 'react-router';
-import { Card, Typography, Alert, Descriptions, theme, Flex, Grid } from 'antd';
-import { useDetail } from '../../hooks/use-entries';
+
+import { Alert, Card, Descriptions, Flex, Grid, theme, Typography } from 'antd';
+
 import type { LogDetailResponse } from '@/types';
-import { formatDate } from '../../utils/helpers';
+
 import { JsonViewer } from '../../components/JsonViewer';
 import Loader from '../../components/Loader';
 import LevelTag from '../../components/Tag/LevelTag';
+import { useDetail } from '../../hooks/use-entries';
+import { formatDate } from '../../utils/helpers';
 
 const { Title } = Typography;
 const { useBreakpoint } = Grid;
@@ -14,14 +17,14 @@ export const LogDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { token } = theme.useToken();
   const screens = useBreakpoint();
-  const { data: entry, isLoading, error } = useDetail<LogDetailResponse>('logs', id);
+  const { data: entry, error, isLoading } = useDetail<LogDetailResponse>('logs', id);
 
   if (isLoading) {
     return <Loader />;
   }
 
   if (error || !entry) {
-    return <Alert message="Error" description="Failed to load log details" type="error" showIcon />;
+    return <Alert showIcon description="Failed to load log details" message="Error" type="error" />;
   }
 
   const descriptionsColumn = screens.md ? 2 : 1;
@@ -42,12 +45,12 @@ export const LogDetail = () => {
           </Descriptions>
         </Card>
 
-        <Card title="Message" style={{ backgroundColor: token.colorBgContainer }}>
+        <Card style={{ backgroundColor: token.colorBgContainer }} title="Message">
           {entry.message}
         </Card>
 
         {entry.context && Object.keys(entry.context).length > 0 && (
-          <Card title="Context" style={{ backgroundColor: token.colorBgContainer }}>
+          <Card style={{ backgroundColor: token.colorBgContainer }} title="Context">
             <JsonViewer data={entry.context} />
           </Card>
         )}

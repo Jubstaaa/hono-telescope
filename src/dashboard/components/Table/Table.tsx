@@ -1,24 +1,25 @@
+import { useNavigate } from 'react-router';
+
 import type { TableProps } from 'antd';
 import { Table as AntTable } from 'antd';
-import { useNavigate } from 'react-router';
 
 function Table({ columns, dataSource, loading, path }: TableProps & { path: string }) {
   const navigate = useNavigate();
 
   return (
     <AntTable
-      pagination={false}
       columns={columns}
       dataSource={dataSource}
-      rowKey="id"
       loading={loading}
+      pagination={false}
+      rowKey="id"
+      scroll={{ x: 800 }}
       onRow={(record) => ({
-        onClick: () => navigate(`/${path}/${record.id}`),
         style: {
           cursor: 'pointer',
         },
+        onClick: () => navigate(`/${path}/${record.id}`),
       })}
-      scroll={{ x: 800 }}
     />
   );
 }

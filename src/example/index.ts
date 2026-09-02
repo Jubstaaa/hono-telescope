@@ -1,9 +1,12 @@
+import type { AxiosError } from 'axios';
+import axios from 'axios';
+import dayjs from 'dayjs';
 import { Hono } from 'hono';
+
 import { createTelescope, memoryStorage } from '../index.js';
+
 import type { User } from './database.js';
 import { DatabaseManager } from './database.js';
-import axios, { AxiosError } from 'axios';
-import dayjs from 'dayjs';
 
 (globalThis as unknown as Record<string, unknown>).axios = axios;
 
@@ -16,9 +19,9 @@ const app = new Hono();
 // refuses to mount the dashboard without credentials. `auth: false` is the documented
 // acknowledgement that this instance is deliberately public.
 const telescope = createTelescope({
+  dashboard: { auth: false },
   enabled: true,
   storage: memoryStorage({ maxEntries: 500 }),
-  dashboard: { auth: false },
 });
 
 app.use('*', telescope.middleware());
@@ -29,26 +32,26 @@ const db = new DatabaseManager('example.db', (database) => telescope.instrumentB
 app.get('/', (c) => {
   console.log(`${formatDate()} GET /`);
   return c.json({
-    message: 'Hono Telescope Example - Real Database!',
-    timestamp: new Date().toISOString(),
     endpoints: {
-      users: {
-        'GET /api/users': 'List all users',
-        'GET /api/users/:id': 'Get specific user',
-        'POST /api/users': 'Create new user',
-        'PUT /api/users/:id': 'Update user',
-        'DELETE /api/users/:id': 'Delete user',
-      },
       external: {
         'POST /api/import-users': 'Import users from JSONPlaceholder',
         'POST /api/webhook': 'Outgoing POST whose payload is recorded and redacted',
       },
       failures: {
-        'POST /api/db-error': 'Deliberate UNIQUE violation, recorded as a failed query',
         'GET /api/error': 'Throws, recorded as an exception under its request',
+        'POST /api/db-error': 'Deliberate UNIQUE violation, recorded as a failed query',
       },
       telescope: '/telescope - Dashboard',
+      users: {
+        'DELETE /api/users/:id': 'Delete user',
+        'GET /api/users': 'List all users',
+        'GET /api/users/:id': 'Get specific user',
+        'POST /api/users': 'Create new user',
+        'PUT /api/users/:id': 'Update user',
+      },
     },
+    message: 'Hono Telescope Example - Real Database!',
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -59,19 +62,19 @@ app.get('/api/users', async (c) => {
     const count = db.getUserCount();
 
     return c.json({
-      success: true,
       data: users,
       meta: {
-        total: count,
         count: users.length,
+        total: count,
       },
+      success: true,
     });
   } catch (error) {
     return c.json(
       {
-        success: false,
-        error: 'Failed to fetch users',
         details: error instanceof Error ? error.message : 'Unknown error',
+        error: 'Failed to fetch users',
+        success: false,
       },
       500
     );
@@ -86,8 +89,8 @@ app.get('/api/users/:id', async (c) => {
     if (isNaN(id)) {
       return c.json(
         {
-          success: false,
           error: 'Invalid user ID',
+          success: false,
         },
         400
       );
@@ -98,23 +101,23 @@ app.get('/api/users/:id', async (c) => {
     if (!user) {
       return c.json(
         {
-          success: false,
           error: 'User not found',
+          success: false,
         },
         404
       );
     }
 
     return c.json({
-      success: true,
       data: user,
+      success: true,
     });
   } catch (error) {
     return c.json(
       {
-        success: false,
-        error: 'Failed to fetch user',
         details: error instanceof Error ? error.message : 'Unknown error',
+        error: 'Failed to fetch user',
+        success: false,
       },
       500
     );
@@ -129,8 +132,8 @@ app.post('/api/users', async (c) => {
     if (!body.name || !body.email) {
       return c.json(
         {
-          success: false,
           error: 'Name and email fields are required',
+          success: false,
         },
         400
       );
@@ -140,35 +143,35 @@ app.post('/api/users', async (c) => {
     if (existingUser) {
       return c.json(
         {
-          success: false,
           error: 'This email address is already in use',
+          success: false,
         },
         409
       );
     }
 
     const newUser = db.createUser({
-      name: body.name,
       email: body.email,
-      username: body.username ?? '',
+      name: body.name,
       phone: body.phone,
+      username: body.username ?? '',
       website: body.website,
     });
 
     return c.json(
       {
-        success: true,
         data: newUser,
         message: 'User created successfully',
+        success: true,
       },
       201
     );
   } catch (error) {
     return c.json(
       {
-        success: false,
-        error: 'Failed to create user',
         details: error instanceof Error ? error.message : 'Unknown error',
+        error: 'Failed to create user',
+        success: false,
       },
       500
     );
@@ -184,8 +187,8 @@ app.put('/api/users/:id', async (c) => {
     if (isNaN(id)) {
       return c.json(
         {
-          success: false,
           error: 'Invalid user ID',
+          success: false,
         },
         400
       );
@@ -196,8 +199,8 @@ app.put('/api/users/:id', async (c) => {
       if (existingUser && existingUser.id !== id) {
         return c.json(
           {
-            success: false,
             error: 'This email address is already in use',
+            success: false,
           },
           409
         );
@@ -209,24 +212,24 @@ app.put('/api/users/:id', async (c) => {
     if (!updatedUser) {
       return c.json(
         {
-          success: false,
           error: 'User not found',
+          success: false,
         },
         404
       );
     }
 
     return c.json({
-      success: true,
       data: updatedUser,
       message: 'User updated successfully',
+      success: true,
     });
   } catch (error) {
     return c.json(
       {
-        success: false,
-        error: 'Failed to update user',
         details: error instanceof Error ? error.message : 'Unknown error',
+        error: 'Failed to update user',
+        success: false,
       },
       500
     );
@@ -241,8 +244,8 @@ app.delete('/api/users/:id', async (c) => {
     if (isNaN(id)) {
       return c.json(
         {
-          success: false,
           error: 'Invalid user ID',
+          success: false,
         },
         400
       );
@@ -253,23 +256,23 @@ app.delete('/api/users/:id', async (c) => {
     if (!deleted) {
       return c.json(
         {
-          success: false,
           error: 'User not found',
+          success: false,
         },
         404
       );
     }
 
     return c.json({
-      success: true,
       message: 'User deleted successfully',
+      success: true,
     });
   } catch (error) {
     return c.json(
       {
-        success: false,
-        error: 'Failed to delete user',
         details: error instanceof Error ? error.message : 'Unknown error',
+        error: 'Failed to delete user',
+        success: false,
       },
       500
     );
@@ -294,10 +297,10 @@ app.post('/api/import-users', async (c) => {
         }
 
         const newUser = db.createUser({
-          name: externalUser.name,
           email: externalUser.email,
-          username: externalUser.username,
+          name: externalUser.name,
           phone: externalUser.phone,
+          username: externalUser.username,
           website: externalUser.website,
         });
 
@@ -310,21 +313,21 @@ app.post('/api/import-users', async (c) => {
     }
 
     return c.json({
-      success: true,
       data: {
+        errors: errors,
         imported: importedUsers,
         importedCount: importedUsers.length,
         totalFetched: externalUsers.length,
-        errors: errors,
       },
       message: `${importedUsers.length} users imported successfully`,
+      success: true,
     });
   } catch (error) {
     return c.json(
       {
-        success: false,
-        error: 'Failed to import users',
         details: error instanceof Error ? error.message : 'Unknown error',
+        error: 'Failed to import users',
+        success: false,
       },
       500
     );
@@ -336,23 +339,23 @@ app.post('/api/db-error', (c) => {
 
   const email = 'duplicate@telescope.demo';
   if (!db.getUserByEmail(email)) {
-    db.createUser({ name: 'Telescope Demo', email, username: 'telescope-demo' });
+    db.createUser({ email, name: 'Telescope Demo', username: 'telescope-demo' });
   }
 
   try {
-    db.createUser({ name: 'Telescope Demo', email, username: 'telescope-demo' });
+    db.createUser({ email, name: 'Telescope Demo', username: 'telescope-demo' });
 
     return c.json(
-      { success: false, error: 'expected a UNIQUE violation and did not get one' },
+      { error: 'expected a UNIQUE violation and did not get one', success: false },
       500
     );
   } catch (error) {
     return c.json(
       {
-        success: false,
-        error: 'Insert rejected by the UNIQUE constraint, on purpose',
         details: error instanceof Error ? error.message : 'Unknown error',
+        error: 'Insert rejected by the UNIQUE constraint, on purpose',
         note: 'The failing INSERT is recorded as a failed query. Nothing threw out of the handler, so this request has no exception entry — find it with recent_requests({ minStatus: 400 }).',
+        success: false,
       },
       409
     );
@@ -363,16 +366,16 @@ app.post('/api/webhook', async (c) => {
   console.log(`${formatDate()} POST /api/webhook`);
 
   const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
-    method: 'POST',
+    body: JSON.stringify({ title: 'telescope', token: 'super-secret-token', userId: 1 }),
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ title: 'telescope', userId: 1, token: 'super-secret-token' }),
+    method: 'POST',
   });
 
   return c.json({
-    success: true,
-    upstream_status: response.status,
     data: await response.json(),
     note: 'The outgoing entry records this request payload, with `token` redacted.',
+    success: true,
+    upstream_status: response.status,
   });
 });
 
@@ -388,8 +391,8 @@ app.get('/api/slow', async (c) => {
   const users = db.getAllUsers();
 
   return c.json({
-    message: 'Slow query completed',
     duration: '2 seconds',
+    message: 'Slow query completed',
     userCount: users.length,
   });
 });
@@ -402,8 +405,8 @@ app.get('/api/axios-test', async (c) => {
 
     // Test 2: POST request with axios
     const postResponse = await axios.post('https://jsonplaceholder.typicode.com/posts', {
-      title: 'Hono Telescope Test',
       body: 'Testing axios interceptor functionality',
+      title: 'Hono Telescope Test',
       userId: 1,
     });
 
@@ -420,29 +423,29 @@ app.get('/api/axios-test', async (c) => {
     }
 
     return c.json({
-      success: true,
       message: 'Axios tests completed',
+      note: 'Check Telescope dashboard for outgoing request logs',
       results: {
+        error: errorResponse,
         get: {
+          dataSize: JSON.stringify(getResponse.data).length,
           status: getResponse.status,
           title: getResponse.data.title,
-          dataSize: JSON.stringify(getResponse.data).length,
         },
         post: {
-          status: postResponse.status,
           id: postResponse.data.id,
+          status: postResponse.status,
           title: postResponse.data.title,
         },
-        error: errorResponse,
       },
-      note: 'Check Telescope dashboard for outgoing request logs',
+      success: true,
     });
   } catch (error) {
     return c.json(
       {
-        success: false,
-        error: 'Axios test failed',
         details: error instanceof Error ? error.message : 'Unknown error',
+        error: 'Axios test failed',
+        success: false,
       },
       500
     );
@@ -462,11 +465,11 @@ app.get('/api/mixed-clients-test', async (c) => {
 
     results.push({
       client: 'fetch',
-      method: 'GET',
-      url: 'https://jsonplaceholder.typicode.com/users/1',
-      status: fetchResponse.status,
-      duration: `${fetchDuration}ms`,
       dataPreview: fetchData.name,
+      duration: `${fetchDuration}ms`,
+      method: 'GET',
+      status: fetchResponse.status,
+      url: 'https://jsonplaceholder.typicode.com/users/1',
     });
 
     // Test with axios
@@ -476,43 +479,43 @@ app.get('/api/mixed-clients-test', async (c) => {
 
     results.push({
       client: 'axios',
-      method: 'GET',
-      url: 'https://jsonplaceholder.typicode.com/users/2',
-      status: axiosResponse.status,
-      duration: `${axiosDuration}ms`,
       dataPreview: axiosResponse.data.name,
+      duration: `${axiosDuration}ms`,
+      method: 'GET',
+      status: axiosResponse.status,
+      url: 'https://jsonplaceholder.typicode.com/users/2',
     });
 
     // Test axios POST to JSONPlaceholder
     const axiosPostResponse = await axios.post('https://jsonplaceholder.typicode.com/posts', {
-      title: 'foo',
       body: 'bar',
-      userId: 1,
       createdWith: 'Hono Telescope mixed clients test',
       timestamp: new Date().toISOString(),
+      title: 'foo',
+      userId: 1,
     });
 
     results.push({
       client: 'axios',
-      method: 'POST',
-      url: 'https://jsonplaceholder.typicode.com/posts',
-      status: axiosPostResponse.status,
-      duration: 'N/A',
       dataPreview: `POST created: id ${axiosPostResponse.data.id}`,
+      duration: 'N/A',
+      method: 'POST',
+      status: axiosPostResponse.status,
+      url: 'https://jsonplaceholder.typicode.com/posts',
     });
 
     return c.json({
-      success: true,
       message: 'Mixed HTTP clients test completed',
-      results,
       note: 'Check Telescope dashboard to see both fetch and axios requests tracked separately',
+      results,
+      success: true,
     });
   } catch (error) {
     return c.json(
       {
-        success: false,
-        error: 'Mixed clients test failed',
         details: error instanceof Error ? error.message : 'Unknown error',
+        error: 'Mixed clients test failed',
+        success: false,
       },
       500
     );
@@ -522,7 +525,7 @@ app.get('/api/mixed-clients-test', async (c) => {
 const port = parseInt(process.env.PORT || '3000');
 
 export default {
-  port,
   fetch: app.fetch,
   idleTimeout: 60,
+  port,
 };

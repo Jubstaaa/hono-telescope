@@ -1,4 +1,5 @@
 import { Tag } from 'antd';
+
 import { getExceptionClassName } from '../../utils/helpers';
 
 function ExceptionTag({ classNum }: { classNum: number }) {

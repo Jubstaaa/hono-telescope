@@ -14,11 +14,11 @@ export const getStatusColor = (status?: number): string => {
 
 export const getMethodColor = (method: string): string => {
   const colors: Record<string, string> = {
+    DELETE: 'red',
     GET: 'blue',
+    PATCH: 'purple',
     POST: 'green',
     PUT: 'orange',
-    DELETE: 'red',
-    PATCH: 'purple',
   };
   return colors[method] || 'default';
 };
@@ -63,6 +63,9 @@ export const getExceptionClassName = (classNum: number): string => {
   const classes: Record<number, string> = {
     0: 'Error',
     1: 'Exception',
+    10: 'Forbidden',
+    11: 'BadRequest',
+    12: 'InternalServerError',
     2: 'RuntimeError',
     3: 'TypeError',
     4: 'SyntaxError',
@@ -71,9 +74,6 @@ export const getExceptionClassName = (classNum: number): string => {
     7: 'ValidationError',
     8: 'NotFound',
     9: 'Unauthorized',
-    10: 'Forbidden',
-    11: 'BadRequest',
-    12: 'InternalServerError',
   };
   return classes[classNum] || 'Unknown';
 };

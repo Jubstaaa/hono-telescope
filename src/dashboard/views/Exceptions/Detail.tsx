@@ -1,20 +1,23 @@
 import { Link, useParams } from 'react-router';
-import { Card, Typography, Alert, Descriptions, theme, Flex, Grid } from 'antd';
-import { useDetail } from '../../hooks/use-entries';
+
+import { Alert, Card, Descriptions, Flex, Grid, theme, Typography } from 'antd';
+
 import type { ExceptionDetailResponse } from '@/types';
-import { formatDate } from '../../utils/helpers';
+
+import { JsonViewer } from '../../components/JsonViewer';
 import Loader from '../../components/Loader';
 import ExceptionTag from '../../components/Tag/ExceptionTag';
-import { JsonViewer } from '../../components/JsonViewer';
+import { useDetail } from '../../hooks/use-entries';
+import { formatDate } from '../../utils/helpers';
 
-const { Title, Text } = Typography;
+const { Text, Title } = Typography;
 const { useBreakpoint } = Grid;
 
 export const ExceptionDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { token } = theme.useToken();
   const screens = useBreakpoint();
-  const { data: entry, isLoading, error } = useDetail<ExceptionDetailResponse>('exceptions', id);
+  const { data: entry, error, isLoading } = useDetail<ExceptionDetailResponse>('exceptions', id);
 
   if (isLoading) {
     return <Loader />;
@@ -22,7 +25,7 @@ export const ExceptionDetail = () => {
 
   if (error || !entry) {
     return (
-      <Alert message="Error" description="Failed to load exception details" type="error" showIcon />
+      <Alert showIcon description="Failed to load exception details" message="Error" type="error" />
     );
   }
 
@@ -51,18 +54,18 @@ export const ExceptionDetail = () => {
           </Descriptions>
         </Card>
 
-        <Card title="Message" style={{ backgroundColor: token.colorBgContainer }}>
+        <Card style={{ backgroundColor: token.colorBgContainer }} title="Message">
           <Text>{entry.message}</Text>
         </Card>
 
         {entry.trace && entry.trace.length > 0 && (
-          <Card title="Stack Trace" style={{ backgroundColor: token.colorBgContainer }}>
+          <Card style={{ backgroundColor: token.colorBgContainer }} title="Stack Trace">
             <Text
               style={{
                 display: 'block',
-                whiteSpace: 'pre-wrap',
                 fontFamily: 'monospace',
                 fontSize: 13,
+                whiteSpace: 'pre-wrap',
               }}
             >
               {entry.trace}
@@ -71,7 +74,7 @@ export const ExceptionDetail = () => {
         )}
 
         {entry.context && Object.keys(entry.context).length > 0 && (
-          <Card title="Context" style={{ backgroundColor: token.colorBgContainer }}>
+          <Card style={{ backgroundColor: token.colorBgContainer }} title="Context">
             <JsonViewer data={entry.context} />
           </Card>
         )}

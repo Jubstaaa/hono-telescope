@@ -1,12 +1,14 @@
 import { describe, expect, it, vi } from 'vitest';
-import { fetchCollector } from './fetch-collector.js';
+
+import { alsContext } from '../context/als-context.js';
 import { Recorder } from '../recorder.js';
 import { memoryStorage } from '../storage/memory-storage.js';
-import { alsContext } from '../context/als-context.js';
+
+import { fetchCollector } from './fetch-collector.js';
 
 const build = () => {
   const storage = memoryStorage();
-  return { storage, recorder: new Recorder(storage, alsContext()) };
+  return { recorder: new Recorder(storage, alsContext()), storage };
 };
 
 const SETTLE_LIMIT_MS = 1000;
@@ -28,13 +30,13 @@ async function settleWithin(work: Promise<unknown>): Promise<'completed' | 'stal
 
 describe('fetchCollector', () => {
   it('records an outgoing request', async () => {
-    const { storage, recorder } = build();
+    const { recorder, storage } = build();
     const original = globalThis.fetch;
     globalThis.fetch = vi.fn(
       async () =>
         new Response('{"ok":true}', {
-          status: 201,
           headers: { 'content-type': 'application/json' },
+          status: 201,
         })
     ) as unknown as typeof fetch;
 
@@ -46,13 +48,13 @@ describe('fetchCollector', () => {
     const [entry] = await storage.list('outgoing_request');
     expect(entry).toMatchObject({
       method: 'POST',
-      uri: 'https://example.test/items',
       response_status: 201,
+      uri: 'https://example.test/items',
     });
   });
 
   it('keeps a successful fetch successful when the headers cannot be read', async () => {
-    const { storage, recorder } = build();
+    const { recorder, storage } = build();
     const original = globalThis.fetch;
     globalThis.fetch = (async () => new Response('ok')) as unknown as typeof fetch;
 
@@ -68,7 +70,7 @@ describe('fetchCollector', () => {
   });
 
   it('records a failed request as a 0-status entry and rethrows', async () => {
-    const { storage, recorder } = build();
+    const { recorder, storage } = build();
     const original = globalThis.fetch;
     globalThis.fetch = vi.fn(async () => {
       throw new Error('network down');
@@ -98,7 +100,7 @@ describe('fetchCollector', () => {
   });
 
   it('returns original response when body capture fails', async () => {
-    const { storage, recorder } = build();
+    const { recorder, storage } = build();
     const original = globalThis.fetch;
     globalThis.fetch = vi.fn(
       async () =>
@@ -109,8 +111,8 @@ describe('fetchCollector', () => {
             },
           }),
           {
-            status: 200,
             headers: { 'content-type': 'application/json' },
+            status: 200,
           }
         )
     ) as unknown as typeof fetch;
@@ -122,21 +124,21 @@ describe('fetchCollector', () => {
 
     const [entry] = await storage.list('outgoing_request');
     expect(entry).toMatchObject({
-      response_status: 200,
       response: { error: 'response capture failed' },
+      response_status: 200,
     });
     expect(response.status).toBe(200);
   });
 
   it('captures headers from Request when no init provided', async () => {
-    const { storage, recorder } = build();
+    const { recorder, storage } = build();
     const original = globalThis.fetch;
     globalThis.fetch = vi.fn(async () => new Response('ok')) as unknown as typeof fetch;
 
     const uninstall = fetchCollector().install(recorder);
     await fetch(
       new Request('https://example.test/headers', {
-        headers: { authorization: 'Bearer secret', accept: 'application/json' },
+        headers: { accept: 'application/json', authorization: 'Bearer secret' },
       })
     );
     uninstall();
@@ -144,20 +146,20 @@ describe('fetchCollector', () => {
 
     const [entry] = await storage.list('outgoing_request');
     expect(entry.headers).toMatchObject({
-      authorization: '[REDACTED]',
       accept: 'application/json',
+      authorization: '[REDACTED]',
     });
   });
 
   it('prefers init.headers over Request headers', async () => {
-    const { storage, recorder } = build();
+    const { recorder, storage } = build();
     const original = globalThis.fetch;
     globalThis.fetch = vi.fn(async () => new Response('ok')) as unknown as typeof fetch;
 
     const uninstall = fetchCollector().install(recorder);
     await fetch(
       new Request('https://example.test/headers', {
-        headers: { authorization: 'Bearer ignored', accept: 'ignored' },
+        headers: { accept: 'ignored', authorization: 'Bearer ignored' },
       }),
       {
         headers: { authorization: 'Bearer override', 'x-custom': 'value' },
@@ -175,13 +177,13 @@ describe('fetchCollector', () => {
   });
 
   it('captures response headers on success', async () => {
-    const { storage, recorder } = build();
+    const { recorder, storage } = build();
     const original = globalThis.fetch;
     globalThis.fetch = vi.fn(
       async () =>
         new Response('{"data":123}', {
-          status: 200,
           headers: { 'content-type': 'application/json' },
+          status: 200,
         })
     ) as unknown as typeof fetch;
 
@@ -197,14 +199,14 @@ describe('fetchCollector', () => {
   });
 
   it('completes an oversize json response and leaves the body readable', async () => {
-    const { storage, recorder } = build();
+    const { recorder, storage } = build();
     const payload = { data: 'x'.repeat(500) };
     const original = globalThis.fetch;
     globalThis.fetch = vi.fn(
       async () =>
         new Response(JSON.stringify(payload), {
-          status: 200,
           headers: { 'content-type': 'application/json' },
+          status: 200,
         })
     ) as unknown as typeof fetch;
 
@@ -216,8 +218,8 @@ describe('fetchCollector', () => {
     expect(await settleWithin(call)).toBe('completed');
     expect(await (await call).json()).toEqual(payload);
     expect((await storage.list('outgoing_request'))[0].response).toEqual({
-      truncated: true,
       size: 50,
+      truncated: true,
     });
   });
 });
@@ -242,14 +244,14 @@ describe('fetchCollector outgoing payload', () => {
   };
 
   it('records a JSON string body and redacts inside it', async () => {
-    const { storage, recorder } = build();
+    const { recorder, storage } = build();
     const restore = stubFetch();
     const uninstall = fetchCollector().install(recorder);
 
     await fetch('https://example.test/charge', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ amount: 10, token: 'secret-token' }),
+      headers: { 'content-type': 'application/json' },
+      method: 'POST',
     });
 
     uninstall();
@@ -259,13 +261,13 @@ describe('fetchCollector outgoing payload', () => {
   });
 
   it('records a URLSearchParams body as an object and redacts it', async () => {
-    const { storage, recorder } = build();
+    const { recorder, storage } = build();
     const restore = stubFetch();
     const uninstall = fetchCollector().install(recorder);
 
     await fetch('https://example.test/token', {
-      method: 'POST',
       body: new URLSearchParams({ grant_type: 'client_credentials', secret: 'sh' }),
+      method: 'POST',
     });
 
     uninstall();
@@ -278,14 +280,14 @@ describe('fetchCollector outgoing payload', () => {
   });
 
   it('records metadata only for a body over the cap', async () => {
-    const { storage, recorder } = build();
+    const { recorder, storage } = build();
     const restore = stubFetch();
     const uninstall = fetchCollector({ maxBodySize: 32 }).install(recorder);
 
     await fetch('https://example.test/bulk', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ note: 'x'.repeat(200) }),
+      headers: { 'content-type': 'application/json' },
+      method: 'POST',
     });
 
     uninstall();
@@ -295,7 +297,7 @@ describe('fetchCollector outgoing payload', () => {
   });
 
   it('skips a stream body rather than consuming what the caller is sending', async () => {
-    const { storage, recorder } = build();
+    const { recorder, storage } = build();
     const restore = stubFetch();
     const uninstall = fetchCollector().install(recorder);
 
@@ -308,10 +310,10 @@ describe('fetchCollector outgoing payload', () => {
 
     const settled = await settleWithin(
       fetch('https://example.test/stream', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
         body: stream,
         duplex: 'half',
+        headers: { 'content-type': 'application/json' },
+        method: 'POST',
       } as RequestInit)
     );
 
@@ -323,15 +325,15 @@ describe('fetchCollector outgoing payload', () => {
   });
 
   it('skips the body of a Request object', async () => {
-    const { storage, recorder } = build();
+    const { recorder, storage } = build();
     const restore = stubFetch();
     const uninstall = fetchCollector().install(recorder);
 
     await fetch(
       new Request('https://example.test/req', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ a: 1 }),
+        headers: { 'content-type': 'application/json' },
+        method: 'POST',
       })
     );
 

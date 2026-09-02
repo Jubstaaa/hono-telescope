@@ -1,30 +1,33 @@
 import { readFileSync } from 'node:fs';
+
 import { describe, expect, it } from 'vitest';
+
 import { TELESCOPE_VERSION } from '../constants.js';
+
 import {
-  RPC_ERRORS,
-  SUPPORTED_PROTOCOL_VERSIONS,
   negotiate,
   parseRpc,
   requestedVersion,
+  RPC_ERRORS,
   rpcError,
   rpcResult,
+  SUPPORTED_PROTOCOL_VERSIONS,
 } from './protocol.js';
 
 describe('parseRpc', () => {
   it('parses a well-formed call', () => {
-    const parsed = parseRpc({ jsonrpc: '2.0', id: 1, method: 'tools/list', params: { a: 1 } });
+    const parsed = parseRpc({ id: 1, jsonrpc: '2.0', method: 'tools/list', params: { a: 1 } });
 
     expect(parsed).toEqual({
-      kind: 'call',
       call: { id: 1, method: 'tools/list', params: { a: 1 } },
+      kind: 'call',
     });
   });
 
   it('defaults missing params to an empty object', () => {
-    const parsed = parseRpc({ jsonrpc: '2.0', id: 'x', method: 'ping' });
+    const parsed = parseRpc({ id: 'x', jsonrpc: '2.0', method: 'ping' });
 
-    expect(parsed).toEqual({ kind: 'call', call: { id: 'x', method: 'ping', params: {} } });
+    expect(parsed).toEqual({ call: { id: 'x', method: 'ping', params: {} }, kind: 'call' });
   });
 
   it('treats a call without an id as a notification', () => {
@@ -35,19 +38,19 @@ describe('parseRpc', () => {
   });
 
   it('rejects a batch', () => {
-    const parsed = parseRpc([{ jsonrpc: '2.0', id: 1, method: 'ping' }]);
+    const parsed = parseRpc([{ id: 1, jsonrpc: '2.0', method: 'ping' }]);
 
-    expect(parsed).toMatchObject({ kind: 'invalid', code: RPC_ERRORS.invalidRequest });
+    expect(parsed).toMatchObject({ code: RPC_ERRORS.invalidRequest, kind: 'invalid' });
   });
 
   it.each([
     ['a non-object body', 'nope'],
-    ['a wrong jsonrpc version', { jsonrpc: '1.0', id: 1, method: 'ping' }],
-    ['a missing method', { jsonrpc: '2.0', id: 1 }],
-    ['a non-string method', { jsonrpc: '2.0', id: 1, method: 7 }],
-    ['a boolean id', { jsonrpc: '2.0', id: true, method: 'ping' }],
+    ['a wrong jsonrpc version', { id: 1, jsonrpc: '1.0', method: 'ping' }],
+    ['a missing method', { id: 1, jsonrpc: '2.0' }],
+    ['a non-string method', { id: 1, jsonrpc: '2.0', method: 7 }],
+    ['a boolean id', { id: true, jsonrpc: '2.0', method: 'ping' }],
   ])('rejects %s', (_label, body) => {
-    expect(parseRpc(body)).toMatchObject({ kind: 'invalid', code: RPC_ERRORS.invalidRequest });
+    expect(parseRpc(body)).toMatchObject({ code: RPC_ERRORS.invalidRequest, kind: 'invalid' });
   });
 });
 
@@ -94,26 +97,26 @@ describe('negotiate', () => {
 
 describe('response builders', () => {
   it('builds a result', () => {
-    expect(rpcResult(1, { ok: true })).toEqual({ jsonrpc: '2.0', id: 1, result: { ok: true } });
+    expect(rpcResult(1, { ok: true })).toEqual({ id: 1, jsonrpc: '2.0', result: { ok: true } });
   });
 
   it('builds an error without a data key when data is omitted', () => {
     expect(rpcError(1, RPC_ERRORS.methodNotFound, 'Method not found')).toEqual({
-      jsonrpc: '2.0',
-      id: 1,
       error: { code: RPC_ERRORS.methodNotFound, message: 'Method not found' },
+      id: 1,
+      jsonrpc: '2.0',
     });
   });
 
   it('carries data when given', () => {
     const response = rpcError(null, RPC_ERRORS.unsupportedProtocolVersion, 'Unsupported', {
-      supported: SUPPORTED_PROTOCOL_VERSIONS,
       requested: '1900-01-01',
+      supported: SUPPORTED_PROTOCOL_VERSIONS,
     });
 
     expect(response).toMatchObject({
-      id: null,
       error: { data: { requested: '1900-01-01' } },
+      id: null,
     });
   });
 });

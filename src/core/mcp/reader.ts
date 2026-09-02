@@ -17,15 +17,15 @@ export const MESSAGE_CAP = 1000;
 
 export interface RequestFilters {
   limit: number;
-  status?: number;
-  minStatus?: number;
   minDuration?: number;
+  minStatus?: number;
+  status?: number;
   uriContains?: string;
 }
 
 export interface ScanResult {
-  scanned: number;
   scanLimitReached: boolean;
+  scanned: number;
 }
 
 export interface McpReader {
@@ -36,10 +36,10 @@ export interface McpReader {
   stats(): Promise<Record<string, { total: number }>>;
 }
 
-function cap(text: string, limit: number): { value: string; truncated: boolean } {
+function cap(text: string, limit: number): { truncated: boolean; value: string } {
   return text.length > limit
-    ? { value: text.slice(0, limit), truncated: true }
-    : { value: text, truncated: false };
+    ? { truncated: true, value: text.slice(0, limit) }
+    : { truncated: false, value: text };
 }
 
 // `scanLimitReached` distinguishes "the budget stopped us" from "the store ran out":
@@ -72,17 +72,17 @@ async function scanAll<T extends EntryType>(
     offset += page.length;
   }
 
-  return { matches, scanned, scanLimitReached };
+  return { matches, scanLimitReached, scanned };
 }
 
 const logSummary = (log: LogEntry) => {
   const message = cap(log.message, MESSAGE_CAP);
 
   return {
+    created_at: log.created_at,
     id: log.id,
     level: log.level,
     message: message.value,
-    created_at: log.created_at,
     ...(message.truncated ? { truncated: true as const } : {}),
   };
 };
@@ -91,33 +91,33 @@ const querySummary = (query: QueryEntry) => {
   const sql = cap(query.query, QUERY_CAP);
 
   return {
-    id: query.id,
-    connection: query.connection,
-    query: sql.value,
     bindings: query.bindings,
-    time: query.time,
+    connection: query.connection,
     created_at: query.created_at,
-    ...(query.failed ? { failed: true as const, error: query.error } : {}),
+    id: query.id,
+    query: sql.value,
+    time: query.time,
+    ...(query.failed ? { error: query.error, failed: true as const } : {}),
     ...(sql.truncated ? { truncated: true as const } : {}),
   };
 };
 
 const outgoingSummary = (outgoing: OutgoingRequestEntry) => ({
+  created_at: outgoing.created_at,
+  duration: outgoing.duration,
   id: outgoing.id,
   method: outgoing.method,
-  uri: outgoing.uri,
   response_status: outgoing.response_status,
-  duration: outgoing.duration,
-  created_at: outgoing.created_at,
+  uri: outgoing.uri,
 });
 
 const requestSummary = (request: IncomingRequestEntry) => ({
+  created_at: request.created_at,
+  duration: request.duration,
   id: request.id,
   method: request.method,
-  uri: request.uri,
   response_status: request.response_status,
-  duration: request.duration,
-  created_at: request.created_at,
+  uri: request.uri,
 });
 
 export function createMcpReader(recorder: Recorder): McpReader {
@@ -138,11 +138,11 @@ export function createMcpReader(recorder: Recorder): McpReader {
           const trace = cap(entry.trace, TRACE_CAP);
           const message = cap(entry.message, MESSAGE_CAP);
           const base = {
-            id: entry.id,
             class: entry.class,
+            created_at: entry.created_at,
+            id: entry.id,
             message: message.value,
             trace: trace.value,
-            created_at: entry.created_at,
             ...(trace.truncated || message.truncated ? { truncated: true as const } : {}),
           };
 
@@ -155,10 +155,10 @@ export function createMcpReader(recorder: Recorder): McpReader {
 
           return {
             ...base,
-            request: requestSummary(request),
             logs: logs.map(logSummary),
-            queries: queries.map(querySummary),
             outgoing: outgoing.map(outgoingSummary),
+            queries: queries.map(querySummary),
+            request: requestSummary(request),
           };
         })
       );
@@ -166,8 +166,8 @@ export function createMcpReader(recorder: Recorder): McpReader {
       return { exceptions };
     },
 
-    async recentRequests({ limit, status, minStatus, minDuration, uriContains }) {
-      const { matches, scanned, scanLimitReached } = await scanAll(
+    async recentRequests({ limit, minDuration, minStatus, status, uriContains }) {
+      const { matches, scanLimitReached, scanned } = await scanAll(
         recorder,
         'incoming_request',
         (entry) =>
@@ -184,16 +184,16 @@ export function createMcpReader(recorder: Recorder): McpReader {
           return {
             ...requestSummary(entry),
             counts: {
-              logs: logs.length,
-              queries: queries.length,
               exceptions: exceptions.length,
+              logs: logs.length,
               outgoing: outgoing.length,
+              queries: queries.length,
             },
           };
         })
       );
 
-      return { requests, scanned, scanLimitReached };
+      return { requests, scanLimitReached, scanned };
     },
 
     async requestDetail(id) {
@@ -202,11 +202,11 @@ export function createMcpReader(recorder: Recorder): McpReader {
 
       const [logs, queries, exceptions, outgoing] = await children(id);
 
-      return { request: { ...request, logs, queries, exceptions, outgoing } };
+      return { request: { ...request, exceptions, logs, outgoing, queries } };
     },
 
     async slowQueries({ limit, minMs }) {
-      const { matches, scanned, scanLimitReached } = await scanAll(
+      const { matches, scanLimitReached, scanned } = await scanAll(
         recorder,
         'query',
         (entry) => entry.time >= minMs
@@ -225,7 +225,7 @@ export function createMcpReader(recorder: Recorder): McpReader {
         })
       );
 
-      return { queries, scanned, scanLimitReached };
+      return { queries, scanLimitReached, scanned };
     },
 
     async stats() {
@@ -238,11 +238,11 @@ export function createMcpReader(recorder: Recorder): McpReader {
       ]);
 
       return {
-        incomingRequests: { total: incomingRequests },
-        outgoingRequests: { total: outgoingRequests },
         exceptions: { total: exceptions },
-        queries: { total: queries },
+        incomingRequests: { total: incomingRequests },
         logs: { total: logs },
+        outgoingRequests: { total: outgoingRequests },
+        queries: { total: queries },
       };
     },
   };

@@ -12,10 +12,10 @@ export function redactHeaders(
   for (const [key, value] of Object.entries(headers)) {
     const finalValue = lowered.has(key.toLowerCase()) ? REDACTED : value;
     Object.defineProperty(result, key, {
-      value: finalValue,
-      enumerable: true,
-      writable: true,
       configurable: true,
+      enumerable: true,
+      value: finalValue,
+      writable: true,
     });
   }
 
@@ -33,10 +33,10 @@ export function redactBody(value: unknown, keys: string[]): unknown {
       for (const [key, nested] of Object.entries(input as Record<string, unknown>)) {
         const finalValue = lowered.has(key.toLowerCase()) ? REDACTED : walk(nested);
         Object.defineProperty(result, key, {
-          value: finalValue,
-          enumerable: true,
-          writable: true,
           configurable: true,
+          enumerable: true,
+          value: finalValue,
+          writable: true,
         });
       }
       return result;

@@ -1,19 +1,22 @@
 import { useParams } from 'react-router';
-import { Card, Typography, Alert, Descriptions, theme, Flex, Tabs, Grid } from 'antd';
-import { useDetail } from '../../hooks/use-entries';
+
+import { Alert, Card, Descriptions, Flex, Grid, Tabs, theme, Typography } from 'antd';
+
 import type { IncomingRequestDetailResponse } from '@/types';
-import { formatDate } from '../../utils/helpers';
-import QueryTable from '../../components/Table/QueryTable';
-import LogTable from '../../components/Table/LogTable';
-import ExceptionTable from '../../components/Table/ExceptionTable';
-import OutgoingRequestTable from '../../components/Table/OutgoingRequestTable';
+
 import { JsonViewer } from '../../components/JsonViewer';
 import Loader from '../../components/Loader';
-import StatusTag from '../../components/Tag/StatusTag';
-import MethodTag from '../../components/Tag/MethodTag';
+import ExceptionTable from '../../components/Table/ExceptionTable';
+import LogTable from '../../components/Table/LogTable';
+import OutgoingRequestTable from '../../components/Table/OutgoingRequestTable';
+import QueryTable from '../../components/Table/QueryTable';
 import DurationTag from '../../components/Tag/DurationTag';
+import MethodTag from '../../components/Tag/MethodTag';
+import StatusTag from '../../components/Tag/StatusTag';
+import { useDetail } from '../../hooks/use-entries';
+import { formatDate } from '../../utils/helpers';
 
-const { Title, Text } = Typography;
+const { Text, Title } = Typography;
 const { useBreakpoint } = Grid;
 
 export const IncomingRequestDetail = () => {
@@ -22,8 +25,8 @@ export const IncomingRequestDetail = () => {
   const screens = useBreakpoint();
   const {
     data: response,
-    isLoading,
     error,
+    isLoading,
   } = useDetail<IncomingRequestDetailResponse>('incoming-requests', id);
 
   if (isLoading) {
@@ -33,10 +36,10 @@ export const IncomingRequestDetail = () => {
   if (error || !response) {
     return (
       <Alert
-        message="Error"
-        description="Failed to load incoming request details"
-        type="error"
         showIcon
+        description="Failed to load incoming request details"
+        message="Error"
+        type="error"
       />
     );
   }
@@ -77,23 +80,23 @@ export const IncomingRequestDetail = () => {
         </Card>
 
         {response.headers && (
-          <Card title="Headers" size="small" style={{ backgroundColor: token.colorBgContainer }}>
+          <Card size="small" style={{ backgroundColor: token.colorBgContainer }} title="Headers">
             <JsonViewer data={response.headers} />
           </Card>
         )}
 
         {response.payload && (
           <Card
-            title="Request Body"
             size="small"
             style={{ backgroundColor: token.colorBgContainer }}
+            title="Request Body"
           >
             <JsonViewer data={response.payload} />
           </Card>
         )}
 
         {response.response && (
-          <Card title="Response" size="small" style={{ backgroundColor: token.colorBgContainer }}>
+          <Card size="small" style={{ backgroundColor: token.colorBgContainer }} title="Response">
             <JsonViewer data={response.response} />
           </Card>
         )}
@@ -102,24 +105,24 @@ export const IncomingRequestDetail = () => {
           <Tabs
             items={[
               {
+                children: <LogTable entries={logs} />,
                 key: 'logs',
                 label: `Logs (${logs.length})`,
-                children: <LogTable entries={logs} />,
               },
               {
+                children: <QueryTable entries={queries} />,
                 key: 'queries',
                 label: `Queries (${queries.length})`,
-                children: <QueryTable entries={queries} />,
               },
               {
+                children: <ExceptionTable entries={exceptions} />,
                 key: 'exceptions',
                 label: `Exceptions (${exceptions.length})`,
-                children: <ExceptionTable entries={exceptions} />,
               },
               {
+                children: <OutgoingRequestTable entries={outgoingRequests} />,
                 key: 'outgoingRequests',
                 label: `Outgoing Requests (${outgoingRequests.length})`,
-                children: <OutgoingRequestTable entries={outgoingRequests} />,
               },
             ]}
           />

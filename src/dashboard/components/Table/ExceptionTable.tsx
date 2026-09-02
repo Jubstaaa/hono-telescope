@@ -1,6 +1,8 @@
 import type { ExceptionResponse } from '@/types';
+
 import { formatDate } from '../../utils/helpers';
 import ExceptionTag from '../Tag/ExceptionTag';
+
 import Table from './Table';
 
 interface ExceptionTableProps {
@@ -11,24 +13,24 @@ interface ExceptionTableProps {
 export const ExceptionTable = ({ entries, loading = false }: ExceptionTableProps) => {
   const columns = [
     {
-      title: 'Exception',
       dataIndex: 'class',
       key: 'class',
-      width: 200,
       render: (classNum: number) => <ExceptionTag classNum={classNum} />,
+      title: 'Exception',
+      width: 200,
     },
     {
-      title: 'Message',
       dataIndex: 'message',
       key: 'message',
       render: (message: string) => message,
+      title: 'Message',
     },
     {
-      title: 'Time',
       dataIndex: 'created_at',
       key: 'created_at',
-      width: 180,
       render: (created_at: string) => formatDate(created_at),
+      title: 'Time',
+      width: 180,
     },
   ];
 

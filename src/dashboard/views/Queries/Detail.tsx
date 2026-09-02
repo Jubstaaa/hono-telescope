@@ -1,19 +1,22 @@
 import { Link, useParams } from 'react-router';
-import { Card, Typography, Alert, Descriptions, Tag, theme, Flex, Grid } from 'antd';
-import { useDetail } from '../../hooks/use-entries';
+
+import { Alert, Card, Descriptions, Flex, Grid, Tag, theme, Typography } from 'antd';
+
 import type { QueryDetailResponse } from '@/types';
-import { formatDate } from '../../utils/helpers';
+
 import Loader from '../../components/Loader';
 import DurationTag from '../../components/Tag/DurationTag';
+import { useDetail } from '../../hooks/use-entries';
+import { formatDate } from '../../utils/helpers';
 
-const { Title, Text } = Typography;
+const { Text, Title } = Typography;
 const { useBreakpoint } = Grid;
 
 export const QueryDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { token } = theme.useToken();
   const screens = useBreakpoint();
-  const { data: query, isLoading, error } = useDetail<QueryDetailResponse>('queries', id);
+  const { data: query, error, isLoading } = useDetail<QueryDetailResponse>('queries', id);
 
   if (isLoading) {
     return <Loader />;
@@ -21,7 +24,7 @@ export const QueryDetail = () => {
 
   if (error || !query) {
     return (
-      <Alert message="Error" description="Failed to load query details" type="error" showIcon />
+      <Alert showIcon description="Failed to load query details" message="Error" type="error" />
     );
   }
 
@@ -40,7 +43,7 @@ export const QueryDetail = () => {
               <Tag color="blue">{query.connection || 'default'}</Tag>
             </Descriptions.Item>
             <Descriptions.Item label="Duration" span={1}>
-              <DurationTag value={query.time} warnAt={50} slowAt={200} />
+              <DurationTag slowAt={200} value={query.time} warnAt={50} />
             </Descriptions.Item>
             <Descriptions.Item label="Status" span={1}>
               {query.failed ? <Tag color="red">failed</Tag> : <Tag color="green">ok</Tag>}
@@ -60,21 +63,21 @@ export const QueryDetail = () => {
 
         {query.failed && (
           <Alert
-            message="This query failed"
-            description={query.error ?? 'The database client reported no message.'}
-            type="error"
             showIcon
+            description={query.error ?? 'The database client reported no message.'}
+            message="This query failed"
+            type="error"
           />
         )}
 
         {query.query && (
-          <Card title="Query" size="small" style={{ backgroundColor: token.colorBgContainer }}>
+          <Card size="small" style={{ backgroundColor: token.colorBgContainer }} title="Query">
             <Text
               style={{
                 display: 'block',
-                whiteSpace: 'pre-wrap',
                 fontFamily: 'monospace',
                 fontSize: 13,
+                whiteSpace: 'pre-wrap',
               }}
             >
               {query.query}
@@ -83,8 +86,8 @@ export const QueryDetail = () => {
         )}
 
         {query.bindings && query.bindings.length > 0 && (
-          <Card title="Bindings" size="small" style={{ backgroundColor: token.colorBgContainer }}>
-            <Descriptions bordered={!screens.xs} size="small" column={1}>
+          <Card size="small" style={{ backgroundColor: token.colorBgContainer }} title="Bindings">
+            <Descriptions bordered={!screens.xs} column={1} size="small">
               {query.bindings.map((binding: string, index: number) => (
                 <Descriptions.Item key={index} label={`Binding ${index + 1}`}>
                   <Text code>{binding}</Text>

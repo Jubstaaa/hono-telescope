@@ -1,87 +1,87 @@
 import type { McpReader } from './reader.js';
 
 export interface ToolDefinition {
-  name: string;
-  title: string;
   description: string;
   inputSchema: Record<string, unknown>;
+  name: string;
+  title: string;
 }
 
 export type ToolOutcome =
   | {
-      kind: 'ok';
-      content: [{ type: 'text'; text: string }];
-      structuredContent: unknown;
+      content: [{ text: string; type: 'text' }];
       isError?: true;
+      kind: 'ok';
+      structuredContent: unknown;
     }
   | { kind: 'invalidParams'; message: string };
 
 const limitSchema = (max: number, fallback: number) => ({
-  type: 'integer',
-  minimum: 1,
-  maximum: max,
   default: fallback,
+  maximum: max,
+  minimum: 1,
+  type: 'integer',
 });
 
 export const TOOL_DEFINITIONS: readonly ToolDefinition[] = [
   {
-    name: 'recent_exceptions',
-    title: 'Recent exceptions',
     description:
       "The most recent exceptions, each with the request that produced it and that request's logs, queries and outgoing calls. Start here when something failed.",
     inputSchema: {
-      type: 'object',
-      properties: { limit: limitSchema(50, 5) },
       additionalProperties: false,
+      properties: { limit: limitSchema(50, 5) },
+      type: 'object',
     },
+    name: 'recent_exceptions',
+    title: 'Recent exceptions',
   },
   {
-    name: 'recent_requests',
-    title: 'Recent requests',
     description:
       'Recent incoming requests with child counts. Filter with minStatus: 400 to find failures that returned an error status without throwing.',
     inputSchema: {
-      type: 'object',
+      additionalProperties: false,
       properties: {
         limit: limitSchema(100, 20),
-        status: { type: 'integer', description: 'Exact response status' },
-        minStatus: { type: 'integer', description: 'Inclusive lower bound on response status' },
-        minDuration: { type: 'number', description: 'Minimum duration in milliseconds' },
+        minDuration: { description: 'Minimum duration in milliseconds', type: 'number' },
+        minStatus: { description: 'Inclusive lower bound on response status', type: 'integer' },
+        status: { description: 'Exact response status', type: 'integer' },
         uriContains: { type: 'string' },
       },
-      additionalProperties: false,
+      type: 'object',
     },
+    name: 'recent_requests',
+    title: 'Recent requests',
   },
   {
-    name: 'request_detail',
-    title: 'Request detail',
     description:
       'One request in full — headers, payload, response body — with every log, query, exception and outgoing call recorded inside it. Nothing is truncated.',
     inputSchema: {
-      type: 'object',
+      additionalProperties: false,
       properties: { id: { type: 'string' } },
       required: ['id'],
-      additionalProperties: false,
+      type: 'object',
     },
+    name: 'request_detail',
+    title: 'Request detail',
   },
   {
-    name: 'slow_queries',
-    title: 'Slow queries',
     description: 'Recent database queries sorted slowest first, each with the request it ran in.',
     inputSchema: {
-      type: 'object',
+      additionalProperties: false,
       properties: {
         limit: limitSchema(100, 10),
-        minMs: { type: 'number', minimum: 0, default: 0 },
+        minMs: { default: 0, minimum: 0, type: 'number' },
       },
-      additionalProperties: false,
+      type: 'object',
     },
+    name: 'slow_queries',
+    title: 'Slow queries',
   },
   {
+    description: 'How many entries of each type have been recorded.',
+    inputSchema: { additionalProperties: false, properties: {}, type: 'object' },
     name: 'stats',
     title: 'Telemetry counts',
-    description: 'How many entries of each type have been recorded.',
-    inputSchema: { type: 'object', properties: {}, additionalProperties: false },
   },
 ];
 
@@ -129,8 +129,8 @@ function stringArg(args: Record<string, unknown>, key: string, required: boolean
 }
 
 const ok = (structuredContent: unknown, isError?: true): ToolOutcome => ({
+  content: [{ text: JSON.stringify(structuredContent), type: 'text' }],
   kind: 'ok',
-  content: [{ type: 'text', text: JSON.stringify(structuredContent) }],
   structuredContent,
   ...(isError === undefined ? {} : { isError }),
 });
@@ -148,9 +148,9 @@ async function run(
       return ok(
         await reader.recentRequests({
           limit: intArg(args, 'limit', 20, 100),
-          status: numberArg(args, 'status', 0),
-          minStatus: numberArg(args, 'minStatus', 0),
           minDuration: numberArg(args, 'minDuration', 0),
+          minStatus: numberArg(args, 'minStatus', 0),
+          status: numberArg(args, 'status', 0),
           uriContains: stringArg(args, 'uriContains', false),
         })
       );

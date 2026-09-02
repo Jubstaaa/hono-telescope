@@ -1,15 +1,16 @@
 import { LogLevel } from '../../types/index.js';
 import type { Recorder } from '../recorder.js';
+
 import type { Collector } from './collector.js';
 
 type ConsoleMethod = 'log' | 'info' | 'warn' | 'error' | 'debug';
 
 const LEVELS: Record<ConsoleMethod, LogLevel> = {
-  log: LogLevel.INFO,
-  info: LogLevel.INFO,
-  warn: LogLevel.WARNING,
-  error: LogLevel.ERROR,
   debug: LogLevel.DEBUG,
+  error: LogLevel.ERROR,
+  info: LogLevel.INFO,
+  log: LogLevel.INFO,
+  warn: LogLevel.WARNING,
 };
 
 function format(args: unknown[]): string {
@@ -30,8 +31,6 @@ export function consoleCollector(): Collector {
   let uninstall = () => {};
 
   return {
-    name: 'console',
-
     install(recorder: Recorder) {
       if (installed) return uninstall;
       installed = true;
@@ -69,5 +68,7 @@ export function consoleCollector(): Collector {
 
       return uninstall;
     },
+
+    name: 'console',
   };
 }

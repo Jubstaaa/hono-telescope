@@ -1,4 +1,5 @@
 import type { BaseEntry, EntryMap, EntryType } from '../../types/index.js';
+
 import type { ListOptions, StorageAdapter } from './storage-adapter.js';
 
 export interface MemoryStorageOptions {
@@ -19,12 +20,21 @@ export function memoryStorage(options: MemoryStorageOptions = {}): StorageAdapte
   };
 
   return {
-    async record(type, entry) {
-      const entries = bucket(type);
-      entries.push(entry);
-      if (entries.length > maxEntries) {
-        entries.splice(0, entries.length - maxEntries);
-      }
+    async clear() {
+      buckets.clear();
+    },
+
+    async count(type) {
+      return bucket(type).length;
+    },
+
+    async find<T extends EntryType>(type: T, id: string) {
+      const found = bucket(type).find((entry) => entry.id === id);
+      return (found ?? null) as EntryMap[T] | null;
+    },
+
+    async findByParent<T extends EntryType>(type: T, parentId: string) {
+      return bucket(type).filter((entry) => entry.parent_id === parentId) as EntryMap[T][];
     },
 
     async list<T extends EntryType>(type: T, opts: ListOptions = {}) {
@@ -37,21 +47,12 @@ export function memoryStorage(options: MemoryStorageOptions = {}): StorageAdapte
       return sliced as EntryMap[T][];
     },
 
-    async find<T extends EntryType>(type: T, id: string) {
-      const found = bucket(type).find((entry) => entry.id === id);
-      return (found ?? null) as EntryMap[T] | null;
-    },
-
-    async findByParent<T extends EntryType>(type: T, parentId: string) {
-      return bucket(type).filter((entry) => entry.parent_id === parentId) as EntryMap[T][];
-    },
-
-    async count(type) {
-      return bucket(type).length;
-    },
-
-    async clear() {
-      buckets.clear();
+    async record(type, entry) {
+      const entries = bucket(type);
+      entries.push(entry);
+      if (entries.length > maxEntries) {
+        entries.splice(0, entries.length - maxEntries);
+      }
     },
   };
 }

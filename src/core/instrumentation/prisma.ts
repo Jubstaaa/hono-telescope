@@ -1,10 +1,11 @@
 import type { Recorder } from '../recorder.js';
+
 import { failureFields } from './failure.js';
 
 interface PrismaOperationArgs {
+  args: unknown;
   model?: string;
   operation: string;
-  args: unknown;
   query: (args: unknown) => Promise<unknown>;
 }
 
@@ -21,7 +22,7 @@ export function instrumentPrisma<T>(client: T, recorder: Recorder): T {
   return extendable.$extends({
     name: 'hono-telescope',
     query: {
-      async $allOperations({ model, operation, args, query }: PrismaOperationArgs) {
+      async $allOperations({ args, model, operation, query }: PrismaOperationArgs) {
         const startTime = Date.now();
 
         let failure: unknown;
@@ -41,9 +42,9 @@ export function instrumentPrisma<T>(client: T, recorder: Recorder): T {
 
           void recorder
             .recordQuery({
+              bindings,
               connection: 'prisma',
               query: model ? `${model}.${operation}` : operation,
-              bindings,
               time: Date.now() - startTime,
               ...failureFields(failure),
             })

@@ -1,8 +1,10 @@
 import type { OutgoingRequestResponse } from '@/types';
+
 import { formatDate } from '../../utils/helpers';
 import DurationTag from '../Tag/DurationTag';
-import StatusTag from '../Tag/StatusTag';
 import MethodTag from '../Tag/MethodTag';
+import StatusTag from '../Tag/StatusTag';
+
 import Table from './Table';
 
 interface OutgoingRequestTableProps {
@@ -13,39 +15,39 @@ interface OutgoingRequestTableProps {
 export const OutgoingRequestTable = ({ entries, loading = false }: OutgoingRequestTableProps) => {
   const columns = [
     {
-      title: 'Method',
       dataIndex: 'method',
       key: 'method',
-      width: 80,
       render: (method: string) => <MethodTag method={method} />,
+      title: 'Method',
+      width: 80,
     },
     {
-      title: 'Path',
       dataIndex: 'uri',
       key: 'uri',
-      width: 200,
       render: (uri: string) => uri,
+      title: 'Path',
+      width: 200,
     },
     {
-      title: 'Status',
       dataIndex: 'response_status',
       key: 'response_status',
-      width: 80,
       render: (status: number) => <StatusTag status={status} />,
+      title: 'Status',
+      width: 80,
     },
     {
-      title: 'Duration',
       dataIndex: 'duration',
       key: 'duration',
-      width: 100,
       render: (duration: number) => <DurationTag value={duration} />,
+      title: 'Duration',
+      width: 100,
     },
     {
-      title: 'Time',
       dataIndex: 'created_at',
       key: 'created_at',
-      width: 180,
       render: (created_at: string) => formatDate(created_at),
+      title: 'Time',
+      width: 180,
     },
   ];
 

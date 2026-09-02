@@ -1,20 +1,22 @@
 import { describe, expect, it, vi } from 'vitest';
-import { instrumentPrisma } from './prisma.js';
-import { instrumentSequelize } from './sequelize.js';
-import { instrumentMongo } from './mongo.js';
-import { instrumentBunSqlite } from './bun-sqlite.js';
+
+import { alsContext } from '../context/als-context.js';
 import { Recorder } from '../recorder.js';
 import { memoryStorage } from '../storage/memory-storage.js';
-import { alsContext } from '../context/als-context.js';
+
+import { instrumentBunSqlite } from './bun-sqlite.js';
+import { instrumentMongo } from './mongo.js';
+import { instrumentPrisma } from './prisma.js';
+import { instrumentSequelize } from './sequelize.js';
 
 const build = () => {
   const storage = memoryStorage();
-  return { storage, recorder: new Recorder(storage, alsContext()) };
+  return { recorder: new Recorder(storage, alsContext()), storage };
 };
 
 describe('instrumentPrisma', () => {
   it('records the operation through $allOperations and returns the extended client', async () => {
-    const { storage, recorder } = build();
+    const { recorder, storage } = build();
 
     const extended = { marker: 'extended' };
     let captured: ((args: Record<string, unknown>) => Promise<unknown>) | undefined;
@@ -32,9 +34,9 @@ describe('instrumentPrisma', () => {
     expect(result).toBe(extended);
 
     await captured!({
+      args: { where: { id: 1 } },
       model: 'User',
       operation: 'findMany',
-      args: { where: { id: 1 } },
       query: async () => [{ id: 1 }],
     });
 
@@ -46,7 +48,7 @@ describe('instrumentPrisma', () => {
   });
 
   it('still resolves and records when args contain a BigInt that cannot be JSON.stringify-ed', async () => {
-    const { storage, recorder } = build();
+    const { recorder, storage } = build();
 
     let captured: ((args: Record<string, unknown>) => Promise<unknown>) | undefined;
 
@@ -62,9 +64,9 @@ describe('instrumentPrisma', () => {
     instrumentPrisma(client, recorder);
 
     const result = await captured!({
+      args: { where: { id: 5n } },
       model: 'User',
       operation: 'findMany',
-      args: { where: { id: 5n } },
       query: async () => [{ id: 5n }],
     });
 
@@ -77,7 +79,7 @@ describe('instrumentPrisma', () => {
   });
 
   it('still resolves and records when args are circular', async () => {
-    const { storage, recorder } = build();
+    const { recorder, storage } = build();
 
     let captured: ((args: Record<string, unknown>) => Promise<unknown>) | undefined;
 
@@ -96,9 +98,9 @@ describe('instrumentPrisma', () => {
     circular.self = circular;
 
     const result = await captured!({
+      args: circular,
       model: 'User',
       operation: 'findMany',
-      args: circular,
       query: async () => [{ id: 1 }],
     });
 
@@ -113,7 +115,7 @@ describe('instrumentPrisma', () => {
 
 describe('instrumentSequelize', () => {
   it('records a query from the afterQuery hook', async () => {
-    const { storage, recorder } = build();
+    const { recorder, storage } = build();
     const hooks: Record<string, (...args: unknown[]) => void> = {};
 
     const sequelize = {
@@ -139,7 +141,7 @@ describe('instrumentSequelize', () => {
 
 describe('instrumentMongo', () => {
   it('records a succeeded command', async () => {
-    const { storage, recorder } = build();
+    const { recorder, storage } = build();
     const listeners: Record<string, (event: unknown) => void> = {};
 
     const client = {
@@ -169,11 +171,11 @@ describe('instrumentMongo', () => {
 
 describe('instrumentBunSqlite', () => {
   it('records a query run through the wrapped instance', async () => {
-    const { storage, recorder } = build();
+    const { recorder, storage } = build();
 
     const db = {
       query(sql: string) {
-        return { sql, all: () => [{ id: 1 }] };
+        return { all: () => [{ id: 1 }], sql };
       },
     };
 
@@ -190,15 +192,15 @@ describe('instrumentBunSqlite', () => {
   });
 
   it('does not re-wrap a cached statement returned for the same SQL', async () => {
-    const { storage, recorder } = build();
-    const cache = new Map<string, { sql: string; all: () => unknown[] }>();
+    const { recorder, storage } = build();
+    const cache = new Map<string, { all: () => unknown[]; sql: string }>();
 
     const db = {
       query(sql: string) {
         const existing = cache.get(sql);
         if (existing) return existing;
 
-        const statement = { sql, all: () => [{ id: 1 }] };
+        const statement = { all: () => [{ id: 1 }], sql };
         cache.set(sql, statement);
         return statement;
       },
@@ -215,8 +217,8 @@ describe('instrumentBunSqlite', () => {
   });
 
   it('returns the query result when a binding cannot be stringified', async () => {
-    const { storage, recorder } = build();
-    const statement = { sql: 'SELECT ?', all: (...bindings: unknown[]) => bindings.length };
+    const { recorder, storage } = build();
+    const statement = { all: (...bindings: unknown[]) => bindings.length, sql: 'SELECT ?' };
     const db = { query: () => statement };
 
     const wrapped = instrumentBunSqlite(db, recorder);
@@ -235,7 +237,7 @@ describe('instrumentBunSqlite', () => {
 
 describe('failed queries', () => {
   it('marks a failed mongo command and keeps a succeeded one clean', async () => {
-    const { storage, recorder } = build();
+    const { recorder, storage } = build();
     const listeners: Record<string, (event: unknown) => void> = {};
 
     const client = {
@@ -257,7 +259,7 @@ describe('failed queries', () => {
     await vi.waitFor(async () => expect(await storage.count('query')).toBe(2));
 
     const [failed, succeeded] = await storage.list('query');
-    expect(failed).toMatchObject({ query: 'app.insert', failed: true });
+    expect(failed).toMatchObject({ failed: true, query: 'app.insert' });
     expect(failed.error).toContain('E11000 duplicate key');
     expect(succeeded).toMatchObject({ query: 'app.find' });
     expect(succeeded.failed).toBeUndefined();
@@ -265,7 +267,7 @@ describe('failed queries', () => {
   });
 
   it('marks a throwing prisma operation as failed and still rethrows', async () => {
-    const { storage, recorder } = build();
+    const { recorder, storage } = build();
     let captured: ((args: Record<string, unknown>) => Promise<unknown>) | undefined;
 
     const client = {
@@ -281,9 +283,9 @@ describe('failed queries', () => {
 
     await expect(
       captured!({
+        args: {},
         model: 'User',
         operation: 'create',
-        args: {},
         query: async () => {
           throw new Error('connection lost');
         },
@@ -293,20 +295,20 @@ describe('failed queries', () => {
     await vi.waitFor(async () => expect(await storage.count('query')).toBe(1));
 
     const [entry] = await storage.list('query');
-    expect(entry).toMatchObject({ query: 'User.create', failed: true });
+    expect(entry).toMatchObject({ failed: true, query: 'User.create' });
     expect(entry.error).toContain('connection lost');
   });
 
   it('marks a throwing bun:sqlite statement as failed and still rethrows', async () => {
-    const { storage, recorder } = build();
+    const { recorder, storage } = build();
 
     const db = {
       query(sql: string) {
         return {
-          sql,
           all: () => {
             throw new Error('no such table: users');
           },
+          sql,
         };
       },
     };
@@ -319,7 +321,7 @@ describe('failed queries', () => {
     await vi.waitFor(async () => expect(await storage.count('query')).toBe(1));
 
     const [entry] = await storage.list('query');
-    expect(entry).toMatchObject({ query: 'SELECT * FROM users', failed: true });
+    expect(entry).toMatchObject({ failed: true, query: 'SELECT * FROM users' });
     expect(entry.error).toContain('no such table: users');
   });
 });

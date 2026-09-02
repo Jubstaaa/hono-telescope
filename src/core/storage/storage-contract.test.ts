@@ -1,15 +1,17 @@
 import { describe, expect, it } from 'vitest';
+
+import type { LogEntry } from '../../types/index.js';
+
 import { memoryStorage } from './memory-storage.js';
 import { runStorageContract } from './storage-contract.js';
-import type { LogEntry } from '../../types/index.js';
 
 function logEntry(id: string): LogEntry {
   return {
-    id,
-    timestamp: Date.now(),
     created_at: new Date().toISOString(),
+    id,
     level: 1,
     message: `message ${id}`,
+    timestamp: Date.now(),
   };
 }
 

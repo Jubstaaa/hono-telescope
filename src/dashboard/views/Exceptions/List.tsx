@@ -1,8 +1,10 @@
-import { Button, Flex, Typography, theme } from 'antd';
 import { ReloadOutlined } from '@ant-design/icons';
+import { Button, Flex, theme, Typography } from 'antd';
+
+import type { ExceptionResponse } from '@/types';
+
 import { ExceptionTable } from '../../components/Table/ExceptionTable';
 import { useList } from '../../hooks/use-entries';
-import type { ExceptionResponse } from '@/types';
 
 const { Title } = Typography;
 
@@ -12,11 +14,11 @@ export const ExceptionList = () => {
 
   return (
     <Flex vertical gap="large">
-      <Flex justify="space-between" align="center">
-        <Title level={2} style={{ margin: 0, color: token.colorText }}>
+      <Flex align="center" justify="space-between">
+        <Title level={2} style={{ color: token.colorText, margin: 0 }}>
           Exceptions
         </Title>
-        <Button icon={<ReloadOutlined />} onClick={refetch} loading={isLoading}>
+        <Button icon={<ReloadOutlined />} loading={isLoading} onClick={refetch}>
           Refresh
         </Button>
       </Flex>

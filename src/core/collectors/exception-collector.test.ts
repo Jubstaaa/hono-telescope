@@ -1,17 +1,19 @@
 import { describe, expect, it, vi } from 'vitest';
-import { exceptionCollector } from './exception-collector.js';
+
+import { alsContext } from '../context/als-context.js';
 import { Recorder } from '../recorder.js';
 import { memoryStorage } from '../storage/memory-storage.js';
-import { alsContext } from '../context/als-context.js';
+
+import { exceptionCollector } from './exception-collector.js';
 
 const build = () => {
   const storage = memoryStorage();
-  return { storage, recorder: new Recorder(storage, alsContext()) };
+  return { recorder: new Recorder(storage, alsContext()), storage };
 };
 
 describe('exceptionCollector', () => {
   it('records an uncaught exception', async () => {
-    const { storage, recorder } = build();
+    const { recorder, storage } = build();
     const before = process.listeners('uncaughtException');
 
     const uninstall = exceptionCollector().install(recorder);
@@ -26,7 +28,7 @@ describe('exceptionCollector', () => {
   });
 
   it('records an unhandled rejection, coercing a non-Error reason', async () => {
-    const { storage, recorder } = build();
+    const { recorder, storage } = build();
     const before = process.listeners('unhandledRejection');
 
     const uninstall = exceptionCollector().install(recorder);

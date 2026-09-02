@@ -1,17 +1,18 @@
-import type { Recorder } from '../recorder.js';
 import {
   DEFAULT_MAX_BODY_SIZE,
   DEFAULT_REDACT_BODY_KEYS,
   DEFAULT_REDACT_HEADERS,
 } from '../constants.js';
-import { redactHeaders } from '../utils/redact.js';
+import type { Recorder } from '../recorder.js';
 import { captureOutgoingPayload, captureResponseBody } from '../utils/capture-body.js';
+import { redactHeaders } from '../utils/redact.js';
+
 import type { Collector } from './collector.js';
 
 export interface FetchCollectorOptions {
-  redactHeaders?: string[];
-  redactBodyKeys?: string[];
   maxBodySize?: number;
+  redactBodyKeys?: string[];
+  redactHeaders?: string[];
 }
 
 function urlOf(input: RequestInfo | URL): string {
@@ -61,8 +62,6 @@ export function fetchCollector(options: FetchCollectorOptions = {}): Collector {
   let uninstall = () => {};
 
   return {
-    name: 'fetch',
-
     install(recorder: Recorder) {
       if (installed) return uninstall;
       installed = true;
@@ -98,7 +97,7 @@ export function fetchCollector(options: FetchCollectorOptions = {}): Collector {
             captured =
               (await captureResponseBody(
                 response,
-                { requestBody: false, responseBody: true, maxBodySize },
+                { maxBodySize, requestBody: false, responseBody: true },
                 redactBodyKeys
               )) ?? {};
           } catch {
@@ -107,14 +106,14 @@ export function fetchCollector(options: FetchCollectorOptions = {}): Collector {
 
           void recorder
             .record('outgoing_request', {
-              method,
-              uri,
-              headers: requestHeaders,
-              payload,
-              response_status: response.status,
-              response_headers: responseHeadersOf(response, redactKeys),
-              response: captured,
               duration: Date.now() - startTime,
+              headers: requestHeaders,
+              method,
+              payload,
+              response: captured,
+              response_headers: responseHeadersOf(response, redactKeys),
+              response_status: response.status,
+              uri,
             })
             .catch(() => undefined);
 
@@ -122,14 +121,14 @@ export function fetchCollector(options: FetchCollectorOptions = {}): Collector {
         } catch (error) {
           void recorder
             .record('outgoing_request', {
-              method,
-              uri,
-              headers: requestHeaders,
-              payload,
-              response_status: 0,
-              response_headers: {},
-              response: { error: error instanceof Error ? error.message : String(error) },
               duration: Date.now() - startTime,
+              headers: requestHeaders,
+              method,
+              payload,
+              response: { error: error instanceof Error ? error.message : String(error) },
+              response_headers: {},
+              response_status: 0,
+              uri,
             })
             .catch(() => undefined);
 
@@ -148,5 +147,7 @@ export function fetchCollector(options: FetchCollectorOptions = {}): Collector {
 
       return uninstall;
     },
+
+    name: 'fetch',
   };
 }

@@ -2,13 +2,13 @@ import { Database } from 'bun:sqlite';
 
 export interface User {
   id?: number;
-  name: string;
-  username: string;
-  email: string;
-  phone?: string;
-  website?: string;
   created_at?: string;
+  email: string;
+  name: string;
+  phone?: string;
   updated_at?: string;
+  username: string;
+  website?: string;
 }
 
 export class DatabaseManager {

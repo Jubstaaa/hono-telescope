@@ -1,14 +1,16 @@
 import { describe, expect, it } from 'vitest';
+
+import { ExceptionClass } from '../../types/index.js';
+import { alsContext } from '../context/als-context.js';
 import { Recorder } from '../recorder.js';
 import { memoryStorage } from '../storage/memory-storage.js';
-import { alsContext } from '../context/als-context.js';
-import { ExceptionClass } from '../../types/index.js';
+
 import { createMcpReader } from './reader.js';
-import { TOOL_DEFINITIONS, callTool } from './tools.js';
+import { callTool, TOOL_DEFINITIONS } from './tools.js';
 
 function build() {
   const recorder = new Recorder(memoryStorage(), alsContext());
-  return { recorder, reader: createMcpReader(recorder) };
+  return { reader: createMcpReader(recorder), recorder };
 }
 
 describe('TOOL_DEFINITIONS', () => {
@@ -62,7 +64,7 @@ describe('callTool', () => {
   });
 
   it('applies the default limit for recent_exceptions', async () => {
-    const { recorder, reader } = build();
+    const { reader, recorder } = build();
     for (let i = 0; i < 8; i += 1) {
       await recorder.record('exception', {
         class: ExceptionClass.ERROR,
@@ -97,7 +99,7 @@ describe('callTool', () => {
 
     const outcome = await callTool(reader, 'request_detail', { id: 'missing' });
 
-    expect(outcome).toMatchObject({ kind: 'ok', isError: true });
+    expect(outcome).toMatchObject({ isError: true, kind: 'ok' });
   });
 
   it('returns isError when the reader throws', async () => {
@@ -108,7 +110,7 @@ describe('callTool', () => {
 
     const outcome = await callTool(reader, 'stats', {});
 
-    expect(outcome).toMatchObject({ kind: 'ok', isError: true });
+    expect(outcome).toMatchObject({ isError: true, kind: 'ok' });
     if (outcome.kind !== 'ok') return;
     expect(outcome.content[0].text).toContain('storage exploded');
   });

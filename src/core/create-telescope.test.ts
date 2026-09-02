@@ -1,5 +1,6 @@
-import { describe, expect, it, vi } from 'vitest';
 import { Hono } from 'hono';
+import { describe, expect, it, vi } from 'vitest';
+
 import { createTelescope } from './create-telescope.js';
 import { memoryStorage } from './storage/memory-storage.js';
 
@@ -8,7 +9,7 @@ describe('createTelescope', () => {
     const originalLog = console.log;
     const originalFetch = globalThis.fetch;
 
-    const telescope = createTelescope({ storage: memoryStorage(), enabled: true });
+    const telescope = createTelescope({ enabled: true, storage: memoryStorage() });
     expect(console.log).not.toBe(originalLog);
     expect(globalThis.fetch).not.toBe(originalFetch);
 
@@ -26,9 +27,9 @@ describe('createTelescope', () => {
       })) as unknown as typeof fetch;
 
     const telescope = createTelescope({
-      storage,
       enabled: true,
-      redact: { headers: ['x-internal-token'], bodyKeys: ['token'] },
+      redact: { bodyKeys: ['token'], headers: ['x-internal-token'] },
+      storage,
     });
 
     try {
@@ -45,7 +46,7 @@ describe('createTelescope', () => {
 
   it('records through the mounted middleware', async () => {
     const storage = memoryStorage();
-    const telescope = createTelescope({ storage, enabled: true });
+    const telescope = createTelescope({ enabled: true, storage });
     const app = new Hono();
     app.use('*', telescope.middleware());
     app.get('/x', (c) => c.text('ok'));
@@ -59,7 +60,7 @@ describe('createTelescope', () => {
   it('is inert when disabled', async () => {
     const originalLog = console.log;
     const storage = memoryStorage();
-    const telescope = createTelescope({ storage, enabled: false });
+    const telescope = createTelescope({ enabled: false, storage });
 
     expect(console.log).toBe(originalLog);
 
@@ -90,7 +91,7 @@ describe('createTelescope', () => {
   });
 
   it('stop is safe to call twice', () => {
-    const telescope = createTelescope({ storage: memoryStorage(), enabled: true });
+    const telescope = createTelescope({ enabled: true, storage: memoryStorage() });
 
     telescope.stop();
     expect(() => telescope.stop()).not.toThrow();
@@ -100,7 +101,7 @@ describe('createTelescope', () => {
     const originalLog = console.log;
     const originalFetch = globalThis.fetch;
 
-    const telescope = createTelescope({ storage: memoryStorage(), enabled: true, collectors: [] });
+    const telescope = createTelescope({ collectors: [], enabled: true, storage: memoryStorage() });
 
     expect(console.log).toBe(originalLog);
     expect(globalThis.fetch).toBe(originalFetch);

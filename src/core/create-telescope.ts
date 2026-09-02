@@ -1,27 +1,29 @@
 import { Hono } from 'hono';
 import type { MiddlewareHandler } from 'hono';
+
 import type { ResolvedConfig, TelescopeConfig } from '../types/index.js';
-import { resolveConfig } from './config.js';
-import { Recorder } from './recorder.js';
+
 import { consoleCollector } from './collectors/console-collector.js';
 import { exceptionCollector } from './collectors/exception-collector.js';
 import { fetchCollector } from './collectors/fetch-collector.js';
-import { createMiddleware } from './hono/middleware.js';
+import { resolveConfig } from './config.js';
 import { createDashboard } from './hono/dashboard.js';
+import { createMiddleware } from './hono/middleware.js';
+import { instrumentBunSqlite } from './instrumentation/bun-sqlite.js';
+import { instrumentMongo } from './instrumentation/mongo.js';
 import { instrumentPrisma } from './instrumentation/prisma.js';
 import { instrumentSequelize } from './instrumentation/sequelize.js';
-import { instrumentMongo } from './instrumentation/mongo.js';
-import { instrumentBunSqlite } from './instrumentation/bun-sqlite.js';
+import { Recorder } from './recorder.js';
 
 export interface Telescope {
-  readonly recorder: Recorder;
   readonly config: ResolvedConfig;
-  middleware(): MiddlewareHandler;
   dashboard(): Hono;
+  instrumentBunSqlite<T>(db: T): T;
+  instrumentMongo<T>(client: T): T;
   instrumentPrisma<T>(client: T): T;
   instrumentSequelize<T>(sequelize: T): T;
-  instrumentMongo<T>(client: T): T;
-  instrumentBunSqlite<T>(db: T): T;
+  middleware(): MiddlewareHandler;
+  readonly recorder: Recorder;
   /**
    * Uninstalls the collectors. It does not stop middleware recording —
    * a middleware already mounted keeps recording `incoming_request` entries after this call.
@@ -41,9 +43,9 @@ export function createTelescope(config: TelescopeConfig = {}): Telescope {
     consoleCollector(),
     exceptionCollector(),
     fetchCollector({
-      redactHeaders: resolved.redact.headers,
-      redactBodyKeys: resolved.redact.bodyKeys,
       maxBodySize: resolved.capture.maxBodySize,
+      redactBodyKeys: resolved.redact.bodyKeys,
+      redactHeaders: resolved.redact.headers,
     }),
   ];
 
@@ -52,15 +54,17 @@ export function createTelescope(config: TelescopeConfig = {}): Telescope {
     : [];
 
   return {
-    recorder,
     config: resolved,
-
-    middleware() {
-      return resolved.enabled ? createMiddleware(recorder, resolved) : passThrough;
-    },
-
     dashboard() {
       return resolved.enabled ? createDashboard(recorder, resolved) : new Hono();
+    },
+
+    instrumentBunSqlite(db) {
+      return resolved.enabled ? instrumentBunSqlite(db, recorder) : db;
+    },
+
+    instrumentMongo(client) {
+      return resolved.enabled ? instrumentMongo(client, recorder) : client;
     },
 
     instrumentPrisma(client) {
@@ -71,13 +75,11 @@ export function createTelescope(config: TelescopeConfig = {}): Telescope {
       return resolved.enabled ? instrumentSequelize(sequelize, recorder) : sequelize;
     },
 
-    instrumentMongo(client) {
-      return resolved.enabled ? instrumentMongo(client, recorder) : client;
+    middleware() {
+      return resolved.enabled ? createMiddleware(recorder, resolved) : passThrough;
     },
 
-    instrumentBunSqlite(db) {
-      return resolved.enabled ? instrumentBunSqlite(db, recorder) : db;
-    },
+    recorder,
 
     stop() {
       while (uninstalls.length > 0) {

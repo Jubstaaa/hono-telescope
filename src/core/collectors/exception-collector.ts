@@ -1,5 +1,6 @@
 import type { Recorder } from '../recorder.js';
 import { getExceptionClassCode } from '../utils/helpers.js';
+
 import type { Collector } from './collector.js';
 
 export function exceptionCollector(): Collector {
@@ -7,8 +8,6 @@ export function exceptionCollector(): Collector {
   let uninstall = () => {};
 
   return {
-    name: 'exception',
-
     install(recorder: Recorder) {
       if (installed) return uninstall;
       installed = true;
@@ -40,5 +39,7 @@ export function exceptionCollector(): Collector {
 
       return uninstall;
     },
+
+    name: 'exception',
   };
 }

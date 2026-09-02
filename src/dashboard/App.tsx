@@ -1,5 +1,7 @@
 import { StrictMode } from 'react';
+
 import { RouterProvider } from 'react-router';
+
 import { ThemeProvider } from './contexts/ThemeContext';
 import { router } from './router';
 

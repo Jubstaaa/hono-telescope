@@ -1,32 +1,35 @@
 import { useEffect, useState } from 'react';
-import {
-  Layout,
-  Button,
-  Space,
-  Typography,
-  theme,
-  Flex,
-  Image,
-  Grid,
-  Alert,
-  Tooltip,
-  Popconfirm,
-} from 'antd';
-import { Outlet, useNavigate, useLocation } from 'react-router';
+
+import { Outlet, useLocation, useNavigate } from 'react-router';
+
 import {
   ArrowLeftOutlined,
   DeleteOutlined,
+  GithubOutlined,
+  MoonOutlined,
   RadarChartOutlined,
   SunOutlined,
-  MoonOutlined,
-  GithubOutlined,
 } from '@ant-design/icons';
-import { useTheme } from '../contexts/ThemeContext';
-import { Sidebar } from '../components/Sidebar';
-import TelescopeIcon from '../telescope-icon.svg';
-import { useClearData, refreshAllEntries } from '../hooks/use-entries';
+import {
+  Alert,
+  Button,
+  Flex,
+  Grid,
+  Image,
+  Layout,
+  Popconfirm,
+  Space,
+  theme,
+  Tooltip,
+  Typography,
+} from 'antd';
 
-const { Header, Sider, Content } = Layout;
+import { Sidebar } from '../components/Sidebar';
+import { useTheme } from '../contexts/ThemeContext';
+import { refreshAllEntries, useClearData } from '../hooks/use-entries';
+import TelescopeIcon from '../telescope-icon.svg';
+
+const { Content, Header, Sider } = Layout;
 const { Title } = Typography;
 const { useBreakpoint } = Grid;
 
@@ -67,29 +70,29 @@ export const MainLayout = () => {
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider
-        width={250}
         collapsible
-        collapsed={screens.xs ? true : false}
         breakpoint="lg"
+        collapsed={screens.xs ? true : false}
         trigger={null}
+        width={250}
         style={{
           backgroundColor: token.colorBgContainer,
         }}
       >
         <Flex
-          justify={screens.xs ? 'center' : 'start'}
           align="center"
           gap="8px"
+          justify={screens.xs ? 'center' : 'start'}
           style={{
+            backgroundColor: token.colorBgContainer,
+            borderBottom: `1px solid ${token.colorBorder}`,
             height: '64px',
             padding: '16px',
-            borderBottom: `1px solid ${token.colorBorder}`,
-            backgroundColor: token.colorBgContainer,
           }}
         >
-          <Image src={TelescopeIcon} width={32} height={32} preview={false} />
+          <Image height={32} preview={false} src={TelescopeIcon} width={32} />
           {!screens.xs && (
-            <Title level={4} style={{ margin: 0, color: token.colorText }}>
+            <Title level={4} style={{ color: token.colorText, margin: 0 }}>
               Hono Telescope
             </Title>
           )}
@@ -100,43 +103,43 @@ export const MainLayout = () => {
       <Layout>
         <Header
           style={{
-            height: '64px',
-            padding: screens.xs ? '0 12px' : '0 24px',
-            display: 'flex',
-            justifyContent: 'space-between',
             alignItems: 'center',
-            borderBottom: `1px solid ${token.colorBorder}`,
             backgroundColor: token.colorBgContainer,
+            borderBottom: `1px solid ${token.colorBorder}`,
+            display: 'flex',
             gap: '12px',
+            height: '64px',
+            justifyContent: 'space-between',
+            padding: screens.xs ? '0 12px' : '0 24px',
           }}
         >
           <Space size="small">
             <Tooltip title="Back">
               <Button
                 aria-label="Back"
-                icon={<ArrowLeftOutlined />}
-                onClick={() => navigate(-1)}
                 disabled={!canGoBack}
+                icon={<ArrowLeftOutlined />}
                 style={{ color: token.colorText }}
+                onClick={() => navigate(-1)}
               />
             </Tooltip>
           </Space>
           <Space size="middle">
             <Popconfirm
-              title="Clear all data?"
-              description="Every recorded request, query, log and exception is deleted. This cannot be undone."
-              okText="Clear everything"
-              okButtonProps={{ danger: true }}
               cancelText="Cancel"
+              description="Every recorded request, query, log and exception is deleted. This cannot be undone."
+              okButtonProps={{ danger: true }}
+              okText="Clear everything"
+              title="Clear all data?"
               onConfirm={handleClearData}
             >
               <Tooltip title="Clear all data">
                 <Button
                   danger
                   aria-label="Clear all data"
+                  disabled={isClearLoading}
                   icon={<DeleteOutlined style={{ fontSize: '16px' }} />}
                   loading={isClearLoading}
-                  disabled={isClearLoading}
                 />
               </Tooltip>
             </Popconfirm>
@@ -150,9 +153,9 @@ export const MainLayout = () => {
                     className={liveMode ? 'live-mode-pulse' : ''}
                     style={
                       {
-                        fontSize: '16px',
-                        color: liveMode ? token.colorPrimary : token.colorText,
                         '--live-color': liveMode ? token.colorPrimary : token.colorText,
+                        color: liveMode ? token.colorPrimary : token.colorText,
+                        fontSize: '16px',
                       } as React.CSSProperties & { '--live-color': string }
                     }
                   />
@@ -176,8 +179,8 @@ export const MainLayout = () => {
             <Tooltip title="View the project on GitHub">
               <Button
                 aria-label="View the project on GitHub"
-                icon={<GithubOutlined style={{ fontSize: '16px' }} />}
                 href="https://github.com/Jubstaaa/hono-telescope"
+                icon={<GithubOutlined style={{ fontSize: '16px' }} />}
                 target="_blank"
               />
             </Tooltip>
@@ -191,18 +194,18 @@ export const MainLayout = () => {
         >
           <div
             style={{
-              padding: screens.xs ? '12px' : '24px',
               height: '100%',
+              padding: screens.xs ? '12px' : '24px',
             }}
           >
             {clearError && (
               <Alert
-                type="error"
-                message={clearError}
                 closable
                 showIcon
-                onClose={() => setClearError(null)}
+                message={clearError}
                 style={{ marginBottom: '16px' }}
+                type="error"
+                onClose={() => setClearError(null)}
               />
             )}
             <Outlet />

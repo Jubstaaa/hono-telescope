@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest';
+
 import { redactBody, redactHeaders } from './redact.js';
 
 describe('redactHeaders', () => {
   it('redacts case-insensitively and leaves others alone', () => {
-    const result = redactHeaders({ Authorization: 'Bearer x', accept: 'json' }, ['authorization']);
+    const result = redactHeaders({ accept: 'json', Authorization: 'Bearer x' }, ['authorization']);
 
-    expect(result).toEqual({ Authorization: '[REDACTED]', accept: 'json' });
+    expect(result).toEqual({ accept: 'json', Authorization: '[REDACTED]' });
   });
 
   it('does not mutate the input', () => {
@@ -26,9 +27,9 @@ describe('redactHeaders', () => {
 
 describe('redactBody', () => {
   it('redacts matching keys at any depth', () => {
-    const result = redactBody({ user: { password: 'p', name: 'n' } }, ['password']);
+    const result = redactBody({ user: { name: 'n', password: 'p' } }, ['password']);
 
-    expect(result).toEqual({ user: { password: '[REDACTED]', name: 'n' } });
+    expect(result).toEqual({ user: { name: 'n', password: '[REDACTED]' } });
   });
 
   it('walks arrays', () => {

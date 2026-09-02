@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+
 import { resolveConfig } from './config.js';
 import { memoryStorage } from './storage/memory-storage.js';
 
@@ -34,9 +35,9 @@ describe('resolveConfig', () => {
     const resolved = resolveConfig();
 
     expect(resolved.capture).toEqual({
+      maxBodySize: 65536,
       requestBody: true,
       responseBody: true,
-      maxBodySize: 65536,
     });
     expect(resolved.redact.headers).toContain('set-cookie');
     expect(resolved.redact.bodyKeys).toContain('password');
@@ -46,9 +47,9 @@ describe('resolveConfig', () => {
     const resolved = resolveConfig({ capture: { maxBodySize: 10 } });
 
     expect(resolved.capture).toEqual({
+      maxBodySize: 10,
       requestBody: true,
       responseBody: true,
-      maxBodySize: 10,
     });
   });
 

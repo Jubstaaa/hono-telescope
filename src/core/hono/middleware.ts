@@ -1,12 +1,14 @@
 import { Buffer } from 'node:buffer';
 import { randomUUID } from 'node:crypto';
+
 import type { Context, MiddlewareHandler } from 'hono';
+
 import type { ResolvedConfig } from '../../types/index.js';
-import type { Recorder } from '../recorder.js';
 import { IGNORED_STATIC_EXTENSIONS } from '../constants.js';
+import type { Recorder } from '../recorder.js';
+import { captureResponseBody, isCapturableContentType } from '../utils/capture-body.js';
 import { getExceptionClassCode } from '../utils/helpers.js';
 import { redactBody, redactHeaders } from '../utils/redact.js';
-import { captureResponseBody, isCapturableContentType } from '../utils/capture-body.js';
 
 function shouldIgnore(path: string, config: ResolvedConfig): boolean {
   if (config.ignorePaths.some((ignored) => path.startsWith(ignored))) return true;
@@ -31,7 +33,7 @@ async function readRequestBody(
 
   const declared = Number(c.req.header('content-length') ?? Number.NaN);
   if (!Number.isNaN(declared) && declared > config.capture.maxBodySize) {
-    return { truncated: true, size: declared };
+    return { size: declared, truncated: true };
   }
 
   try {
@@ -51,7 +53,7 @@ async function readTextBody(c: Context, config: ResolvedConfig): Promise<unknown
   if (text === '') return {};
 
   const size = Buffer.byteLength(text);
-  if (size > config.capture.maxBodySize) return { truncated: true, size };
+  if (size > config.capture.maxBodySize) return { size, truncated: true };
 
   if (!(c.req.header('content-type') ?? '').toLowerCase().includes('json')) return { body: text };
 
@@ -82,10 +84,10 @@ function recordException(
 ): Promise<string> {
   return recorder.record('exception', {
     class: getExceptionClassCode(error.constructor?.name ?? 'Error'),
-    message: error.message,
-    trace: error.stack ?? '',
     context: { method: base.method, uri: base.uri },
+    message: error.message,
     parent_id: requestId,
+    trace: error.stack ?? '',
   });
 }
 
@@ -102,16 +104,16 @@ export function createMiddleware(recorder: Recorder, config: ResolvedConfig): Mi
     const payload = await readRequestBody(c, config);
 
     const base = {
-      method: c.req.method,
-      uri: c.req.path,
       headers,
-      payload,
       ip_address: c.req.header('x-forwarded-for') ?? c.req.header('x-real-ip') ?? 'unknown',
+      method: c.req.method,
+      payload,
+      uri: c.req.path,
       user_agent: c.req.header('user-agent') ?? 'unknown',
     };
 
     return config.context.run(
-      { requestId, method: c.req.method, uri: c.req.path, startTime },
+      { method: c.req.method, requestId, startTime, uri: c.req.path },
       async () => {
         try {
           await next();
@@ -130,10 +132,10 @@ export function createMiddleware(recorder: Recorder, config: ResolvedConfig): Mi
             'incoming_request',
             {
               ...base,
-              response_status: 500,
-              response_headers: {},
-              response: {},
               duration: Date.now() - startTime,
+              response: {},
+              response_headers: {},
+              response_status: 500,
             },
             requestId
           );
@@ -159,10 +161,10 @@ export function createMiddleware(recorder: Recorder, config: ResolvedConfig): Mi
           'incoming_request',
           {
             ...base,
-            response_status: response.status,
-            response_headers: responseHeadersOf(response, config),
-            response: capturedResponse,
             duration: Date.now() - startTime,
+            response: capturedResponse,
+            response_headers: responseHeadersOf(response, config),
+            response_status: response.status,
           },
           requestId
         );

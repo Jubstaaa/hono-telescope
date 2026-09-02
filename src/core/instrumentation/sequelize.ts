@@ -34,9 +34,9 @@ export function instrumentSequelize<T>(sequelize: T, recorder: Recorder): T {
 
     void recorder
       .recordQuery({
+        bindings: [],
         connection: 'sequelize',
         query: sql,
-        bindings: [],
         time: startTime === undefined ? 0 : Date.now() - startTime,
       })
       .catch(() => undefined);

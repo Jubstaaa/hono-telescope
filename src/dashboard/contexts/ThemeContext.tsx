@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
+
 import { ConfigProvider, theme } from 'antd';
 
 interface ThemeContextType {
@@ -35,22 +36,17 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
     setIsDark(!isDark);
   };
 
-  const { defaultAlgorithm, darkAlgorithm } = theme;
+  const { darkAlgorithm, defaultAlgorithm } = theme;
 
   return (
     <ThemeContext.Provider value={{ isDark, toggleTheme }}>
       <ConfigProvider
         theme={{
           algorithm: isDark ? darkAlgorithm : defaultAlgorithm,
-          token: {
-            colorPrimary: '#1890ff',
-            borderRadius: 8,
-            fontSize: 14,
-          },
           components: {
             Layout: {
-              siderBg: isDark ? '#001529' : '#f0f2f5',
               headerBg: isDark ? '#001529' : '#ffffff',
+              siderBg: isDark ? '#001529' : '#f0f2f5',
             },
             Menu: {
               darkItemBg: '#001529',
@@ -59,6 +55,11 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
             Table: {
               headerBg: isDark ? '#1f1f1f' : '#fafafa',
             },
+          },
+          token: {
+            borderRadius: 8,
+            colorPrimary: '#1890ff',
+            fontSize: 14,
           },
         }}
       >

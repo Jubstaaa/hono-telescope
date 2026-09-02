@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vitest';
+
 import { alsContext } from './als-context.js';
 import type { RequestContext } from './context-strategy.js';
 
 const ctx = (requestId: string): RequestContext => ({
-  requestId,
   method: 'GET',
-  uri: '/x',
+  requestId,
   startTime: 0,
+  uri: '/x',
 });
 
 describe('alsContext', () => {

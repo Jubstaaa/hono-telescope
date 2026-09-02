@@ -1,25 +1,25 @@
-import {
-  IncomingRequestEntry,
-  OutgoingRequestEntry,
+import type {
   ExceptionEntry,
+  IncomingRequestEntry,
   LogEntry,
+  OutgoingRequestEntry,
   QueryEntry,
 } from './entries.js';
 
 export interface DashboardStats {
+  exceptions: {
+    total: number;
+  };
   incomingRequests: {
+    total: number;
+  };
+  logs: {
     total: number;
   };
   outgoingRequests: {
     total: number;
   };
-  exceptions: {
-    total: number;
-  };
   queries: {
-    total: number;
-  };
-  logs: {
     total: number;
   };
 }
@@ -56,9 +56,9 @@ export type TelescopeListResponse =
 
 export interface IncomingRequestDetailResponse extends IncomingRequestEntry {
   relation_entries?: {
-    outgoing_requests?: OutgoingRequestResponse[];
     exceptions?: ExceptionResponse[];
     logs?: LogResponse[];
+    outgoing_requests?: OutgoingRequestResponse[];
     queries?: QueryResponse[];
   };
 }

@@ -1,4 +1,5 @@
 import { Tag } from 'antd';
+
 import { getMethodColor } from '../../utils/helpers';
 
 function MethodTag({ method }: { method: string }) {

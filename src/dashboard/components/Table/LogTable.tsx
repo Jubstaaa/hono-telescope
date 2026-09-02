@@ -1,6 +1,8 @@
 import type { LogResponse } from '@/types';
+
 import { formatDate } from '../../utils/helpers';
 import LevelTag from '../Tag/LevelTag';
+
 import Table from './Table';
 
 interface LogTableProps {
@@ -11,25 +13,25 @@ interface LogTableProps {
 export const LogTable = ({ entries, loading }: LogTableProps) => {
   const columns = [
     {
-      title: 'Level',
       dataIndex: 'level',
       key: 'level',
-      width: 100,
       render: (level: number) => <LevelTag level={level} />,
+      title: 'Level',
+      width: 100,
     },
     {
-      title: 'Message',
       dataIndex: 'message',
-      key: 'message',
       ellipsis: true,
+      key: 'message',
       render: (message: string) => message,
+      title: 'Message',
     },
     {
-      title: 'Time',
       dataIndex: 'created_at',
       key: 'created_at',
-      width: 180,
       render: (created_at: string) => formatDate(created_at),
+      title: 'Time',
+      width: 180,
     },
   ];
 

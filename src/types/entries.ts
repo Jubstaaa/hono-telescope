@@ -1,18 +1,18 @@
-import { BaseEntry } from './base.js';
-import { LogLevel, ExceptionClass } from './enums.js';
+import type { BaseEntry } from './base.js';
+import type { ExceptionClass, LogLevel } from './enums.js';
 
 // ============ INCOMING REQUEST ============
 
 export interface IncomingRequestEntryData {
-  method: string;
-  uri: string;
-  headers: Record<string, unknown>;
-  payload: Record<string, unknown>;
-  response_status: number;
-  response_headers: Record<string, unknown>;
-  response: Record<string, unknown>;
   duration: number;
+  headers: Record<string, unknown>;
   ip_address?: string;
+  method: string;
+  payload: Record<string, unknown>;
+  response: Record<string, unknown>;
+  response_headers: Record<string, unknown>;
+  response_status: number;
+  uri: string;
   user_agent?: string;
 }
 
@@ -23,15 +23,15 @@ export type IncomingRequestCreateInput = IncomingRequestEntryData;
 // ============ OUTGOING REQUEST ============
 
 export interface OutgoingRequestEntryData {
-  parent_id?: string;
-  method: string;
-  uri: string;
-  headers: Record<string, unknown>;
-  payload: Record<string, unknown>;
-  response_status: number;
-  response_headers: Record<string, unknown>;
-  response: Record<string, unknown>;
   duration: number;
+  headers: Record<string, unknown>;
+  method: string;
+  parent_id?: string;
+  payload: Record<string, unknown>;
+  response: Record<string, unknown>;
+  response_headers: Record<string, unknown>;
+  response_status: number;
+  uri: string;
   user_agent?: string;
 }
 
@@ -42,11 +42,11 @@ export type OutgoingRequestCreateInput = OutgoingRequestEntryData;
 // ============ EXCEPTION ============
 
 export interface ExceptionEntryData {
-  parent_id?: string;
   class: ExceptionClass;
-  message: string;
-  trace: string;
   context?: Record<string, unknown>;
+  message: string;
+  parent_id?: string;
+  trace: string;
 }
 
 export interface ExceptionEntry extends BaseEntry, ExceptionEntryData {}
@@ -56,10 +56,10 @@ export type ExceptionCreateInput = ExceptionEntryData;
 // ============ LOG ============
 
 export interface LogEntryData {
-  parent_id?: string;
+  context?: Record<string, unknown>;
   level: LogLevel;
   message: string;
-  context?: Record<string, unknown>;
+  parent_id?: string;
 }
 
 export interface LogEntry extends BaseEntry, LogEntryData {}
@@ -69,13 +69,13 @@ export type LogCreateInput = LogEntryData;
 // ============ QUERY ============
 
 export interface QueryEntryData {
-  parent_id?: string;
-  connection: string;
-  query: string;
   bindings: string[];
-  time: number;
-  failed?: boolean;
+  connection: string;
   error?: string;
+  failed?: boolean;
+  parent_id?: string;
+  query: string;
+  time: number;
 }
 
 export interface QueryEntry extends BaseEntry, QueryEntryData {}
@@ -101,17 +101,17 @@ export type TelescopeCreateInput =
 // ============ TYPE MAPS ============
 
 export interface EntryMap {
-  incoming_request: IncomingRequestEntry;
-  outgoing_request: OutgoingRequestEntry;
   exception: ExceptionEntry;
+  incoming_request: IncomingRequestEntry;
   log: LogEntry;
+  outgoing_request: OutgoingRequestEntry;
   query: QueryEntry;
 }
 
 export interface CreateInputMap {
-  incoming_request: IncomingRequestCreateInput;
-  outgoing_request: OutgoingRequestCreateInput;
   exception: ExceptionCreateInput;
+  incoming_request: IncomingRequestCreateInput;
   log: LogCreateInput;
+  outgoing_request: OutgoingRequestCreateInput;
   query: QueryCreateInput;
 }

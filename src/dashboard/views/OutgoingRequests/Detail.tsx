@@ -1,15 +1,18 @@
 import { useParams } from 'react-router';
-import { Card, Typography, Alert, Descriptions, theme, Flex, Grid } from 'antd';
-import { useDetail } from '../../hooks/use-entries';
-import type { OutgoingRequestDetailResponse } from '@/types';
-import { formatDate } from '../../utils/helpers';
-import Loader from '../../components/Loader';
-import { JsonViewer } from '../../components/JsonViewer';
-import StatusTag from '../../components/Tag/StatusTag';
-import MethodTag from '../../components/Tag/MethodTag';
-import DurationTag from '../../components/Tag/DurationTag';
 
-const { Title, Text } = Typography;
+import { Alert, Card, Descriptions, Flex, Grid, theme, Typography } from 'antd';
+
+import type { OutgoingRequestDetailResponse } from '@/types';
+
+import { JsonViewer } from '../../components/JsonViewer';
+import Loader from '../../components/Loader';
+import DurationTag from '../../components/Tag/DurationTag';
+import MethodTag from '../../components/Tag/MethodTag';
+import StatusTag from '../../components/Tag/StatusTag';
+import { useDetail } from '../../hooks/use-entries';
+import { formatDate } from '../../utils/helpers';
+
+const { Text, Title } = Typography;
 const { useBreakpoint } = Grid;
 
 export const OutgoingRequestDetail = () => {
@@ -18,8 +21,8 @@ export const OutgoingRequestDetail = () => {
   const screens = useBreakpoint();
   const {
     data: request,
-    isLoading,
     error,
+    isLoading,
   } = useDetail<OutgoingRequestDetailResponse>('outgoing-requests', id);
 
   if (isLoading) {
@@ -29,10 +32,10 @@ export const OutgoingRequestDetail = () => {
   if (error || !request) {
     return (
       <Alert
-        message="Error"
-        description="Failed to load outgoing request details"
-        type="error"
         showIcon
+        description="Failed to load outgoing request details"
+        message="Error"
+        type="error"
       />
     );
   }
@@ -69,19 +72,19 @@ export const OutgoingRequestDetail = () => {
         </Card>
 
         {request.headers && (
-          <Card title="Headers" style={{ backgroundColor: token.colorBgContainer }}>
+          <Card style={{ backgroundColor: token.colorBgContainer }} title="Headers">
             <JsonViewer data={request.headers} />
           </Card>
         )}
 
         {request.payload && (
-          <Card title="Request Body" style={{ backgroundColor: token.colorBgContainer }}>
+          <Card style={{ backgroundColor: token.colorBgContainer }} title="Request Body">
             <JsonViewer data={request.payload} />
           </Card>
         )}
 
         {request.response && (
-          <Card title="Response" style={{ backgroundColor: token.colorBgContainer }}>
+          <Card style={{ backgroundColor: token.colorBgContainer }} title="Response">
             <JsonViewer data={request.response} />
           </Card>
         )}

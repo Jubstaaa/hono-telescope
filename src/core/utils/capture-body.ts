@@ -1,5 +1,7 @@
 import { Buffer } from 'node:buffer';
+
 import type { CaptureConfig } from '../../types/index.js';
+
 import { redactBody } from './redact.js';
 
 const CAPTURABLE = [/^application\/json\b/, /\+json\b/, /^text\//];
@@ -98,7 +100,7 @@ export function captureOutgoingPayload(
   if (contentType !== null && !isCapturableContentType(contentType)) return {};
 
   const size = Buffer.byteLength(text);
-  if (size > maxBodySize) return { truncated: true, size };
+  if (size > maxBodySize) return { size, truncated: true };
 
   const isJson = (contentType ?? '').toLowerCase().includes('json');
   if (!isJson) return redactBody({ body: text }, redactBodyKeys) as Record<string, unknown>;
@@ -137,11 +139,11 @@ export async function captureResponseBody(
 
   const declared = Number(response.headers.get('content-length') ?? Number.NaN);
   if (!Number.isNaN(declared) && declared > capture.maxBodySize) {
-    return { truncated: true, size: declared };
+    return { size: declared, truncated: true };
   }
 
   const { text, truncated } = await readCappedText(response.clone().body, capture.maxBodySize);
-  if (truncated) return { truncated: true, size: Buffer.byteLength(text) };
+  if (truncated) return { size: Buffer.byteLength(text), truncated: true };
 
   return redactBody(parse(text), redactBodyKeys) as Record<string, unknown>;
 }

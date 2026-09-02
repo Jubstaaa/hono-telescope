@@ -1,6 +1,7 @@
-import { afterEach, describe, expect, it } from 'vitest';
 import { Hono } from 'hono';
 import { streamText } from 'hono/streaming';
+import { afterEach, describe, expect, it } from 'vitest';
+
 import { createTelescope, memoryStorage } from './index.js';
 import type { Telescope } from './index.js';
 
@@ -20,12 +21,12 @@ function build() {
       headers: { 'content-type': 'application/json' },
     })) as unknown as typeof fetch;
 
-  telescope = createTelescope({ storage, enabled: true });
+  telescope = createTelescope({ enabled: true, storage });
 
   const db = {
     query: (sql: string) => ({
-      sql,
       all: (...bindings: unknown[]) => [{ id: bindings[0] ?? 1 }],
+      sql,
     }),
   };
   const instrumented = telescope.instrumentBunSqlite(db);
@@ -60,9 +61,9 @@ describe('hono-telescope end to end', () => {
     const { app, storage } = build();
 
     const response = await app.request('/orders', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', authorization: 'Bearer live-key' },
       body: JSON.stringify({ password: 'hunter2' }),
+      headers: { authorization: 'Bearer live-key', 'content-type': 'application/json' },
+      method: 'POST',
     });
 
     expect(response.status).toBe(200);
@@ -76,8 +77,8 @@ describe('hono-telescope end to end', () => {
     const body = (await detail.json()) as {
       relation_entries: {
         logs: unknown[];
-        queries: { query: string }[];
         outgoing_requests: { uri: string }[];
+        queries: { query: string }[];
       };
     };
 
@@ -105,17 +106,17 @@ describe('hono-telescope end to end', () => {
 describe('mcp endpoint', () => {
   const mcp = (app: Hono, body: unknown) =>
     app.request('/telescope/mcp', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
       body: JSON.stringify(body),
+      headers: { 'content-type': 'application/json' },
+      method: 'POST',
     });
 
   const callTool = async (app: Hono, name: string, args: Record<string, unknown> = {}) => {
     const response = await mcp(app, {
-      jsonrpc: '2.0',
       id: 1,
+      jsonrpc: '2.0',
       method: 'tools/call',
-      params: { name, arguments: args },
+      params: { arguments: args, name },
     });
     const body = (await response.json()) as { result: { structuredContent: unknown } };
 
@@ -133,12 +134,12 @@ describe('mcp endpoint', () => {
     await app.request('/boom');
 
     const result = (await callTool(app, 'recent_exceptions')) as {
-      exceptions: { message: string; request: { uri: string; response_status: number } }[];
+      exceptions: { message: string; request: { response_status: number; uri: string } }[];
     };
 
     expect(result.exceptions[0]).toMatchObject({
       message: 'kaboom',
-      request: { uri: '/boom', response_status: 500 },
+      request: { response_status: 500, uri: '/boom' },
     });
   });
 
@@ -149,29 +150,29 @@ describe('mcp endpoint', () => {
     await app.request('/missing');
 
     const result = (await callTool(app, 'recent_requests', { minStatus: 400 })) as {
-      requests: { uri: string; response_status: number }[];
+      requests: { response_status: number; uri: string }[];
     };
 
-    expect(result.requests).toMatchObject([{ uri: '/missing', response_status: 404 }]);
+    expect(result.requests).toMatchObject([{ response_status: 404, uri: '/missing' }]);
   });
 
   it('assembles the whole request tree that the collectors recorded', async () => {
     const { app } = build();
 
     await app.request('/orders', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ password: 'hunter2' }),
+      headers: { 'content-type': 'application/json' },
+      method: 'POST',
     });
 
     const listed = (await callTool(app, 'recent_requests')) as { requests: { id: string }[] };
     const detail = (await callTool(app, 'request_detail', { id: listed.requests[0].id })) as {
       request: {
-        uri: string;
-        payload: Record<string, unknown>;
         logs: unknown[];
-        queries: unknown[];
         outgoing: unknown[];
+        payload: Record<string, unknown>;
+        queries: unknown[];
+        uri: string;
       };
     };
 
@@ -185,9 +186,9 @@ describe('mcp endpoint', () => {
   it('does not record its own traffic', async () => {
     const { app } = build();
     await app.request('/orders', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ password: 'x' }),
+      headers: { 'content-type': 'application/json' },
+      method: 'POST',
     });
 
     const before = (await callTool(app, 'stats')) as { incomingRequests: { total: number } };
