@@ -86,12 +86,28 @@ jobs:
           envs: GHCR_TOKEN,GHCR_USER,IMAGE_DIGEST
           # `set -e` because the last command used to decide the step's fate: a
           # failing pull was masked by `docker image prune -f` exiting 0.
+          #
+          # The retry is not defensive padding. GHCR needs up to a minute after a
+          # push before it serves the new manifest, by tag or by digest: a pull
+          # 30s in resolved `:latest` to the previous image (twice, silently) and
+          # a pull 40s in answered `not found` for the digest, while one 89s in
+          # succeeded. So the deploy waits for the registry rather than shipping
+          # whatever it happens to have.
           script: |
             set -e
             echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
             cd /opt/hono-telescope
             printf 'TELESCOPE_IMAGE=ghcr.io/jubstaaa/hono-telescope@%s\n' "$IMAGE_DIGEST" > .env
-            docker compose pull
+            attempt=1
+            until docker compose pull; do
+              if [ "$attempt" -ge 6 ]; then
+                echo "the registry never served $IMAGE_DIGEST after $attempt attempts" >&2
+                exit 1
+              fi
+              echo "pull attempt $attempt failed; the manifest may not be live yet, retrying in 20s"
+              attempt=$((attempt + 1))
+              sleep 20
+            done
             docker compose up -d
             docker image prune -f
         env:
