@@ -16,12 +16,12 @@ A powerful debugging and monitoring tool for Hono applications, inspired by Lara
 
 A hosted instance of [the example app](./src/example/index.ts), running 1.0. No installation needed.
 
-**[📊 Open the dashboard](https://hono-telescope.onrender.com/telescope)** — API base: `https://hono-telescope.onrender.com`
+**[📊 Open the dashboard](https://hono-telescope.ilkerbalcilar.com/telescope)** — API base: `https://hono-telescope.ilkerbalcilar.com`
 
 Hit a few endpoints and watch the entries appear:
 
 ```bash
-BASE=https://hono-telescope.onrender.com
+BASE=https://hono-telescope.ilkerbalcilar.com
 
 curl $BASE/api/users                # incoming request + Bun SQLite queries
 curl -X POST $BASE/api/import-users # outgoing fetch to JSONPlaceholder, plus inserts
