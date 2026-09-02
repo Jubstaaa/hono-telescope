@@ -1,5 +1,132 @@
 
 
+## [1.0.0](https://github.com/jubstaaa/hono-telescope/compare/0.1.18...1.0.0) (2026-09-02)
+
+The core has been rewritten. 0.x was a private-constructor singleton that monkey-patched
+globals at import time and never undid it; 1.0 is an instance-based core with a single
+public entry point, symmetric install/uninstall, and zero runtime dependencies.
+
+```typescript
+import { Hono } from 'hono';
+import { createTelescope, memoryStorage } from 'hono-telescope';
+
+const app = new Hono();
+const telescope = createTelescope({ storage: memoryStorage({ maxEntries: 1000 }) });
+
+app.use('*', telescope.middleware());
+app.route('/telescope', telescope.dashboard());
+```
+
+See [Upgrading from 0.x](./README.md#upgrading-from-0x) for the full migration.
+
+### ⚠ BREAKING CHANGES
+
+- **`setupTelescope` has been removed.** `createTelescope(config)` returns a telescope
+  instance and you mount its two halves yourself: `app.use('*', telescope.middleware())`
+  and `app.route('/telescope', telescope.dashboard())`. No compatibility shim ships — 0.x
+  code will not run against 1.0.
+- **The singleton core has been removed.** Telescope is instantiated, not summoned;
+  importing the package no longer patches `console`, `fetch`, or process handlers as a
+  side effect. The collectors patch when you call `createTelescope()` and `telescope.stop()`
+  uninstalls them again (a mounted middleware keeps recording after `stop()`).
+- **Configuration keys are camelCase.** `max_entries` → `memoryStorage({ maxEntries })`,
+  `sanitize_headers` → `redact.headers`, and every other snake_case key is renamed. Storage
+  sizing now lives on the storage adapter rather than the top-level config.
+- **`sanitizeHeaders` is gone**, replaced by `redact.headers` and `redact.bodyKeys`, which
+  redact recursively at any nesting depth, case-insensitively, in bodies as well as headers.
+- **Automatic database interception has been removed** in favour of explicit per-client
+  instrumentation: `telescope.instrumentPrisma`, `instrumentSequelize`, `instrumentMongo`,
+  `instrumentBunSqlite`. The automatic path never worked under Node ESM and captured only
+  raw SQL where it did run. **`instrumentPrisma` returns a new client** (Prisma's `$extends`
+  is immutable) — you must use the returned value. Call each `instrument*` once per client;
+  they are not idempotent.
+- **Axios interception has been removed.** Axios on Node does not use `fetch`, so the
+  interceptor never observed those requests.
+- **`peerDependencies.hono` is now `>=4.0.0`** and `hono` is a peer dependency only. The
+  package has no runtime dependencies.
+- **ESM only.** No CommonJS build and no `require()`; `engines` are Node `>=18` and Bun `>=1.0`.
+- **Only two entry points are public**, enforced by an `exports` map: `hono-telescope` and
+  `hono-telescope/testing`. Deep imports into `dist/` no longer resolve.
+- **`dashboardPath` must match the path you mount the dashboard at.** The middleware uses it
+  to skip the dashboard's own traffic and the dashboard uses it to build its base URL.
+- **The dashboard refuses to mount unauthenticated in production.** With `enabled: true` and
+  `NODE_ENV === 'production'`, omitting `dashboard.auth` throws; pass credentials, or
+  `dashboard.auth: false` to acknowledge full exposure explicitly.
+- **`EntryType` is a union type, not an enum**, and the entry payloads are keyed by type maps.
+
+### ✨ Features
+
+- **core:** `createTelescope` factory replacing the singleton, with a `stop()` that uninstalls
+  the collectors ([66827f4](https://github.com/jubstaaa/hono-telescope/commit/66827f4), [c2119ab](https://github.com/jubstaaa/hono-telescope/commit/c2119ab))
+- **storage:** `StorageAdapter` contract plus a functional `memoryStorage` adapter ([8fe01ff](https://github.com/jubstaaa/hono-telescope/commit/8fe01ff))
+- **context:** `ContextStrategy` abstraction with an `alsContext()` AsyncLocalStorage
+  implementation, so child entries correlate to their parent request ([6c3e71f](https://github.com/jubstaaa/hono-telescope/commit/6c3e71f), [99dc8c0](https://github.com/jubstaaa/hono-telescope/commit/99dc8c0))
+- **collectors:** `consoleCollector`, `exceptionCollector` and `fetchCollector`, each with
+  symmetric install and uninstall ([ec1eeaa](https://github.com/jubstaaa/hono-telescope/commit/ec1eeaa), [3a9ceba](https://github.com/jubstaaa/hono-telescope/commit/3a9ceba)). Pass `collectors: []` to disable all of them.
+- **hono:** request middleware that observes failures instead of hijacking `onError` — a
+  request whose handler throws is recorded with the status your own `onError` returned, and
+  the exception is recorded as a child of that request ([1d6be9d](https://github.com/jubstaaa/hono-telescope/commit/1d6be9d))
+- **hono:** the dashboard is a mountable Hono sub-app with optional basic auth and a
+  configurable base path ([60bd3b3](https://github.com/jubstaaa/hono-telescope/commit/60bd3b3))
+- **instrumentation:** explicit Prisma, Sequelize, MongoDB and Bun SQLite query capture ([fef1798](https://github.com/jubstaaa/hono-telescope/commit/fef1798))
+- **core:** capped, content-type-aware body capture — `capture.maxBodySize` defaults to 64 KB
+  and larger bodies are stored as `{ truncated: true, size }` metadata ([19024eb](https://github.com/jubstaaa/hono-telescope/commit/19024eb))
+- **core:** recursive body and header redaction ([0e846b7](https://github.com/jubstaaa/hono-telescope/commit/0e846b7))
+- **core:** config resolution with safe defaults — every option is optional ([cbacc48](https://github.com/jubstaaa/hono-telescope/commit/cbacc48))
+- `hono-telescope/testing` exports `runStorageContract`, so a custom `StorageAdapter` can be
+  verified against the ordering guarantees the dashboard relies on ([e7f62ba](https://github.com/jubstaaa/hono-telescope/commit/e7f62ba))
+
+### 🐛 Bug Fixes
+
+- **capture:** streamed responses are no longer buffered — recording never delays or consumes
+  a `streamText`/`streamSSE` response ([d1ae407](https://github.com/jubstaaa/hono-telescope/commit/d1ae407))
+- **capture:** store metadata only for truncated response bodies, and do not await reader
+  cancellation on the truncation path — a response over `maxBodySize` could previously hang
+  the request forever ([be81a2c](https://github.com/jubstaaa/hono-telescope/commit/be81a2c), [0aa63ea](https://github.com/jubstaaa/hono-telescope/commit/0aa63ea))
+- **core:** redaction no longer allows prototype pollution and deep-copies before redacting ([acd56de](https://github.com/jubstaaa/hono-telescope/commit/acd56de))
+- **core:** off-by-one in the truncation flag of `readCappedText` ([bcc3283](https://github.com/jubstaaa/hono-telescope/commit/bcc3283))
+- **core:** use `node:crypto`'s `randomUUID` instead of the bare `crypto` global, which does
+  not exist on Node 18 ([366cca6](https://github.com/jubstaaa/hono-telescope/commit/366cca6))
+- **core:** close the remaining paths where the recording layer could throw into, or delay,
+  the caller; fix `ignorePaths` matching ([15a9d24](https://github.com/jubstaaa/hono-telescope/commit/15a9d24))
+- **collectors:** capture headers from the `Request`, record response headers, and guard
+  response capture ([7e8687a](https://github.com/jubstaaa/hono-telescope/commit/7e8687a))
+- **instrumentation:** guard Prisma binding serialization and dedupe Bun SQLite statement
+  wrapping ([612a56b](https://github.com/jubstaaa/hono-telescope/commit/612a56b))
+- **hono:** escape angle brackets in the injected base path ([61db1d6](https://github.com/jubstaaa/hono-telescope/commit/61db1d6))
+- **dashboard:** surface clear-data failures instead of silently swallowing them, and share
+  the base-path fallback ([7229e80](https://github.com/jubstaaa/hono-telescope/commit/7229e80), [4429292](https://github.com/jubstaaa/hono-telescope/commit/4429292))
+- **build:** emit Node-loadable ESM — the published package could not be imported on Node at
+  all ([64520f0](https://github.com/jubstaaa/hono-telescope/commit/64520f0))
+
+### ♻️ Refactoring
+
+- remove the singleton core ahead of the 1.0 rebuild ([c2119ab](https://github.com/jubstaaa/hono-telescope/commit/c2119ab))
+- **types:** replace the `EntryType` enum with a union and add entry type maps ([af173aa](https://github.com/jubstaaa/hono-telescope/commit/af173aa))
+- **dashboard:** replace Redux Toolkit with a small fetch hook, cutting the dashboard bundle ([9f58264](https://github.com/jubstaaa/hono-telescope/commit/9f58264))
+- **example:** move the example app to `createTelescope` and drop the orphaned database
+  singleton ([93253c6](https://github.com/jubstaaa/hono-telescope/commit/93253c6), [590640b](https://github.com/jubstaaa/hono-telescope/commit/590640b))
+
+### 📚 Documentation
+
+- rewrite the README for the 1.0 API, including an "Upgrading from 0.x" guide ([5d432d8](https://github.com/jubstaaa/hono-telescope/commit/5d432d8))
+- document the auth opt-out, the redaction defaults, and what `stop()` does and does not
+  tear down ([9855563](https://github.com/jubstaaa/hono-telescope/commit/9855563), [24ecbab](https://github.com/jubstaaa/hono-telescope/commit/24ecbab))
+- document the real limitations: outgoing request bodies, streamed responses and
+  over-cap bodies are not captured ([6188968](https://github.com/jubstaaa/hono-telescope/commit/6188968))
+
+### ✅ Tests
+
+- 129 tests across 16 files covering the public API end to end ([6188968](https://github.com/jubstaaa/hono-telescope/commit/6188968))
+
+### 🏗️ Build
+
+- ship zero runtime dependencies and add an `exports` map ([973267e](https://github.com/jubstaaa/hono-telescope/commit/973267e))
+- strip tests, the example and the dashboard sources from the published package ([30b7c9f](https://github.com/jubstaaa/hono-telescope/commit/30b7c9f))
+- gate the published artifact on `dist` actually importing under both Node and Bun ([64520f0](https://github.com/jubstaaa/hono-telescope/commit/64520f0))
+- inline dashboard assets as strings, and fail the inliner when there is nothing to inline ([b82b2c4](https://github.com/jubstaaa/hono-telescope/commit/b82b2c4), [2463bfb](https://github.com/jubstaaa/hono-telescope/commit/2463bfb))
+
+
 ## 0.1.18 (2026-03-12)
 
 
