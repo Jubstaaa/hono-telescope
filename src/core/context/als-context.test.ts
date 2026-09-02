@@ -34,14 +34,22 @@ describe('alsContext', () => {
   it('keeps concurrent runs isolated', async () => {
     const context = alsContext();
     const seen: string[] = [];
+    let releaseSlow = () => undefined as void;
+    const slowGate = new Promise<void>((resolve) => {
+      releaseSlow = resolve;
+    });
 
-    const task = (id: string, delay: number) =>
-      context.run(ctx(id), async () => {
-        await new Promise((resolve) => setTimeout(resolve, delay));
-        seen.push(context.current()!.requestId);
-      });
+    const slow = context.run(ctx('slow'), async () => {
+      await slowGate;
+      seen.push(context.current()!.requestId);
+    });
+    const fast = context.run(ctx('fast'), async () => {
+      seen.push(context.current()!.requestId);
+    });
 
-    await Promise.all([task('slow', 5), task('fast', 1)]);
+    await fast;
+    releaseSlow();
+    await slow;
 
     expect(seen).toEqual(['fast', 'slow']);
   });
