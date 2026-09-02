@@ -9,6 +9,7 @@ import {
   mapOutgoingRequest,
   mapQuery,
 } from '../utils/mappers.js';
+import { mountMcp } from '../mcp/routes.js';
 import { DASHBOARD_ASSETS, DASHBOARD_HTML } from './dashboard-assets.js';
 
 const RESOURCES: Record<string, EntryType> = {
@@ -125,6 +126,8 @@ export function createDashboard(recorder: Recorder, config: ResolvedConfig): Hon
       },
     });
   });
+
+  mountMcp(app, recorder);
 
   app.get('/*', (c) => c.html(html));
 
