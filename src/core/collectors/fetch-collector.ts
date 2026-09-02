@@ -5,7 +5,7 @@ import {
   DEFAULT_REDACT_HEADERS,
 } from '../constants.js';
 import { redactHeaders } from '../utils/redact.js';
-import { captureResponseBody } from '../utils/capture-body.js';
+import { captureOutgoingPayload, captureResponseBody } from '../utils/capture-body.js';
 import type { Collector } from './collector.js';
 
 export interface FetchCollectorOptions {
@@ -76,6 +76,20 @@ export function fetchCollector(options: FetchCollectorOptions = {}): Collector {
 
         const requestHeaders = headersOf(input, init, redactKeys);
 
+        let payload: Record<string, unknown> = {};
+        try {
+          payload = captureOutgoingPayload(
+            input instanceof Request ? undefined : init?.body,
+            typeof requestHeaders['content-type'] === 'string'
+              ? requestHeaders['content-type']
+              : null,
+            maxBodySize,
+            redactBodyKeys
+          );
+        } catch {
+          payload = {};
+        }
+
         try {
           const response = await original(input, init);
 
@@ -96,7 +110,7 @@ export function fetchCollector(options: FetchCollectorOptions = {}): Collector {
               method,
               uri,
               headers: requestHeaders,
-              payload: {},
+              payload,
               response_status: response.status,
               response_headers: responseHeadersOf(response, redactKeys),
               response: captured,
@@ -111,7 +125,7 @@ export function fetchCollector(options: FetchCollectorOptions = {}): Collector {
               method,
               uri,
               headers: requestHeaders,
-              payload: {},
+              payload,
               response_status: 0,
               response_headers: {},
               response: { error: error instanceof Error ? error.message : String(error) },

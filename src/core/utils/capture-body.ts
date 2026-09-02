@@ -75,6 +75,55 @@ function concat(chunks: Uint8Array[]): Uint8Array {
   return result;
 }
 
+/**
+ * Only bodies already materialised in memory are read. A `ReadableStream`, `FormData`, `Blob`
+ * or the body of a `Request` object is skipped on purpose: reading one either consumes what the
+ * caller is about to send, or forces a `clone()` whose cancellation does not resolve on Node
+ * until the other branch drains.
+ */
+export function captureOutgoingPayload(
+  body: BodyInit | null | undefined,
+  contentType: string | null,
+  maxBodySize: number,
+  redactBodyKeys: string[]
+): Record<string, unknown> {
+  if (body === null || body === undefined) return {};
+
+  if (body instanceof URLSearchParams) {
+    return redactBody(Object.fromEntries(body), redactBodyKeys) as Record<string, unknown>;
+  }
+
+  const text = materialisedText(body);
+  if (text === undefined) return {};
+  if (contentType !== null && !isCapturableContentType(contentType)) return {};
+
+  const size = Buffer.byteLength(text);
+  if (size > maxBodySize) return { truncated: true, size };
+
+  const isJson = (contentType ?? '').toLowerCase().includes('json');
+  if (!isJson) return redactBody({ body: text }, redactBodyKeys) as Record<string, unknown>;
+
+  try {
+    const parsed: unknown = JSON.parse(text);
+    const wrapped =
+      parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed)
+        ? parsed
+        : { body: parsed };
+
+    return redactBody(wrapped, redactBodyKeys) as Record<string, unknown>;
+  } catch {
+    return redactBody({ body: text }, redactBodyKeys) as Record<string, unknown>;
+  }
+}
+
+function materialisedText(body: BodyInit): string | undefined {
+  if (typeof body === 'string') return body;
+  if (body instanceof ArrayBuffer) return new TextDecoder().decode(body);
+  if (ArrayBuffer.isView(body)) return new TextDecoder().decode(body.buffer as ArrayBuffer);
+
+  return undefined;
+}
+
 export async function captureResponseBody(
   response: Response,
   capture: CaptureConfig,

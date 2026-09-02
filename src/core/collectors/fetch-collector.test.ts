@@ -221,3 +221,123 @@ describe('fetchCollector', () => {
     });
   });
 });
+
+describe('fetchCollector outgoing payload', () => {
+  const stubFetch = () => {
+    const original = globalThis.fetch;
+    globalThis.fetch = vi.fn(
+      async () => new Response('{"ok":true}', { headers: { 'content-type': 'application/json' } })
+    ) as unknown as typeof fetch;
+
+    return () => {
+      globalThis.fetch = original;
+    };
+  };
+
+  const payloadOf = async (
+    storage: ReturnType<typeof build>['storage']
+  ): Promise<Record<string, unknown>> => {
+    await vi.waitFor(async () => expect(await storage.count('outgoing_request')).toBe(1));
+    return (await storage.list('outgoing_request'))[0].payload;
+  };
+
+  it('records a JSON string body and redacts inside it', async () => {
+    const { storage, recorder } = build();
+    const restore = stubFetch();
+    const uninstall = fetchCollector().install(recorder);
+
+    await fetch('https://example.test/charge', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ amount: 10, token: 'secret-token' }),
+    });
+
+    uninstall();
+    restore();
+
+    expect(await payloadOf(storage)).toEqual({ amount: 10, token: '[REDACTED]' });
+  });
+
+  it('records a URLSearchParams body as an object and redacts it', async () => {
+    const { storage, recorder } = build();
+    const restore = stubFetch();
+    const uninstall = fetchCollector().install(recorder);
+
+    await fetch('https://example.test/token', {
+      method: 'POST',
+      body: new URLSearchParams({ grant_type: 'client_credentials', secret: 'sh' }),
+    });
+
+    uninstall();
+    restore();
+
+    expect(await payloadOf(storage)).toEqual({
+      grant_type: 'client_credentials',
+      secret: '[REDACTED]',
+    });
+  });
+
+  it('records metadata only for a body over the cap', async () => {
+    const { storage, recorder } = build();
+    const restore = stubFetch();
+    const uninstall = fetchCollector({ maxBodySize: 32 }).install(recorder);
+
+    await fetch('https://example.test/bulk', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ note: 'x'.repeat(200) }),
+    });
+
+    uninstall();
+    restore();
+
+    expect(await payloadOf(storage)).toMatchObject({ truncated: true });
+  });
+
+  it('skips a stream body rather than consuming what the caller is sending', async () => {
+    const { storage, recorder } = build();
+    const restore = stubFetch();
+    const uninstall = fetchCollector().install(recorder);
+
+    const stream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode('{"a":1}'));
+        controller.close();
+      },
+    });
+
+    const settled = await settleWithin(
+      fetch('https://example.test/stream', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: stream,
+        duplex: 'half',
+      } as RequestInit)
+    );
+
+    uninstall();
+    restore();
+
+    expect(settled).toBe('completed');
+    expect(await payloadOf(storage)).toEqual({});
+  });
+
+  it('skips the body of a Request object', async () => {
+    const { storage, recorder } = build();
+    const restore = stubFetch();
+    const uninstall = fetchCollector().install(recorder);
+
+    await fetch(
+      new Request('https://example.test/req', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ a: 1 }),
+      })
+    );
+
+    uninstall();
+    restore();
+
+    expect(await payloadOf(storage)).toEqual({});
+  });
+});

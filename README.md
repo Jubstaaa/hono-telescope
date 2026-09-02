@@ -39,7 +39,7 @@ public, capped at 500 and gone on restart. Don't send anything you wouldn't publ
 
 **Currently Available:**
 
-- 🔍 **HTTP Request Monitoring** - Track incoming requests with headers, payloads and response bodies, and outgoing `fetch` calls with headers and responses
+- 🔍 **HTTP Request Monitoring** - Track incoming requests with headers, payloads and response bodies, and outgoing `fetch` calls with headers, payloads and responses
 - 🚨 **Exception Tracking** - Capture and monitor application errors with stack traces
 - 📝 **Log Monitoring** - Monitor console logs with different severity levels
 - 🗄️ **Database Query Monitoring** - Explicit per-client instrumentation for Prisma, Sequelize, MongoDB, and Bun SQLite with execution time
@@ -257,8 +257,11 @@ and no sessions.
 
 ## Limitations
 
-- **Outgoing request bodies are not captured.** Outgoing `fetch` entries record the method,
-  URL, headers, status and response body; the request payload panel stays empty.
+- **Outgoing request bodies are captured only when they are already in memory** — a string,
+  a `URLSearchParams` or an `ArrayBuffer`. A `ReadableStream`, `FormData` or `Blob` body, and
+  the body of a `Request` object passed as the first argument to `fetch`, are skipped and the
+  payload stays empty. Reading those would either consume the body the caller is about to send
+  or force a `clone()` that can stall on Node.
 - **Streamed responses are not captured.** Responses produced by Hono's `streamText` and
   `streamSSE` are recorded without a body, so that recording never buffers or delays a stream.
   Detection relies on the `Transfer-Encoding: chunked` header those helpers set (the bare
