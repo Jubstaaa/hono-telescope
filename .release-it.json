@@ -64,7 +64,7 @@
             "hidden": true
           }
         ],
-        "preMajor": true
+        "preMajor": false
       }
     }
   },
