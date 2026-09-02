@@ -1,0 +1,32 @@
+# Runtime stack on the droplet (/opt/hono-telescope). Serves the example app
+# from this repository, published only on localhost:3006; the shared Caddy in
+# /opt/proxy terminates TLS (Cloudflare origin cert) and reverse-proxies to it,
+# alongside the other apps on this droplet. The image is pulled from GHCR by
+# the deploy workflow.
+services:
+  app:
+    image: ghcr.io/jubstaaa/hono-telescope:latest
+    container_name: hono-telescope
+    restart: unless-stopped
+    # One bundled Bun process holding at most 500 entries in memory; measured
+    # well under 100MB. 256m matches the other apps here.
+    mem_limit: 256m
+    # Reports only. Docker does not restart an unhealthy container, and Beszel
+    # cannot alert per container, so this fills the Health column and nothing
+    # more: it surfaces "process alive but application wedged", which the
+    # restart policy alone never catches. Bun serves on 0.0.0.0, so unlike the
+    # Next apps here the probe can use 127.0.0.1 rather than $HOSTNAME. wget is
+    # BusyBox — -T is the timeout, the GNU long options do not exist.
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -q -O /dev/null -T 3 "http://127.0.0.1:3000/" || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    environment:
+      NODE_ENV: production
+    # No volume on purpose. Telescope's entries live in memoryStorage and are
+    # gone on restart regardless, so persisting the example's SQLite file would
+    # only preserve half the demo's state.
+    ports:
+      - '127.0.0.1:3006:3000'

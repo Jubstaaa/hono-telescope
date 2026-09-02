@@ -14,3 +14,6 @@ coverage
 .turbo
 .release-it.json
 eslint.config.js
+*.db
+*.db-shm
+*.db-wal
