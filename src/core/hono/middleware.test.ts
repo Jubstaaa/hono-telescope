@@ -18,6 +18,23 @@ function build(overrides: TelescopeConfig = {}) {
   return { app, storage, recorder, config };
 }
 
+const SETTLE_LIMIT_MS = 1000;
+
+async function settleWithin(work: Promise<unknown>): Promise<'completed' | 'stalled'> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+
+  try {
+    return await Promise.race([
+      work.then(() => 'completed' as const),
+      new Promise<'stalled'>((resolve) => {
+        timer = setTimeout(() => resolve('stalled'), SETTLE_LIMIT_MS);
+      }),
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 describe('createMiddleware', () => {
   it('records method, uri, status and duration', async () => {
     const { app, storage } = build();
@@ -258,5 +275,35 @@ describe('createMiddleware', () => {
     });
 
     expect((await storage.list('incoming_request'))[0].payload).toEqual({});
+  });
+
+  it('completes an oversize json response and records only its metadata', async () => {
+    const { app, storage } = build({ capture: { maxBodySize: 50 } });
+    const payload = { data: 'x'.repeat(500) };
+    app.get('/big', (c) => c.json(payload));
+
+    const request = Promise.resolve(app.request('/big'));
+    expect(await settleWithin(request)).toBe('completed');
+
+    expect(await (await request).json()).toEqual(payload);
+    expect((await storage.list('incoming_request'))[0].response).toEqual({
+      truncated: true,
+      size: 50,
+    });
+  });
+
+  it('completes an oversize text response and records only its metadata', async () => {
+    const { app, storage } = build({ capture: { maxBodySize: 50 } });
+    const body = 'y'.repeat(500);
+    app.get('/big-text', (c) => c.text(body));
+
+    const request = Promise.resolve(app.request('/big-text'));
+    expect(await settleWithin(request)).toBe('completed');
+
+    expect(await (await request).text()).toBe(body);
+    expect((await storage.list('incoming_request'))[0].response).toEqual({
+      truncated: true,
+      size: 50,
+    });
   });
 });
