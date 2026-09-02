@@ -1,0 +1,76 @@
+name: Release
+
+# Tags in this repo are bare semver (1.1.1), not v-prefixed: 1.0.0 onwards were cut that way
+# and switching now would fragment an already mixed tag history.
+on:
+  push:
+    tags: ['[0-9]+.[0-9]+.[0-9]+']
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - run: bun install --frozen-lockfile
+      - run: bun run lint
+      - run: bun run type-check
+      - run: bun run test
+      - run: bun run format:check
+
+      # Releasing from a clean checkout is the point of this workflow. Publishing from a laptop
+      # once shipped a stale `dist/` that still imported cleanly, so 1.1.0 went out without the
+      # changes its own changelog advertised. publishBuild now removes dist first and refuses a
+      # duplicated `dist/src/` tree.
+      - run: bun run publishBuild
+
+      - name: Verify the tag matches package.json
+        run: |
+          TAG="$GITHUB_REF_NAME"
+          PKG=$(node -p "require('./package.json').version")
+          if [ "$TAG" != "$PKG" ]; then
+            echo "Tag $TAG does not match package.json version $PKG"
+            exit 1
+          fi
+
+      - name: Publish to npm
+        run: |
+          PKG=$(node -p "require('./package.json').name")
+          VER=$(node -p "require('./package.json').version")
+          if npm view "$PKG@$VER" version >/dev/null 2>&1; then
+            echo "$PKG@$VER is already on npm; nothing to publish."
+            exit 0
+          fi
+          npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            echo "Release $GITHUB_REF_NAME already exists; leaving it alone."
+            exit 0
+          fi
+          awk -v ver="## [$GITHUB_REF_NAME]" '
+            index($0, ver) == 1 { grab = 1; next }
+            grab && /^## \[/    { exit }
+            grab                { print }
+          ' CHANGELOG.md > /tmp/notes.md
+          if [ ! -s /tmp/notes.md ]; then
+            echo "No changelog entry for $GITHUB_REF_NAME" >&2
+            exit 1
+          fi
+          gh release create "$GITHUB_REF_NAME" --title "Release v$GITHUB_REF_NAME" \
+            --notes-file /tmp/notes.md --verify-tag --latest
