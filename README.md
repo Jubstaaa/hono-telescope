@@ -51,6 +51,7 @@ public, capped at 500 and gone on restart. Don't send anything you wouldn't publ
 - 🌐 **Bun & Node.js** - Works with both runtimes seamlessly
 - 🗂️ **Multiple Database Support** - Integrates with popular database libraries
 - ⚙️ **Zero Runtime Dependencies** - Depends only on Hono (peer dependency)
+- 📡 **MCP Server** - Model Context Protocol endpoint so AI agents can read live telemetry
 
 **Planned Features (Roadmap):**
 
@@ -61,7 +62,6 @@ public, capped at 500 and gone on restart. Don't send anything you wouldn't publ
 - 🌍 **Multi-Tenancy Support** - Support for multiple isolated projects
 - 🧩 **Plugin System** - Extensible plugin architecture for custom integrations
 - 🔄 **Data Persistence** - Optional database storage for long-term monitoring
-- 📡 **MCP Server** - Model Context Protocol server for AI integration
 
 ## 📦 Installation
 
@@ -213,6 +213,41 @@ createTelescope({
 ```
 
 Sensitive headers (`authorization`, `cookie`, `set-cookie`, `x-api-key`, `proxy-authorization`) and body keys (`password`, `token`, `secret`, `apikey`, `authorization`) are redacted by default, at any nesting depth. Redaction is recursive through nested objects and arrays, case-insensitive, and replaces values with `[REDACTED]` rather than deleting them.
+
+## MCP Server
+
+Telescope's dashboard doubles as an [MCP](https://modelcontextprotocol.io) server, so an AI
+coding agent can read the running application's telemetry instead of being handed pasted stack
+traces. There is nothing extra to mount — it is served from the dashboard you already mounted:
+
+```typescript
+app.route('/telescope', telescope.dashboard()); // MCP is at /telescope/mcp
+```
+
+```bash
+claude mcp add --transport http telescope http://localhost:3000/telescope/mcp
+```
+
+| Tool                | What it answers                                                                        |
+| ------------------- | -------------------------------------------------------------------------------------- |
+| `recent_exceptions` | What just failed — each exception with its request and that request's logs and queries |
+| `recent_requests`   | Which requests ran; filter by `minStatus`, `status`, `minDuration`, `uriContains`      |
+| `request_detail`    | One request in full, untruncated, with every child entry                               |
+| `slow_queries`      | The slowest recent queries and which request each ran in                               |
+| `stats`             | How many entries of each type exist                                                    |
+
+All five are read-only; there is no tool that clears or writes telemetry. `minStatus: 400` is
+the one worth remembering — a handler that returns an error status without throwing records no
+exception, so that filter is the only way to find those failures.
+
+The transport is the current Streamable HTTP revision (`2026-07-28`), with `2025-11-25` still
+accepted for older clients. `GET` and `DELETE` answer `405`: this revision has no SSE stream
+and no sessions.
+
+> **The MCP endpoint exposes exactly what the dashboard exposes** — request and response
+> bodies, headers and SQL — to whatever agent you connect. It is covered by `dashboard.auth`
+> and by the same production refusal: with `enabled: true` under `NODE_ENV=production`,
+> mounting without credentials throws.
 
 ## Limitations
 

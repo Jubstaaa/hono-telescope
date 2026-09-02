@@ -1,5 +1,17 @@
 
 
+## [1.1.0](https://github.com/jubstaaa/hono-telescope/compare/1.0.0...1.1.0) (YYYY-MM-DD)
+
+
+### ✨ Features
+
+* **mcp:** serve an MCP endpoint from the dashboard so AI agents can read live telemetry — five
+  read-only tools (`recent_exceptions`, `recent_requests`, `request_detail`, `slow_queries`,
+  `stats`) over the existing `StorageAdapter`, with no new runtime dependency and no change to
+  the storage contract. Streamable HTTP (`2026-07-28`, with `2025-11-25` accepted), covered by
+  `dashboard.auth` and the production guard.
+
+
 ## [1.0.0](https://github.com/jubstaaa/hono-telescope/compare/0.1.18...1.0.0) (2026-09-02)
 
 The core has been rewritten. 0.x was a private-constructor singleton that monkey-patched
