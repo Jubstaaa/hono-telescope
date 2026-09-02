@@ -101,3 +101,99 @@ describe('hono-telescope end to end', () => {
     expect(JSON.stringify(request.response)).not.toContain('one');
   });
 });
+
+describe('mcp endpoint', () => {
+  const mcp = (app: Hono, body: unknown) =>
+    app.request('/telescope/mcp', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+
+  const callTool = async (app: Hono, name: string, args: Record<string, unknown> = {}) => {
+    const response = await mcp(app, {
+      jsonrpc: '2.0',
+      id: 1,
+      method: 'tools/call',
+      params: { name, arguments: args },
+    });
+    const body = (await response.json()) as { result: { structuredContent: unknown } };
+
+    return body.result.structuredContent;
+  };
+
+  it('explains a failed request through recent_exceptions', async () => {
+    const { app } = build();
+    app.get('/boom', () => {
+      console.log('about to fail');
+      throw new Error('kaboom');
+    });
+    app.onError((_error, c) => c.json({ error: 'internal' }, 500));
+
+    await app.request('/boom');
+
+    const result = (await callTool(app, 'recent_exceptions')) as {
+      exceptions: { message: string; request: { uri: string; response_status: number } }[];
+    };
+
+    expect(result.exceptions[0]).toMatchObject({
+      message: 'kaboom',
+      request: { uri: '/boom', response_status: 500 },
+    });
+  });
+
+  it('finds an error status that never threw, via minStatus', async () => {
+    const { app } = build();
+    app.get('/missing', (c) => c.json({ error: 'nope' }, 404));
+
+    await app.request('/missing');
+
+    const result = (await callTool(app, 'recent_requests', { minStatus: 400 })) as {
+      requests: { uri: string; response_status: number }[];
+    };
+
+    expect(result.requests).toMatchObject([{ uri: '/missing', response_status: 404 }]);
+  });
+
+  it('assembles the whole request tree that the collectors recorded', async () => {
+    const { app } = build();
+
+    await app.request('/orders', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ password: 'hunter2' }),
+    });
+
+    const listed = (await callTool(app, 'recent_requests')) as { requests: { id: string }[] };
+    const detail = (await callTool(app, 'request_detail', { id: listed.requests[0].id })) as {
+      request: {
+        uri: string;
+        payload: Record<string, unknown>;
+        logs: unknown[];
+        queries: unknown[];
+        outgoing: unknown[];
+      };
+    };
+
+    expect(detail.request.uri).toBe('/orders');
+    expect(detail.request.payload).toMatchObject({ password: '[REDACTED]' });
+    expect(detail.request.logs).toHaveLength(1);
+    expect(detail.request.queries).toHaveLength(1);
+    expect(detail.request.outgoing).toHaveLength(1);
+  });
+
+  it('does not record its own traffic', async () => {
+    const { app } = build();
+    await app.request('/orders', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ password: 'x' }),
+    });
+
+    const before = (await callTool(app, 'stats')) as { incomingRequests: { total: number } };
+    await callTool(app, 'stats');
+    const after = (await callTool(app, 'stats')) as { incomingRequests: { total: number } };
+
+    expect(after.incomingRequests.total).toBe(before.incomingRequests.total);
+  });
+});
