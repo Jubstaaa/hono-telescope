@@ -1,6 +1,6 @@
 
 
-## Unreleased
+## [1.2.1](https://github.com/jubstaaa/hono-telescope/compare/1.2.0...1.2.1) (2026-09-02)
 
 
 ### ✨ Features
