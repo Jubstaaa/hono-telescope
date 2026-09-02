@@ -57,7 +57,9 @@ async function readTextBody(c: Context, config: ResolvedConfig): Promise<unknown
 
   try {
     const parsed: unknown = JSON.parse(text);
-    return parsed !== null && typeof parsed === 'object' ? parsed : { body: parsed };
+    return parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed)
+      ? parsed
+      : { body: parsed };
   } catch {
     return { body: text };
   }

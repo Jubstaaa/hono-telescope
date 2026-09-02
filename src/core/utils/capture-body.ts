@@ -100,7 +100,7 @@ export async function captureResponseBody(
 function parse(text: string): Record<string, unknown> {
   try {
     const parsed: unknown = JSON.parse(text);
-    return parsed !== null && typeof parsed === 'object'
+    return parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed)
       ? (parsed as Record<string, unknown>)
       : { response: parsed };
   } catch {

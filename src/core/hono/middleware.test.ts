@@ -253,6 +253,30 @@ describe('createMiddleware', () => {
     expect((await storage.list('incoming_request'))[0].payload).toEqual({ name: 'ada' });
   });
 
+  it('wraps a JSON array request body under `body` and still redacts inside it', async () => {
+    const { app, storage } = build();
+    app.post('/bulk', (c) => c.json({ ok: true }));
+
+    await app.request('/bulk', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify([{ password: 'hunter2' }, { name: 'ada' }]),
+    });
+
+    expect((await storage.list('incoming_request'))[0].payload).toEqual({
+      body: [{ password: '[REDACTED]' }, { name: 'ada' }],
+    });
+  });
+
+  it('wraps a JSON array response body under `response`', async () => {
+    const { app, storage } = build();
+    app.get('/list', (c) => c.json([1, 2, 3]));
+
+    await app.request('/list');
+
+    expect((await storage.list('incoming_request'))[0].response).toEqual({ response: [1, 2, 3] });
+  });
+
   it('records an empty payload for a bodyless JSON POST', async () => {
     const { app, storage } = build();
     app.post('/empty', (c) => c.json({ ok: true }));

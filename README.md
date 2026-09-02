@@ -262,7 +262,9 @@ and no sessions.
   or a non-text content type on such a response to opt it out of capture.
 - **Request and response bodies larger than `capture.maxBodySize` are recorded as metadata
   only** (`{ truncated: true, size }`), and a non-JSON `text/*` request body is recorded as
-  `{ body: text }`.
+  `{ body: text }`. A JSON array body is wrapped so that a recorded body is always an object:
+  `{ body: [...] }` for requests, `{ response: [...] }` for responses. Redaction still reaches
+  inside the array.
 
 ## Custom Storage Adapters
 
