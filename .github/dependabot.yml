@@ -35,3 +35,10 @@ updates:
     # usually caught and pulled within days.
     cooldown:
       default-days: 7
+  # Keeps the pinned oven/bun base image current; never auto-merged.
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7

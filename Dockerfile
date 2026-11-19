@@ -4,7 +4,7 @@
 # The full install, not --production: this image serves the example app, which
 # imports axios and dayjs, and both are devDependencies of the library. Pruning
 # them leaves an image that cannot start.
-FROM oven/bun:1-alpine AS deps
+FROM oven/bun:1.4.4-alpine AS deps
 WORKDIR /app
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
@@ -19,7 +19,7 @@ RUN bun install --frozen-lockfile
 # node_modules at all. node_modules is 295MB here and almost all of it (antd,
 # typescript, babel) is build-time only, while the example's entire runtime
 # surface is axios, dayjs, hono and the bun:sqlite builtin.
-FROM oven/bun:1-alpine AS build
+FROM oven/bun:1.4.4-alpine AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -28,7 +28,7 @@ RUN bun run build \
 
 # ─── runner ──────────────────────────────────────────────────────────────
 # Bun, not Node: the example reads its data through bun:sqlite.
-FROM oven/bun:1-alpine AS runner
+FROM oven/bun:1.4.4-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
