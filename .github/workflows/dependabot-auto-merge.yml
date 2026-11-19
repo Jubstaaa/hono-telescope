@@ -26,17 +26,17 @@ jobs:
       # branch is behind main the merge is refused, and the rebase Dependabot
       # pushes runs this again.
       - if: >-
-            (steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
-             steps.metadata.outputs.update-type == 'version-update:semver-minor') &&
-            steps.metadata.outputs.package-ecosystem != 'github_actions' &&
-            steps.metadata.outputs.package-ecosystem != 'docker'
+          (steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
+           steps.metadata.outputs.update-type == 'version-update:semver-minor') &&
+          steps.metadata.outputs.package-ecosystem != 'github_actions' &&
+          steps.metadata.outputs.package-ecosystem != 'docker'
         env:
-            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            PR_URL: ${{ github.event.pull_request.html_url }}
-            BASE: ${{ github.event.pull_request.base.ref }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          BASE: ${{ github.event.pull_request.base.ref }}
         run: |
-            # Let the required checks register before watching them.
-            sleep 30
-            gh pr checks "$PR_URL" --required --watch --fail-fast --interval 20
-            gh pr merge --merge "$PR_URL"
-            gh workflow run deploy.yml --ref "$BASE"
+          # Let the required checks register before watching them.
+          sleep 30
+          gh pr checks "$PR_URL" --required --watch --fail-fast --interval 20
+          gh pr merge --merge "$PR_URL"
+          gh workflow run deploy.yml --ref "$BASE"
