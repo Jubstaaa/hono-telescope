@@ -8,9 +8,9 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@types': path.resolve(__dirname, './src/types'),
-      '@core': path.resolve(__dirname, './src/core'),
+      '@': path.resolve(import.meta.dirname, './src'),
+      '@types': path.resolve(import.meta.dirname, './src/types'),
+      '@core': path.resolve(import.meta.dirname, './src/core'),
     },
   },
   server: {
