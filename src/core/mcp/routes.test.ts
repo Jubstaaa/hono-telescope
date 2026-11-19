@@ -36,7 +36,7 @@ describe('mcp routes', () => {
 
     expect(get.status).toBe(405);
     expect(del.status).toBe(405);
-    expect(await get.text()).not.toContain('__TELESCOPE_BASE__');
+    expect(await get.text()).not.toContain('telescope-base');
   });
 
   it('lists the tools', async () => {

@@ -31,8 +31,8 @@ describe('createDashboard', () => {
     const html = await response.text();
 
     expect(response.status).toBe(200);
-    expect(html).toContain('__TELESCOPE_BASE__');
-    expect(html).toContain('/debug');
+    expect(html).toContain('<meta name="telescope-base" content="/debug">');
+    expect(html).toContain('src="/debug/assets/');
   });
 
   it('serves the SPA html for a nested client route', async () => {
@@ -98,7 +98,10 @@ describe('createDashboard', () => {
     const { app, recorder } = build();
     await recorder.record('log', { level: 1, message: 'x' });
 
-    await app.request('/telescope/api/clear', { method: 'POST' });
+    await app.request('/telescope/api/clear', {
+      headers: { 'sec-fetch-site': 'same-origin' },
+      method: 'POST',
+    });
 
     expect(await recorder.count('log')).toBe(0);
   });
@@ -165,5 +168,72 @@ describe('createDashboard', () => {
 
     expect(response.status).toBe(200);
     expect(response.headers.get('content-type')).toBe(asset.contentType);
+  });
+
+  it('escapes the base path where it lands in the html', async () => {
+    const { app } = build({ dashboardPath: '/a"><script>x</script>' });
+
+    const html = await (await app.request('/a"><script>x</script>')).text();
+
+    expect(html).not.toContain('<script>x</script>');
+  });
+
+  it('caches content-hashed assets for good', async () => {
+    const { app } = build();
+    const { DASHBOARD_ASSETS } = await import('./dashboard-assets.js');
+    const [file] = Object.entries(DASHBOARD_ASSETS)[0];
+
+    const response = await app.request(`/telescope/assets/${file}`);
+
+    expect(response.headers.get('cache-control')).toBe('max-age=31536000, immutable');
+  });
+
+  it('sends a CSP that runs no inline script, and refuses framing by other origins', async () => {
+    const { app } = build();
+
+    const response = await app.request('/telescope');
+    const csp = response.headers.get('content-security-policy') ?? '';
+
+    expect(csp).toContain("script-src 'self'");
+    expect(csp).not.toMatch(/script-src[^;]*unsafe-inline/);
+    expect(csp).toContain("frame-ancestors 'self'");
+    expect(response.headers.get('x-content-type-options')).toBe('nosniff');
+    expect(await response.text()).not.toMatch(/<script(?![^>]*\bsrc=)[^>]*>/);
+  });
+
+  it('leaves HSTS to the app, which may serve the dashboard over plain http', async () => {
+    const { app } = build();
+
+    expect((await app.request('/telescope')).headers.get('strict-transport-security')).toBeNull();
+  });
+
+  it('refuses a cross-site form post to clear the data', async () => {
+    const { app, recorder } = build();
+    await recorder.record('log', { level: 1, message: 'x' });
+
+    const response = await app.request('http://localhost/telescope/api/clear', {
+      body: 'x=1',
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+        origin: 'https://evil.example',
+      },
+      method: 'POST',
+    });
+
+    expect(response.status).toBe(403);
+    expect(await recorder.count('log')).toBe(1);
+  });
+
+  it('still clears on a same-origin request from the dashboard', async () => {
+    const { app, recorder } = build();
+    await recorder.record('log', { level: 1, message: 'x' });
+
+    const response = await app.request('http://localhost/telescope/api/clear', {
+      headers: { origin: 'http://localhost' },
+      method: 'POST',
+    });
+
+    expect(response.status).toBe(200);
+    expect(await recorder.count('log')).toBe(0);
   });
 });

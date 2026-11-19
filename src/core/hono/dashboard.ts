@@ -1,5 +1,8 @@
 import { Hono } from 'hono';
 import { basicAuth } from 'hono/basic-auth';
+import { csrf } from 'hono/csrf';
+import { html as escapedHtml } from 'hono/html';
+import { secureHeaders } from 'hono/secure-headers';
 
 import type { EntryType, ResolvedConfig } from '../../types/index.js';
 import { mountMcp } from '../mcp/routes.js';
@@ -30,17 +33,34 @@ const MAPPERS = {
   query: mapQuery,
 } as const;
 
+// The base path travels in a meta tag rather than an inline script, so the CSP below needs
+// neither 'unsafe-inline' nor a per-request nonce for scripts.
 function renderHtml(basePath: string): string {
-  const script = `<script>window.__TELESCOPE_BASE__=${JSON.stringify(basePath).replace(/</g, '\\u003C')};</script>`;
-  const withBase = DASHBOARD_HTML.replace(
-    /(src|href)=["']\.?\/?assets\//g,
-    `$1="${basePath}/assets/`
-  );
+  const meta = escapedHtml`<meta name="telescope-base" content="${basePath}">`.toString();
+  const base = escapedHtml`${basePath}`.toString();
+  const withBase = DASHBOARD_HTML.replace(/(src|href)=["']\.?\/?assets\//g, `$1="${base}/assets/`);
 
   return withBase.includes('</head>')
-    ? withBase.replace('</head>', `${script}</head>`)
-    : `${script}${withBase}`;
+    ? withBase.replace('</head>', `${meta}</head>`)
+    : `${meta}${withBase}`;
 }
+
+// antd injects its CSS-in-JS as <style> elements, hence 'unsafe-inline' for styles only.
+// HSTS is left to the host app: the dashboard is often served over plain http in development.
+const SECURITY_HEADERS = secureHeaders({
+  contentSecurityPolicy: {
+    baseUri: ["'self'"],
+    connectSrc: ["'self'"],
+    defaultSrc: ["'self'"],
+    formAction: ["'self'"],
+    frameAncestors: ["'self'"],
+    imgSrc: ["'self'", 'data:'],
+    objectSrc: ["'none'"],
+    scriptSrc: ["'self'"],
+    styleSrc: ["'self'", "'unsafe-inline'"],
+  },
+  strictTransportSecurity: false,
+});
 
 export function createDashboard(recorder: Recorder, config: ResolvedConfig): Hono {
   if (
@@ -57,15 +77,24 @@ export function createDashboard(recorder: Recorder, config: ResolvedConfig): Hon
   const app = new Hono();
   const html = renderHtml(config.dashboardPath);
 
+  app.use('*', SECURITY_HEADERS);
+
   if (config.dashboard.auth) {
     app.use('*', basicAuth(config.dashboard.auth));
   }
+
+  // Basic-auth credentials ride along on a cross-site form post, so without this any page the
+  // developer visits could clear the recorded data. Not on /mcp: MCP clients send no Origin,
+  // and every MCP tool is read-only.
+  app.use('/api/*', csrf());
 
   app.get('/assets/:file', (c) => {
     const asset = DASHBOARD_ASSETS[c.req.param('file')];
     if (!asset) return c.json({ error: 'Not found' }, 404);
 
     c.header('Content-Type', asset.contentType);
+    // File names carry a content hash. Not `public`: behind basic auth a shared cache must not keep it.
+    c.header('Cache-Control', 'max-age=31536000, immutable');
     return c.body(asset.body);
   });
 

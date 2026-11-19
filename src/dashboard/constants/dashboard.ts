@@ -1,7 +1,5 @@
-declare global {
-  interface Window {
-    __TELESCOPE_BASE__?: string;
-  }
-}
+const DEFAULT_BASE = '/telescope';
 
-export const DASHBOARD_BASE = (): string => window.__TELESCOPE_BASE__ ?? '/telescope';
+// The server writes the mount path into a meta tag; `vite dev` serves the page without it.
+export const DASHBOARD_BASE = (): string =>
+  document.querySelector<HTMLMetaElement>('meta[name="telescope-base"]')?.content ?? DEFAULT_BASE;
