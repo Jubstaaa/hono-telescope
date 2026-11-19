@@ -260,4 +260,12 @@ describe('createDashboard', () => {
 
     expect(response.status).toBe(403);
   });
+
+  it('asks intermediaries not to inject scripts its CSP would block', async () => {
+    const { app } = build();
+
+    const response = await app.request('/telescope/incoming-requests');
+
+    expect(response.headers.get('cache-control')).toContain('no-transform');
+  });
 });
