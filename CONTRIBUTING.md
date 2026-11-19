@@ -59,6 +59,10 @@ Documentation improvements are always welcome!
 # Install dependencies
 bun install
 
+# Build the dashboard bundle the library inlines (generated, not committed);
+# type-check, tests and the example need it. `bun run build` includes it.
+bun run build:dashboard
+
 # Run TypeScript in watch mode
 bun run dev
 

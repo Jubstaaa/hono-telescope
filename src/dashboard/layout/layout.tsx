@@ -25,9 +25,9 @@ import {
 } from 'antd';
 
 import { Sidebar } from '../components/sidebar/sidebar';
-import { useTheme } from '../context/theme.context';
 import { refreshAllEntries, useClearData } from '../hooks/use-entries';
 import TelescopeIcon from '../telescope-icon.svg';
+import { useTheme } from '../theme-context';
 
 const { Content, Header, Sider } = Layout;
 const { Title } = Typography;

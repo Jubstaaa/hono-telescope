@@ -1,11 +1,10 @@
 import { Hono } from 'hono';
 import type { MiddlewareHandler } from 'hono';
 
-import type { ResolvedConfig, TelescopeConfig } from '../types/index.js';
-
 import { consoleCollector } from './collectors/console-collector.js';
 import { exceptionCollector } from './collectors/exception-collector.js';
 import { fetchCollector } from './collectors/fetch-collector.js';
+import type { ResolvedConfig, TelescopeConfig } from './config.js';
 import { resolveConfig } from './config.js';
 import { createDashboard } from './hono/dashboard.js';
 import { createMiddleware } from './hono/middleware.js';

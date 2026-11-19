@@ -1,4 +1,4 @@
-import type { EntryMap, EntryType } from '../../types/index.js';
+import type { EntryMap, EntryType } from '../entries.js';
 
 export interface ListOptions {
   limit?: number;

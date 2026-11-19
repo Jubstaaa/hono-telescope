@@ -28,6 +28,9 @@ jobs:
         with:
           node-version: 22
       - run: bun install --frozen-lockfile
+      # The dashboard bundle is inlined into a generated module the library imports; it is
+      # not committed, so type-check and the tests need it built first.
+      - run: bun run build:dashboard
       - run: bun run format:check
       - run: bun run lint
       - run: bun run type-check

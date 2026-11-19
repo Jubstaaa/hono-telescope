@@ -2,8 +2,8 @@ import { StrictMode } from 'react';
 
 import { RouterProvider } from 'react-router';
 
-import { ThemeProvider } from './context/theme.context';
 import { router } from './routes/router';
+import { ThemeProvider } from './theme-context';
 
 function App() {
   return (

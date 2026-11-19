@@ -1,10 +1,15 @@
 import { Tag } from 'antd';
 
-import { formatDate } from '../../utils/format';
+import type { QueryResponse } from '@/core/hono/dashboard-api';
+
+import { formatDate } from '../../format';
 import DurationTag from '../duration-tag/duration-tag';
 import Table from '../entry-table/entry-table';
 
-import type { QueryTableProps } from './query-table.types.js';
+interface QueryTableProps {
+  entries: QueryResponse[];
+  loading?: boolean;
+}
 
 export const QueryTable = ({ entries, loading }: QueryTableProps) => {
   const columns = [
@@ -36,5 +41,3 @@ export const QueryTable = ({ entries, loading }: QueryTableProps) => {
 
   return <Table columns={columns} dataSource={entries} loading={loading} path="queries" />;
 };
-
-export default QueryTable;

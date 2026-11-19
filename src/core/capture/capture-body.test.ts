@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { CaptureConfig } from '../../types/index.js';
+import type { CaptureConfig } from '../config.js';
 
 import { captureResponseBody, isCapturableContentType, readCappedText } from './capture-body.js';
 

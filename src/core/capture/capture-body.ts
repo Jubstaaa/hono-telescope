@@ -1,6 +1,6 @@
 import { Buffer } from 'node:buffer';
 
-import type { CaptureConfig } from '../../types/index.js';
+import type { CaptureConfig } from '../config.js';
 
 import { redactBody } from './redact.js';
 
@@ -20,7 +20,7 @@ export function isCapturableContentType(contentType: string | null): boolean {
  * `text/plain`, which would otherwise look capturable. Reading such a body would hold the
  * response until the handler finished streaming.
  */
-export function isStreamedResponse(response: Response): boolean {
+function isStreamedResponse(response: Response): boolean {
   const contentType = response.headers.get('content-type')?.toLowerCase() ?? '';
   if (contentType.startsWith('text/event-stream')) return true;
 

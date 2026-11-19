@@ -1,8 +1,7 @@
 import dayjs from 'dayjs';
-import localizedFormat from 'dayjs/plugin/localizedFormat';
 import prettyMs from 'pretty-ms';
 
-dayjs.extend(localizedFormat);
+import { LogLevel } from '@/core/entries';
 
 export const getStatusColor = (status?: number): string => {
   if (!status) return 'default';
@@ -45,19 +44,7 @@ export const formatDate = (createdAt: string): string => {
   return dayjs(createdAt).format('YYYY-MM-DD HH:mm:ss');
 };
 
-export const getLevelName = (level: number): string => {
-  const levels: Record<number, string> = {
-    0: 'DEBUG',
-    1: 'INFO',
-    2: 'NOTICE',
-    3: 'WARNING',
-    4: 'ERROR',
-    5: 'CRITICAL',
-    6: 'ALERT',
-    7: 'EMERGENCY',
-  };
-  return levels[level] || 'UNKNOWN';
-};
+export const getLevelName = (level: number): string => LogLevel[level] ?? 'UNKNOWN';
 
 export const getExceptionClassName = (classNum: number): string => {
   const classes: Record<number, string> = {

@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
 [![Bun](https://img.shields.io/badge/Bun-Ready-black.svg)](https://bun.sh/)
-[![Node.js](https://img.shields.io/badge/Node.js->=18.0.0-green.svg)](https://nodejs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js->=22-green.svg)](https://nodejs.org/)
 [![GitHub stars](https://img.shields.io/github/stars/jubstaaa/hono-telescope?style=social)](https://github.com/jubstaaa/hono-telescope)
 [![GitHub watchers](https://img.shields.io/github/watchers/jubstaaa/hono-telescope?style=social)](https://github.com/jubstaaa/hono-telescope)
 
@@ -26,7 +26,7 @@ Zero runtime dependencies. Works on Node.js and Bun.
 
 ## 🌐 Live Demo
 
-A hosted instance of [the example app](./src/example/index.ts), running 1.0. No installation needed.
+A hosted instance of [the example app](./src/example/index.ts), deployed from `main`. No installation needed.
 
 **[📊 Open the dashboard](https://hono-telescope.ilkerbalcilar.com/telescope)** — API base: `https://hono-telescope.ilkerbalcilar.com`
 
@@ -220,7 +220,7 @@ All options are optional — `createTelescope()` works with the defaults.
 | `context`              | `ContextStrategy`        | `alsContext()`                                                                  | AsyncLocalStorage-based request context tracking                                |
 | `collectors`           | `Collector[]`            | `[consoleCollector(), exceptionCollector(), fetchCollector()]`                  | Default collectors for console, exceptions, and fetch; pass `[]` to disable all |
 | `dashboardPath`        | `string`                 | `'/telescope'`                                                                  | Dashboard mount path; must match the path in `app.route()`                      |
-| `ignorePaths`          | `string[]`               | `['.well-known']`                                                               | Paths to exclude from monitoring                                                |
+| `ignorePaths`          | `string[]`               | `['/.well-known']`                                                              | Paths to exclude from monitoring                                                |
 | `ignoreStaticAssets`   | `boolean`                | `true`                                                                          | Skip monitoring requests for static files (.js, .css, .svg, etc.)               |
 | `capture.requestBody`  | `boolean`                | `true`                                                                          | Capture incoming request bodies                                                 |
 | `capture.responseBody` | `boolean`                | `true`                                                                          | Capture outgoing response bodies                                                |
@@ -388,7 +388,8 @@ First, install dependencies:
 bun install
 ```
 
-Then build the project for the first time:
+Then build the project for the first time (this also generates the inlined dashboard bundle,
+which is not committed):
 
 ```bash
 bun run build

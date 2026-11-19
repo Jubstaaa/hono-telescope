@@ -1,7 +1,7 @@
 import { ReloadOutlined } from '@ant-design/icons';
 import { Button, Flex, theme, Typography } from 'antd';
 
-import type { ExceptionResponse } from '@/types';
+import type { ExceptionResponse } from '@/core/hono/dashboard-api';
 
 import { ExceptionTable } from '../../components/exception-table/exception-table';
 import { useList } from '../../hooks/use-entries';

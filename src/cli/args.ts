@@ -1,11 +1,11 @@
-export interface StdioArgs {
+import { parseArgs } from 'node:util';
+
+interface StdioArgs {
   headers: Record<string, string>;
   url: string;
 }
 
 export type ParsedStdioArgs = { args: StdioArgs; ok: true } | { message: string; ok: false };
-
-const FLAGS = ['--url', '--header'] as const;
 
 const HEADER_SHAPE = "expected 'Name: value'";
 
@@ -27,41 +27,25 @@ export function parseStdioArgs(
   argv: string[],
   env: Record<string, string | undefined>
 ): ParsedStdioArgs {
+  let values: { header?: string[]; url?: string };
+  try {
+    ({ values } = parseArgs({
+      args: argv,
+      options: { header: { multiple: true, type: 'string' }, url: { type: 'string' } },
+      strict: true,
+    }));
+  } catch (error) {
+    return failure(error instanceof Error ? error.message : String(error));
+  }
+
   const headers: Record<string, string> = {};
-  let url = env.TELESCOPE_URL;
-
-  if (env.TELESCOPE_HEADER !== undefined) {
-    const problem = addHeader(headers, env.TELESCOPE_HEADER);
+  for (const raw of [env.TELESCOPE_HEADER, ...(values.header ?? [])]) {
+    if (raw === undefined) continue;
+    const problem = addHeader(headers, raw);
     if (problem !== undefined) return failure(problem);
   }
 
-  for (let index = 0; index < argv.length; index += 1) {
-    const arg = argv[index];
-    const equals = arg.startsWith('--') ? arg.indexOf('=') : -1;
-    const flag = equals === -1 ? arg : arg.slice(0, equals);
-
-    if (!FLAGS.includes(flag as (typeof FLAGS)[number])) {
-      return failure(
-        arg.startsWith('-') ? `unknown flag "${arg}"` : `unexpected argument "${arg}"`
-      );
-    }
-
-    let value = equals === -1 ? undefined : arg.slice(equals + 1);
-    if (value === undefined) {
-      index += 1;
-      value = argv[index];
-    }
-
-    if (value === undefined || value.length === 0) return failure(`${flag} needs a value`);
-
-    if (flag === '--url') {
-      url = value;
-      continue;
-    }
-
-    const problem = addHeader(headers, value);
-    if (problem !== undefined) return failure(problem);
-  }
+  const url = values.url ?? env.TELESCOPE_URL;
 
   if (url === undefined || url.length === 0) {
     return failure('no telescope endpoint given: pass --url or set TELESCOPE_URL');

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { LogEntry } from '../../types/index.js';
+import type { LogEntry } from '../entries.js';
 
 import { memoryStorage } from './memory-storage.js';
 import { runStorageContract } from './storage-contract.js';

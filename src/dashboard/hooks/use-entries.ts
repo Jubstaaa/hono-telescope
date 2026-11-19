@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import type { DashboardStats } from '@/types';
+import type { DashboardStats } from '@/core/hono/dashboard-api';
 
-import { DASHBOARD_BASE } from '../constants/dashboard';
+import { DASHBOARD_BASE } from '../base-path';
 
 const REFRESH_EVENT = 'telescope:refresh';
 

@@ -2,23 +2,12 @@ import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
 
+import { getMimeType } from 'hono/utils/mime';
+
 const HERE = fileURLToPath(new URL('.', import.meta.url));
 const DASHBOARD_DIR = join(HERE, '..', 'src', 'core', 'dashboard');
 const ASSETS_DIR = join(DASHBOARD_DIR, 'assets');
 const OUTPUT = join(HERE, '..', 'src', 'core', 'hono', 'dashboard-assets.ts');
-
-const CONTENT_TYPES: Record<string, string> = {
-  '.js': 'application/javascript; charset=utf-8',
-  '.css': 'text/css; charset=utf-8',
-  '.svg': 'image/svg+xml',
-  '.json': 'application/json; charset=utf-8',
-  '.map': 'application/json; charset=utf-8',
-};
-
-const contentTypeOf = (file: string): string => {
-  const extension = file.slice(file.lastIndexOf('.'));
-  return CONTENT_TYPES[extension] ?? 'application/octet-stream';
-};
 
 const html = readFileSync(join(DASHBOARD_DIR, 'index.html'), 'utf-8');
 
@@ -28,7 +17,7 @@ if (html.trim().length === 0) {
 
 const assets = readdirSync(ASSETS_DIR).map((file) => ({
   file,
-  contentType: contentTypeOf(file),
+  contentType: getMimeType(file) ?? 'application/octet-stream',
   body: readFileSync(join(ASSETS_DIR, file), 'utf-8'),
 }));
 

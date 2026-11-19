@@ -1,5 +1,5 @@
+import { getExceptionClassCode } from '../exception-class.js';
 import type { Recorder } from '../recorder.js';
-import { getExceptionClassCode } from '../utils/helpers.js';
 
 import type { Collector } from './collector.js';
 

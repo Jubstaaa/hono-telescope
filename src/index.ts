@@ -15,4 +15,52 @@ export { consoleCollector } from './core/collectors/console-collector.js';
 export { exceptionCollector } from './core/collectors/exception-collector.js';
 export { fetchCollector } from './core/collectors/fetch-collector.js';
 
-export * from './types/index.js';
+export { ExceptionClass, LogLevel } from './core/entries.js';
+export type {
+  BaseEntry,
+  CreateInputMap,
+  EntryMap,
+  EntryType,
+  ExceptionCreateInput,
+  ExceptionEntry,
+  ExceptionEntryData,
+  IncomingRequestCreateInput,
+  IncomingRequestEntry,
+  IncomingRequestEntryData,
+  LogCreateInput,
+  LogEntry,
+  LogEntryData,
+  OutgoingRequestCreateInput,
+  OutgoingRequestEntry,
+  OutgoingRequestEntryData,
+  QueryCreateInput,
+  QueryEntry,
+  QueryEntryData,
+  TelescopeCreateInput,
+  TelescopeEntry,
+} from './core/entries.js';
+
+export type {
+  DashboardStats,
+  ExceptionDetailResponse,
+  ExceptionResponse,
+  IncomingRequestDetailResponse,
+  IncomingRequestResponse,
+  LogDetailResponse,
+  LogResponse,
+  OutgoingRequestDetailResponse,
+  OutgoingRequestResponse,
+  QueryDetailResponse,
+  QueryResponse,
+  TelescopeDetailResponse,
+  TelescopeListResponse,
+} from './core/hono/dashboard-api.js';
+
+export type {
+  CaptureConfig,
+  DashboardAuth,
+  DashboardConfig,
+  RedactConfig,
+  ResolvedConfig,
+  TelescopeConfig,
+} from './core/config.js';

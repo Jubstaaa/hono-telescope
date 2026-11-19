@@ -1,7 +1,7 @@
 import { ReloadOutlined } from '@ant-design/icons';
 import { Button, Flex, theme, Typography } from 'antd';
 
-import type { QueryResponse } from '@/types';
+import type { QueryResponse } from '@/core/hono/dashboard-api';
 
 import { QueryTable } from '../../components/query-table/query-table';
 import { useList } from '../../hooks/use-entries';

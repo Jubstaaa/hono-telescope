@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { streamText } from 'hono/streaming';
 import { describe, expect, it } from 'vitest';
 
-import type { TelescopeConfig } from '../../types/index.js';
+import type { TelescopeConfig } from '../config.js';
 import { resolveConfig } from '../config.js';
 import { alsContext } from '../context/als-context.js';
 import { Recorder } from '../recorder.js';

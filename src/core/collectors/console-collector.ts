@@ -1,4 +1,4 @@
-import { LogLevel } from '../../types/index.js';
+import { LogLevel } from '../entries.js';
 import type { Recorder } from '../recorder.js';
 
 import type { Collector } from './collector.js';

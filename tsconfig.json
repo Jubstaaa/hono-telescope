@@ -6,8 +6,6 @@
     "jsx": "react-jsx",
     "declaration": true,
     "removeComments": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "outDir": "./dist",
@@ -18,10 +16,7 @@
     "resolveJsonModule": true,
     "types": ["bun"],
     "paths": {
-      "@/*": ["./src/*"],
-      "@types/*": ["./src/types/*"],
-      "@core/*": ["./src/core/*"],
-      "@dashboard/*": ["./src/dashboard/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["./src/**/*"],

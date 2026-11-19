@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 
 import { describe, expect, it } from 'vitest';
 
-import { TELESCOPE_VERSION } from '../constants.js';
+import { TELESCOPE_VERSION } from '../version.js';
 
 import {
   negotiate,

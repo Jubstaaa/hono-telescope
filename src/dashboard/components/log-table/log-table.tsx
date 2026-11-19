@@ -1,8 +1,13 @@
-import { formatDate } from '../../utils/format';
+import type { LogResponse } from '@/core/hono/dashboard-api';
+
+import { formatDate } from '../../format';
 import Table from '../entry-table/entry-table';
 import LevelTag from '../level-tag/level-tag';
 
-import type { LogTableProps } from './log-table.types.js';
+interface LogTableProps {
+  entries: LogResponse[];
+  loading?: boolean;
+}
 
 export const LogTable = ({ entries, loading }: LogTableProps) => {
   const columns = [
@@ -31,5 +36,3 @@ export const LogTable = ({ entries, loading }: LogTableProps) => {
 
   return <Table columns={columns} dataSource={entries} loading={loading} path="logs" />;
 };
-
-export default LogTable;

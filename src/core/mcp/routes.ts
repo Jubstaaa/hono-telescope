@@ -1,7 +1,7 @@
 import type { Hono } from 'hono';
 
-import { TELESCOPE_VERSION } from '../constants.js';
 import type { Recorder } from '../recorder.js';
+import { TELESCOPE_VERSION } from '../version.js';
 
 import {
   negotiate,

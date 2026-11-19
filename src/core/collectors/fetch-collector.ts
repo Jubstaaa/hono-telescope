@@ -1,11 +1,11 @@
+import { captureOutgoingPayload, captureResponseBody } from '../capture/capture-body.js';
+import { redactHeaders } from '../capture/redact.js';
 import {
   DEFAULT_MAX_BODY_SIZE,
   DEFAULT_REDACT_BODY_KEYS,
   DEFAULT_REDACT_HEADERS,
-} from '../constants.js';
+} from '../config.js';
 import type { Recorder } from '../recorder.js';
-import { captureOutgoingPayload, captureResponseBody } from '../utils/capture-body.js';
-import { redactHeaders } from '../utils/redact.js';
 
 import type { Collector } from './collector.js';
 

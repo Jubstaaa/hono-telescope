@@ -6,16 +6,16 @@ import type {
   LogEntry,
   OutgoingRequestEntry,
   QueryEntry,
-} from '../../types/index.js';
+} from '../entries.js';
 import type { Recorder } from '../recorder.js';
 
-export const PAGE_SIZE = 100;
+const PAGE_SIZE = 100;
 export const MAX_SCAN = 500;
 export const TRACE_CAP = 2000;
-export const QUERY_CAP = 2000;
+const QUERY_CAP = 2000;
 export const MESSAGE_CAP = 1000;
 
-export interface RequestFilters {
+interface RequestFilters {
   limit: number;
   minDuration?: number;
   minStatus?: number;
@@ -23,7 +23,7 @@ export interface RequestFilters {
   uriContains?: string;
 }
 
-export interface ScanResult {
+interface ScanResult {
   scanLimitReached: boolean;
   scanned: number;
 }

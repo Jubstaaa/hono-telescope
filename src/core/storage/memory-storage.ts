@@ -1,4 +1,4 @@
-import type { BaseEntry, EntryMap, EntryType } from '../../types/index.js';
+import type { BaseEntry, EntryMap, EntryType } from '../entries.js';
 
 import type { ListOptions, StorageAdapter } from './storage-adapter.js';
 

@@ -2,13 +2,13 @@ import { Link, useParams } from 'react-router';
 
 import { Alert, Card, Descriptions, Flex, Grid, theme, Typography } from 'antd';
 
-import type { ExceptionDetailResponse } from '@/types';
+import type { ExceptionDetailResponse } from '@/core/hono/dashboard-api';
 
 import ExceptionTag from '../../components/exception-tag/exception-tag';
 import { JsonViewer } from '../../components/json-viewer/json-viewer';
 import Loader from '../../components/loader/loader';
+import { formatDate } from '../../format';
 import { useDetail } from '../../hooks/use-entries';
-import { formatDate } from '../../utils/format';
 
 const { Text, Title } = Typography;
 const { useBreakpoint } = Grid;
