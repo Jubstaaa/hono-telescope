@@ -23,9 +23,20 @@
   credentials would otherwise authorise. Origins are compared by host, so a dashboard behind
   a TLS-terminating proxy keeps working.
 
+### ♿ Accessibility
+
+* **dashboard:** every list row links to its detail page with a real `<a>`, and the dashboard's
+  stat cards are links, so both are reachable by keyboard and announced as links. Tag, menu,
+  statistic and JSON-viewer colours now meet WCAG AA contrast in light and dark mode; the logo
+  has an alt text and the page a meta description (Lighthouse accessibility 92 -> 100, SEO 83
+  -> 100).
+
 ### ⚡ Performance
 
 * **dashboard:** content-hashed assets are sent with `Cache-Control: max-age=31536000, immutable`.
+* **dashboard:** lists are paged (50 rows) instead of rendering every retained entry, and data
+  fetching moved to TanStack Query: live mode refetches only what is on screen, and clearing
+  the data no longer reloads the page.
 
 
 
