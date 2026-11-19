@@ -1,3 +1,6 @@
+import { createInterface } from 'node:readline';
+import { Readable } from 'node:stream';
+
 import { RPC_ERRORS, rpcError } from '../core/mcp/protocol.js';
 
 export interface PostResult {
@@ -94,31 +97,17 @@ async function relay(io: StdioBridgeIo, line: string): Promise<void> {
 }
 
 export async function runStdioBridge(io: StdioBridgeIo): Promise<void> {
-  const decoder = new TextDecoder();
   const inFlight = new Set<Promise<void>>();
-  let buffer = '';
+  const lines = createInterface({ crlfDelay: Infinity, input: Readable.from(io.input) });
 
-  const dispatch = (line: string) => {
+  for await (const line of lines) {
     const trimmed = line.trim();
-    if (trimmed.length === 0) return;
+    if (trimmed.length === 0) continue;
 
     const task = relay(io, trimmed);
     inFlight.add(task);
     void task.finally(() => inFlight.delete(task));
-  };
-
-  for await (const chunk of io.input) {
-    buffer += typeof chunk === 'string' ? chunk : decoder.decode(chunk, { stream: true });
-
-    let newline = buffer.indexOf('\n');
-    while (newline !== -1) {
-      dispatch(buffer.slice(0, newline));
-      buffer = buffer.slice(newline + 1);
-      newline = buffer.indexOf('\n');
-    }
   }
-
-  dispatch(buffer);
 
   await Promise.all([...inFlight]);
 }
