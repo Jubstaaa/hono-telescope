@@ -2,15 +2,18 @@ import { StrictMode } from 'react';
 
 import { RouterProvider } from 'react-router';
 
+import { QueryProvider } from './query-provider';
 import { router } from './routes/router';
 import { ThemeProvider } from './theme-context';
 
 function App() {
   return (
     <StrictMode>
-      <ThemeProvider>
-        <RouterProvider router={router} />
-      </ThemeProvider>
+      <QueryProvider>
+        <ThemeProvider>
+          <RouterProvider router={router} />
+        </ThemeProvider>
+      </QueryProvider>
     </StrictMode>
   );
 }

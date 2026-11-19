@@ -13,6 +13,7 @@ export const OutgoingRequestList = () => {
   const {
     data: entries,
     isLoading,
+    isRefreshing,
     refetch,
   } = useList<OutgoingRequestResponse>('outgoing-requests');
 
@@ -22,7 +23,7 @@ export const OutgoingRequestList = () => {
         <Title level={2} style={{ color: token.colorText, margin: 0 }}>
           Outgoing Requests
         </Title>
-        <Button icon={<ReloadOutlined />} loading={isLoading} onClick={refetch}>
+        <Button icon={<ReloadOutlined />} loading={isRefreshing} onClick={refetch}>
           Refresh
         </Button>
       </Flex>
