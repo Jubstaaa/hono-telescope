@@ -5,6 +5,9 @@ on: pull_request
 permissions:
   contents: write
   pull-requests: write
+  # gh pr checks reads the required checks through these.
+  checks: read
+  statuses: read
   # Dispatches the deploy after merging.
   actions: write
 
@@ -22,9 +25,8 @@ jobs:
       # to its secrets.
       # A merge made with GITHUB_TOKEN starts no workflows, so instead of --auto
       # this waits for the required checks, merges, then dispatches the deploy
-      # (workflow_dispatch is the one event GITHUB_TOKEN may start). If the
-      # branch is behind main the merge is refused, and the rebase Dependabot
-      # pushes runs this again.
+      # (workflow_dispatch is the one event GITHUB_TOKEN may start).
+
       - if: >-
           (steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
            steps.metadata.outputs.update-type == 'version-update:semver-minor') &&
