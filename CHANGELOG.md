@@ -1,4 +1,4 @@
-## Unreleased
+## [1.2.2](https://github.com/jubstaaa/hono-telescope/compare/1.2.1...1.2.2) (2026-11-20)
 
 ### 🐛 Bug Fixes
 
@@ -39,8 +39,12 @@
   fetching moved to TanStack Query: live mode refetches only what is on screen, and clearing
   the data no longer reloads the page.
 
+### 📦 Package
 
-
+* **engines:** `engines.node` is now `>=22` (was `>=18`); Node 18 and 20 are past end of life
+  and are no longer tested.
+* **exports:** both entry points (`.` and `./testing`) gain a `default` condition, and `vitest`
+  is declared as an optional peer dependency of `hono-telescope/testing`.
 
 ## [1.2.1](https://github.com/jubstaaa/hono-telescope/compare/1.2.0...1.2.1) (2026-09-02)
 
