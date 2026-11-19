@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { createMemoryRouter, RouterProvider } from 'react-router';
 
-import { cleanup, render, screen, within } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import type { IncomingRequestResponse } from '@/core/hono/dashboard-api';
@@ -38,7 +38,10 @@ const request = (id: string): IncomingRequestResponse => ({
   uri: `/items/${id}`,
 });
 
-describe('dashboard accessibility', () => {
+// antd renders a lot of DOM; a loaded CI runner needs more than the 5s default.
+const SLOW = { timeout: 15_000 };
+
+describe('dashboard accessibility', { timeout: 30_000 }, () => {
   it('gives every table row a real link to its detail page', () => {
     renderAt(<IncomingRequestTable entries={[request('a'), request('b')]} />);
 
@@ -72,7 +75,7 @@ describe('dashboard accessibility', () => {
 
     renderAt(<Dashboard />);
 
-    const link = await screen.findByRole('link', { name: /Incoming Requests/ });
+    const link = await screen.findByRole('link', { name: /Incoming Requests/ }, SLOW);
     expect(link.getAttribute('href')).toBe('/incoming-requests');
   });
 
@@ -83,5 +86,19 @@ describe('dashboard accessibility', () => {
       expect(image.hasAttribute('alt')).toBe(true);
     }
     expect(document.querySelectorAll('img').length).toBeGreaterThan(0);
+  });
+
+  it('drops the error and shows loading while Retry refetches', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(new Response('nope', { status: 500 }))
+      .mockReturnValue(new Promise(() => undefined));
+    vi.stubGlobal('fetch', fetchMock);
+
+    renderAt(<Dashboard />);
+    fireEvent.click(await screen.findByRole('button', { name: 'Retry' }, SLOW));
+
+    await waitFor(() => expect(screen.queryByRole('button', { name: 'Retry' })).toBeNull(), SLOW);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 });
