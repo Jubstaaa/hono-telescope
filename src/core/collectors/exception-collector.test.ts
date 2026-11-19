@@ -1,3 +1,6 @@
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+
 import { describe, expect, it, vi } from 'vitest';
 
 import { alsContext } from '../context/als-context.js';
@@ -11,13 +14,89 @@ const build = () => {
   return { recorder: new Recorder(storage, alsContext()), storage };
 };
 
+const COLLECTOR = fileURLToPath(new URL('./exception-collector.ts', import.meta.url));
+const RECORDER = fileURLToPath(new URL('../recorder.ts', import.meta.url));
+const CONTEXT = fileURLToPath(new URL('../context/als-context.ts', import.meta.url));
+const STORAGE = fileURLToPath(new URL('../storage/memory-storage.ts', import.meta.url));
+
+// Runs `body` in a fresh Bun process with the collector installed, so the runtime's own
+// crash-on-error behaviour is what gets observed.
+function runWithCollector(body: string, nodeOptions?: string) {
+  const script = `
+    const { exceptionCollector } = await import(${JSON.stringify(COLLECTOR)});
+    const { Recorder } = await import(${JSON.stringify(RECORDER)});
+    const { alsContext } = await import(${JSON.stringify(CONTEXT)});
+    const { memoryStorage } = await import(${JSON.stringify(STORAGE)});
+    const storage = memoryStorage();
+    exceptionCollector().install(new Recorder(storage, alsContext()));
+    ${body}
+  `;
+  const env = { ...process.env, NODE_OPTIONS: nodeOptions ?? '' };
+
+  return spawnSync('bun', ['-e', script], { encoding: 'utf-8', env, timeout: 10_000 });
+}
+
 describe('exceptionCollector', () => {
+  it('leaves an uncaught exception fatal, as it is without Telescope', () => {
+    const result = runWithCollector(`
+      setTimeout(() => { throw new Error('boom'); }, 0);
+      setTimeout(() => console.log('survived'), 200);
+    `);
+
+    expect(result.stdout).not.toContain('survived');
+    expect(result.status).not.toBe(0);
+  });
+
+  it('leaves an unhandled rejection fatal when the app has no handler of its own', () => {
+    const result = runWithCollector(`
+      Promise.reject(new Error('boom'));
+      setTimeout(() => console.log('survived'), 200);
+    `);
+
+    expect(result.stdout).not.toContain('survived');
+    expect(result.status).not.toBe(0);
+  });
+
+  it('stays fatal when a second Telescope instance is listening too', () => {
+    const result = runWithCollector(`
+      exceptionCollector().install(new Recorder(memoryStorage(), alsContext()));
+      Promise.reject(new Error('boom'));
+      setTimeout(() => console.log('survived'), 200);
+    `);
+
+    expect(result.stdout).not.toContain('survived');
+    expect(result.status).not.toBe(0);
+  });
+
+  it('respects --unhandled-rejections=warn', () => {
+    const result = runWithCollector(
+      `
+      Promise.reject(new Error('boom'));
+      setTimeout(() => console.log('survived'), 200);
+    `,
+      '--unhandled-rejections=warn'
+    );
+
+    expect(result.stdout).toContain('survived');
+  });
+
+  it("keeps the app's own rejection handler in charge, and still records the rejection", () => {
+    const result = runWithCollector(`
+      process.on('unhandledRejection', () => {});
+      Promise.reject(new Error('boom'));
+      setTimeout(async () => console.log('recorded', await storage.count('exception')), 200);
+    `);
+
+    expect(result.stdout).toContain('recorded 1');
+    expect(result.status).toBe(0);
+  });
+
   it('records an uncaught exception', async () => {
     const { recorder, storage } = build();
-    const before = process.listeners('uncaughtException');
+    const before = process.listeners('uncaughtExceptionMonitor');
 
     const uninstall = exceptionCollector().install(recorder);
-    const added = process.listeners('uncaughtException').filter((l) => !before.includes(l));
+    const added = process.listeners('uncaughtExceptionMonitor').filter((l) => !before.includes(l));
     expect(added).toHaveLength(1);
 
     (added[0] as (error: Error) => void)(new Error('boom'));
@@ -44,13 +123,13 @@ describe('exceptionCollector', () => {
 
   it('removes its listeners on uninstall', () => {
     const { recorder } = build();
-    const before = process.listenerCount('uncaughtException');
+    const before = process.listenerCount('uncaughtExceptionMonitor');
 
     const uninstall = exceptionCollector().install(recorder);
-    expect(process.listenerCount('uncaughtException')).toBe(before + 1);
+    expect(process.listenerCount('uncaughtExceptionMonitor')).toBe(before + 1);
 
     uninstall();
-    expect(process.listenerCount('uncaughtException')).toBe(before);
+    expect(process.listenerCount('uncaughtExceptionMonitor')).toBe(before);
   });
 
   it('does not patch console.error', () => {

@@ -3,8 +3,7 @@
   "compilerOptions": {
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "noEmit": true,
-    "incremental": false
+    "noEmit": true
   },
   "include": ["src/dashboard/**/*"],
   "exclude": ["node_modules", "dist"]

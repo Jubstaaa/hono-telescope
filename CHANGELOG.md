@@ -1,3 +1,33 @@
+## Unreleased
+
+### 🐛 Bug Fixes
+
+* **collectors:** the exception collector no longer keeps a crashed app alive. It listened on
+  `uncaughtException` and `unhandledRejection`, and a listener on either switches off the
+  runtime's crash, so with Telescope enabled a fatal error left the process running in an
+  undefined state. It now observes `uncaughtExceptionMonitor`, and re-raises an unhandled
+  rejection when no handler of the app's own is registered and no surviving
+  `--unhandled-rejections` mode is set. Apps that install their own `unhandledRejection`
+  handler keep their behaviour. Because the process now exits, a storage adapter that writes
+  asynchronously may not persist the fatal exception itself.
+* **build:** a second `bun run build` emitted an empty `dist` (the incremental build info sat
+  outside `dist`, so `tsc` thought the deleted output was up to date).
+
+### 🔒 Security
+
+* **dashboard:** responses carry security headers (CSP without inline scripts,
+  `X-Frame-Options: SAMEORIGIN`, `nosniff`, …) via `hono/secure-headers`; HSTS is left to the
+  app. The base path now travels in a `<meta name="telescope-base">` tag instead of an inline
+  script.
+* **dashboard:** `POST /api/clear` refuses cross-site form posts (`hono/csrf`), which basic-auth
+  credentials would otherwise authorise. Origins are compared by host, so a dashboard behind
+  a TLS-terminating proxy keeps working.
+
+### ⚡ Performance
+
+* **dashboard:** content-hashed assets are sent with `Cache-Control: max-age=31536000, immutable`.
+
+
 
 
 ## [1.2.1](https://github.com/jubstaaa/hono-telescope/compare/1.2.0...1.2.1) (2026-09-02)
