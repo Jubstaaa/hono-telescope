@@ -1,4 +1,4 @@
-import { REDACTED } from '../constants.js';
+const REDACTED = '[REDACTED]';
 
 export function redactHeaders(
   headers: Record<string, unknown>,

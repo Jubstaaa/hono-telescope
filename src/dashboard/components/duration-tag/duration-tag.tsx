@@ -1,8 +1,12 @@
 import { Tag } from 'antd';
 
-import { formatDuration } from '../../utils/format';
+import { formatDuration } from '../../format';
 
-import type { DurationTagProps } from './duration-tag.types.js';
+interface DurationTagProps {
+  slowAt?: number;
+  value: number;
+  warnAt?: number;
+}
 
 // A single red threshold made 120ms look as alarming as 2s, so red stopped meaning anything.
 // Queries live on a different scale than requests, hence the overridable bounds.

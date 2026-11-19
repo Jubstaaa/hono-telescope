@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { LogLevel } from '../../types/index.js';
 import { alsContext } from '../context/als-context.js';
+import { LogLevel } from '../entries.js';
 import { Recorder } from '../recorder.js';
 import { memoryStorage } from '../storage/memory-storage.js';
 

@@ -2,15 +2,15 @@ import { useParams } from 'react-router';
 
 import { Alert, Card, Descriptions, Flex, Grid, theme, Typography } from 'antd';
 
-import type { OutgoingRequestDetailResponse } from '@/types';
+import type { OutgoingRequestDetailResponse } from '@/core/hono/dashboard-api';
 
 import DurationTag from '../../components/duration-tag/duration-tag';
 import { JsonViewer } from '../../components/json-viewer/json-viewer';
 import Loader from '../../components/loader/loader';
 import MethodTag from '../../components/method-tag/method-tag';
 import StatusTag from '../../components/status-tag/status-tag';
+import { formatDate } from '../../format';
 import { useDetail } from '../../hooks/use-entries';
-import { formatDate } from '../../utils/format';
 
 const { Text, Title } = Typography;
 const { useBreakpoint } = Grid;

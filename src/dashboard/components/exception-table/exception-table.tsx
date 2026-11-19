@@ -1,8 +1,13 @@
-import { formatDate } from '../../utils/format';
+import type { ExceptionResponse } from '@/core/hono/dashboard-api';
+
+import { formatDate } from '../../format';
 import Table from '../entry-table/entry-table';
 import ExceptionTag from '../exception-tag/exception-tag';
 
-import type { ExceptionTableProps } from './exception-table.types.js';
+interface ExceptionTableProps {
+  entries: ExceptionResponse[];
+  loading?: boolean;
+}
 
 export const ExceptionTable = ({ entries, loading = false }: ExceptionTableProps) => {
   const columns = [
@@ -30,5 +35,3 @@ export const ExceptionTable = ({ entries, loading = false }: ExceptionTableProps
 
   return <Table columns={columns} dataSource={entries} loading={loading} path="exceptions" />;
 };
-
-export default ExceptionTable;

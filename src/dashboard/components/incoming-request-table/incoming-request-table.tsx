@@ -1,10 +1,15 @@
-import { formatDate } from '../../utils/format';
+import type { IncomingRequestResponse } from '@/core/hono/dashboard-api';
+
+import { formatDate } from '../../format';
 import DurationTag from '../duration-tag/duration-tag';
 import Table from '../entry-table/entry-table';
 import MethodTag from '../method-tag/method-tag';
 import StatusTag from '../status-tag/status-tag';
 
-import type { IncomingRequestTableProps } from './incoming-request-table.types.js';
+interface IncomingRequestTableProps {
+  entries: IncomingRequestResponse[];
+  loading?: boolean;
+}
 
 export const IncomingRequestTable = ({ entries, loading = false }: IncomingRequestTableProps) => {
   const columns = [
@@ -49,5 +54,3 @@ export const IncomingRequestTable = ({ entries, loading = false }: IncomingReque
     <Table columns={columns} dataSource={entries} loading={loading} path="incoming-requests" />
   );
 };
-
-export default IncomingRequestTable;

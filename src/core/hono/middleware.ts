@@ -3,12 +3,39 @@ import { randomUUID } from 'node:crypto';
 
 import type { Context, MiddlewareHandler } from 'hono';
 
-import type { ResolvedConfig } from '../../types/index.js';
-import { IGNORED_STATIC_EXTENSIONS } from '../constants.js';
+import { captureResponseBody, isCapturableContentType } from '../capture/capture-body.js';
+import { redactBody, redactHeaders } from '../capture/redact.js';
+import type { ResolvedConfig } from '../config.js';
+import { getExceptionClassCode } from '../exception-class.js';
 import type { Recorder } from '../recorder.js';
-import { captureResponseBody, isCapturableContentType } from '../utils/capture-body.js';
-import { getExceptionClassCode } from '../utils/helpers.js';
-import { redactBody, redactHeaders } from '../utils/redact.js';
+
+const IGNORED_STATIC_EXTENSIONS = [
+  '.js',
+  '.css',
+  '.svg',
+  '.png',
+  '.jpg',
+  '.jpeg',
+  '.gif',
+  '.webp',
+  '.woff',
+  '.woff2',
+  '.ttf',
+  '.eot',
+  '.ico',
+  '.map',
+  '.html',
+  '.xml',
+  '.json',
+  '.txt',
+  '.md',
+  '.csv',
+  '.xls',
+  '.xlsx',
+  '.pdf',
+  '.doc',
+  '.docx',
+] as const;
 
 function shouldIgnore(path: string, config: ResolvedConfig): boolean {
   if (config.ignorePaths.some((ignored) => path.startsWith(ignored))) return true;

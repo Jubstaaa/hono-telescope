@@ -5,17 +5,18 @@ import { csrf } from 'hono/csrf';
 import { html as escapedHtml } from 'hono/html';
 import { secureHeaders } from 'hono/secure-headers';
 
-import type { EntryType, ResolvedConfig } from '../../types/index.js';
+import type { ResolvedConfig } from '../config.js';
+import type { EntryType } from '../entries.js';
 import { mountMcp } from '../mcp/routes.js';
 import type { Recorder } from '../recorder.js';
+
 import {
   mapException,
   mapIncomingRequest,
   mapLog,
   mapOutgoingRequest,
   mapQuery,
-} from '../utils/mappers.js';
-
+} from './dashboard-api.js';
 import { DASHBOARD_ASSETS, DASHBOARD_HTML } from './dashboard-assets.js';
 
 const RESOURCES: Record<string, EntryType> = {

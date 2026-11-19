@@ -1,8 +1,16 @@
+import type { ReactNode } from 'react';
 import { createContext, useContext, useEffect, useState } from 'react';
 
 import { ConfigProvider, theme } from 'antd';
 
-import type { ThemeContextType, ThemeProviderProps } from './theme.types.js';
+interface ThemeContextType {
+  isDark: boolean;
+  toggleTheme: () => void;
+}
+
+interface ThemeProviderProps {
+  children: ReactNode;
+}
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 

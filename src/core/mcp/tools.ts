@@ -1,6 +1,6 @@
 import type { McpReader } from './reader.js';
 
-export interface ToolAnnotations {
+interface ToolAnnotations {
   openWorldHint: boolean;
   readOnlyHint: boolean;
 }

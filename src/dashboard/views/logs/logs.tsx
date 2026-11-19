@@ -1,7 +1,7 @@
 import { ReloadOutlined } from '@ant-design/icons';
 import { Button, Flex, theme, Typography } from 'antd';
 
-import type { LogResponse } from '@/types';
+import type { LogResponse } from '@/core/hono/dashboard-api';
 
 import { LogTable } from '../../components/log-table/log-table';
 import { useList } from '../../hooks/use-entries';

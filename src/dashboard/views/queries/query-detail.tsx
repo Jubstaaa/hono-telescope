@@ -2,12 +2,12 @@ import { Link, useParams } from 'react-router';
 
 import { Alert, Card, Descriptions, Flex, Grid, Tag, theme, Typography } from 'antd';
 
-import type { QueryDetailResponse } from '@/types';
+import type { QueryDetailResponse } from '@/core/hono/dashboard-api';
 
 import DurationTag from '../../components/duration-tag/duration-tag';
 import Loader from '../../components/loader/loader';
+import { formatDate } from '../../format';
 import { useDetail } from '../../hooks/use-entries';
-import { formatDate } from '../../utils/format';
 
 const { Text, Title } = Typography;
 const { useBreakpoint } = Grid;

@@ -6,7 +6,7 @@ import type {
   LogEntry,
   OutgoingRequestEntry,
   QueryEntry,
-} from '../../types/index.js';
+} from '../entries.js';
 
 import {
   mapException,
@@ -14,7 +14,7 @@ import {
   mapLog,
   mapOutgoingRequest,
   mapQuery,
-} from './mappers.js';
+} from './dashboard-api.js';
 
 describe('mappers', () => {
   it('should map incoming request to slim response', () => {

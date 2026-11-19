@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { LogEntry } from '../../types/index.js';
+import type { LogEntry } from '../entries.js';
 
 import type { StorageAdapter } from './storage-adapter.js';
 

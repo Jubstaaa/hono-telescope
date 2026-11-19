@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { TELESCOPE_VERSION } from '../core/constants.js';
+import { TELESCOPE_VERSION } from '../core/version.js';
 
 import { parseStdioArgs } from './args.js';
 import { runStdioBridge } from './stdio-bridge.js';

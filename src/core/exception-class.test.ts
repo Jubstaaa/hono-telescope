@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { ExceptionClass } from '../../types/index.js';
-
-import { getExceptionClassCode } from './helpers.js';
+import { ExceptionClass } from './entries.js';
+import { getExceptionClassCode } from './exception-class.js';
 
 describe('getExceptionClassCode', () => {
   it('should map TypeError', () => {

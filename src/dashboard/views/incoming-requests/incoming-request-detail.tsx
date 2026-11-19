@@ -2,19 +2,19 @@ import { useParams } from 'react-router';
 
 import { Alert, Card, Descriptions, Flex, Grid, Tabs, theme, Typography } from 'antd';
 
-import type { IncomingRequestDetailResponse } from '@/types';
+import type { IncomingRequestDetailResponse } from '@/core/hono/dashboard-api';
 
 import DurationTag from '../../components/duration-tag/duration-tag';
-import ExceptionTable from '../../components/exception-table/exception-table';
+import { ExceptionTable } from '../../components/exception-table/exception-table';
 import { JsonViewer } from '../../components/json-viewer/json-viewer';
 import Loader from '../../components/loader/loader';
-import LogTable from '../../components/log-table/log-table';
+import { LogTable } from '../../components/log-table/log-table';
 import MethodTag from '../../components/method-tag/method-tag';
-import OutgoingRequestTable from '../../components/outgoing-request-table/outgoing-request-table';
-import QueryTable from '../../components/query-table/query-table';
+import { OutgoingRequestTable } from '../../components/outgoing-request-table/outgoing-request-table';
+import { QueryTable } from '../../components/query-table/query-table';
 import StatusTag from '../../components/status-tag/status-tag';
+import { formatDate } from '../../format';
 import { useDetail } from '../../hooks/use-entries';
-import { formatDate } from '../../utils/format';
 
 const { Text, Title } = Typography;
 const { useBreakpoint } = Grid;

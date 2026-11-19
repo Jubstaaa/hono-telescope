@@ -1,7 +1,7 @@
 import type { RouteObject } from 'react-router';
 import { createBrowserRouter } from 'react-router';
 
-import { DASHBOARD_BASE } from '../constants/dashboard';
+import { DASHBOARD_BASE } from '../base-path';
 import { MainLayout } from '../layout/layout';
 import { Dashboard } from '../views/dashboard/dashboard';
 import { ExceptionDetail } from '../views/exceptions/exception-detail';

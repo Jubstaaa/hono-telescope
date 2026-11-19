@@ -2,12 +2,12 @@ import { Hono } from 'hono';
 import { describe, expect, it, vi } from 'vitest';
 
 import { resolveConfig } from '../core/config.js';
+import type { TelescopeConfig } from '../core/config.js';
 import { alsContext } from '../core/context/als-context.js';
 import { createDashboard } from '../core/hono/dashboard.js';
 import { RPC_ERRORS } from '../core/mcp/protocol.js';
 import { Recorder } from '../core/recorder.js';
 import { memoryStorage } from '../core/storage/memory-storage.js';
-import type { TelescopeConfig } from '../types/index.js';
 
 import { type PostResult, runStdioBridge } from './stdio-bridge.js';
 

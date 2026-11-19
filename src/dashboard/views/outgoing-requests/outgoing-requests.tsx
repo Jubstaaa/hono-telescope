@@ -1,7 +1,7 @@
 import { ReloadOutlined } from '@ant-design/icons';
 import { Button, Flex, theme, Typography } from 'antd';
 
-import type { OutgoingRequestResponse } from '@/types';
+import type { OutgoingRequestResponse } from '@/core/hono/dashboard-api';
 
 import { OutgoingRequestTable } from '../../components/outgoing-request-table/outgoing-request-table';
 import { useList } from '../../hooks/use-entries';
