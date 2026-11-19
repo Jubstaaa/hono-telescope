@@ -9,8 +9,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(import.meta.dirname, './src'),
-      '@types': path.resolve(import.meta.dirname, './src/types'),
-      '@core': path.resolve(import.meta.dirname, './src/core'),
     },
   },
   server: {
@@ -25,14 +23,6 @@ export default defineConfig({
   build: {
     outDir: '../core/dashboard',
     emptyOutDir: false,
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-      },
-      mangle: true,
-    },
     rollupOptions: {
       output: {
         manualChunks: (id) => {
