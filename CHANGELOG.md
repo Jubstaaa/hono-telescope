@@ -17,7 +17,8 @@
 
 * **dashboard:** responses carry security headers (CSP without inline scripts,
   `X-Frame-Options: SAMEORIGIN`, `nosniff`, …) via `hono/secure-headers`; HSTS is left to the
-  app. The base path now travels in a `<meta name="telescope-base">` tag instead of an inline
+  app, and the HTML carries `Cache-Control: no-transform` so CDNs do not inject scripts the CSP
+  would block. The base path now travels in a `<meta name="telescope-base">` tag instead of an inline
   script.
 * **dashboard:** `POST /api/clear` refuses cross-site form posts (`hono/csrf`), which basic-auth
   credentials would otherwise authorise. Origins are compared by host, so a dashboard behind

@@ -170,7 +170,12 @@ export function createDashboard(recorder: Recorder, config: ResolvedConfig): Hon
 
   mountMcp(app, recorder);
 
-  app.get('/*', (c) => c.html(html));
+  // CDNs and proxies inject scripts (analytics beacons, email obfuscation) into HTML; the CSP
+  // above would block them and log errors, so ask them to leave the page alone.
+  app.get('/*', (c) => {
+    c.header('Cache-Control', 'no-transform');
+    return c.html(html);
+  });
 
   return app;
 }
