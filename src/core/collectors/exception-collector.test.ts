@@ -21,7 +21,7 @@ const STORAGE = fileURLToPath(new URL('../storage/memory-storage.ts', import.met
 
 // Runs `body` in a fresh Bun process with the collector installed, so the runtime's own
 // crash-on-error behaviour is what gets observed.
-function runWithCollector(body: string) {
+function runWithCollector(body: string, nodeOptions?: string) {
   const script = `
     const { exceptionCollector } = await import(${JSON.stringify(COLLECTOR)});
     const { Recorder } = await import(${JSON.stringify(RECORDER)});
@@ -31,8 +31,9 @@ function runWithCollector(body: string) {
     exceptionCollector().install(new Recorder(storage, alsContext()));
     ${body}
   `;
+  const env = { ...process.env, NODE_OPTIONS: nodeOptions ?? '' };
 
-  return spawnSync('bun', ['-e', script], { encoding: 'utf-8', timeout: 10_000 });
+  return spawnSync('bun', ['-e', script], { encoding: 'utf-8', env, timeout: 10_000 });
 }
 
 describe('exceptionCollector', () => {
@@ -54,6 +55,29 @@ describe('exceptionCollector', () => {
 
     expect(result.stdout).not.toContain('survived');
     expect(result.status).not.toBe(0);
+  });
+
+  it('stays fatal when a second Telescope instance is listening too', () => {
+    const result = runWithCollector(`
+      exceptionCollector().install(new Recorder(memoryStorage(), alsContext()));
+      Promise.reject(new Error('boom'));
+      setTimeout(() => console.log('survived'), 200);
+    `);
+
+    expect(result.stdout).not.toContain('survived');
+    expect(result.status).not.toBe(0);
+  });
+
+  it('respects --unhandled-rejections=warn', () => {
+    const result = runWithCollector(
+      `
+      Promise.reject(new Error('boom'));
+      setTimeout(() => console.log('survived'), 200);
+    `,
+      '--unhandled-rejections=warn'
+    );
+
+    expect(result.stdout).toContain('survived');
   });
 
   it("keeps the app's own rejection handler in charge, and still records the rejection", () => {

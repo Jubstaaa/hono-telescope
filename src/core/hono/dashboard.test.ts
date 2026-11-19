@@ -236,4 +236,28 @@ describe('createDashboard', () => {
     expect(response.status).toBe(200);
     expect(await recorder.count('log')).toBe(0);
   });
+
+  it('clears behind a TLS-terminating proxy, where the app sees http and the browser https', async () => {
+    const { app, recorder } = build();
+    await recorder.record('log', { level: 1, message: 'x' });
+
+    const response = await app.request('http://telescope.example/telescope/api/clear', {
+      headers: { origin: 'https://telescope.example' },
+      method: 'POST',
+    });
+
+    expect(response.status).toBe(200);
+    expect(await recorder.count('log')).toBe(0);
+  });
+
+  it('refuses a cross-site post that sends Origin: null', async () => {
+    const { app } = build();
+
+    const response = await app.request('http://localhost/telescope/api/clear', {
+      headers: { origin: 'null' },
+      method: 'POST',
+    });
+
+    expect(response.status).toBe(403);
+  });
 });

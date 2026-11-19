@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import type { Context } from 'hono';
 import { basicAuth } from 'hono/basic-auth';
 import { csrf } from 'hono/csrf';
 import { html as escapedHtml } from 'hono/html';
@@ -62,6 +63,14 @@ const SECURITY_HEADERS = secureHeaders({
   strictTransportSecurity: false,
 });
 
+// Compares hosts, not origins: behind a TLS-terminating proxy the app sees http:// while the
+// browser sends an https:// Origin. Older hono 4.x has no Sec-Fetch-Site fallback for this.
+function sameHost(origin: string, c: Context): boolean {
+  if (!URL.canParse(origin)) return false;
+
+  return new URL(origin).host === new URL(c.req.url).host;
+}
+
 export function createDashboard(recorder: Recorder, config: ResolvedConfig): Hono {
   if (
     config.enabled &&
@@ -86,7 +95,7 @@ export function createDashboard(recorder: Recorder, config: ResolvedConfig): Hon
   // Basic-auth credentials ride along on a cross-site form post, so without this any page the
   // developer visits could clear the recorded data. Not on /mcp: MCP clients send no Origin,
   // and every MCP tool is read-only.
-  app.use('/api/*', csrf());
+  app.use('/api/*', csrf({ origin: sameHost }));
 
   app.get('/assets/:file', (c) => {
     const asset = DASHBOARD_ASSETS[c.req.param('file')];
