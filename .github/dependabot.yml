@@ -18,6 +18,13 @@ updates:
         patterns: ['eslint', '@eslint/*']
       typescript-eslint:
         patterns: ['typescript-eslint', '@typescript-eslint/*']
+    ignore:
+      # typescript-eslint does not support TypeScript 7 yet.
+      - dependency-name: typescript
+        versions: ['>=7']
+      # Must match the Node.js major the code runs on, not the newest one.
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
   - package-ecosystem: github-actions
     directory: /
     schedule:
