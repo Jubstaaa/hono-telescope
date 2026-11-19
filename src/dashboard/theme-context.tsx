@@ -51,6 +51,8 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
             Menu: {
               darkItemBg: '#001529',
               darkSubMenuItemBg: '#000c17',
+              // The derived selected-item blue on its tinted dark background is 3:1.
+              ...(isDark ? { itemSelectedColor: '#ffffff' } : {}),
             },
             Table: {
               headerBg: isDark ? '#1f1f1f' : '#fafafa',
@@ -58,7 +60,10 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
           },
           token: {
             borderRadius: 8,
-            colorPrimary: '#1890ff',
+            // One blue cannot clear AA on both backgrounds: blue-7 on white, blue-5 on #141414.
+            colorPrimary: isDark ? '#4096ff' : '#0958d9',
+            // antd's default secondary text (45% black) is 3.4:1 on white; 65% clears AA.
+            ...(isDark ? {} : { colorTextDescription: 'rgba(0, 0, 0, 0.65)' }),
             fontSize: 14,
           },
         }}

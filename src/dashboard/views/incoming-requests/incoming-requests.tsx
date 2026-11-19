@@ -13,6 +13,7 @@ export const IncomingRequestList = () => {
   const {
     data: entries,
     isLoading,
+    isRefreshing,
     refetch,
   } = useList<IncomingRequestResponse>('incoming-requests');
 
@@ -22,7 +23,7 @@ export const IncomingRequestList = () => {
         <Title level={2} style={{ color: token.colorText, margin: 0 }}>
           Incoming Requests
         </Title>
-        <Button icon={<ReloadOutlined />} loading={isLoading} onClick={refetch}>
+        <Button icon={<ReloadOutlined />} loading={isRefreshing} onClick={refetch}>
           Refresh
         </Button>
       </Flex>

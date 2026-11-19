@@ -1,9 +1,9 @@
 import { Tag } from 'antd';
 
-import { getExceptionClassName } from '../../format';
+import { getExceptionClassName, TAG_COLORS } from '../../format';
 
 function ExceptionTag({ classNum }: { classNum: number }) {
-  return <Tag color="red">{getExceptionClassName(classNum)}</Tag>;
+  return <Tag color={TAG_COLORS.error}>{getExceptionClassName(classNum)}</Tag>;
 }
 
 export default ExceptionTag;

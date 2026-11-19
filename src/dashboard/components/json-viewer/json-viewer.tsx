@@ -1,8 +1,11 @@
 import JsonView from '@uiw/react-json-view';
 import { theme } from 'antd';
 
+import { useTheme } from '../../theme-context';
+
 export function JsonViewer({ data }: { data: Record<string, unknown> }) {
   const { token } = theme.useToken();
+  const { isDark } = useTheme();
 
   const customTheme = {
     '--w-rjv-arrow-color': token.colorTextSecondary,
@@ -20,7 +23,8 @@ export function JsonViewer({ data }: { data: Record<string, unknown> }) {
     '--w-rjv-type-boolean-color': token.colorWarningText,
     '--w-rjv-type-null-color': token.colorErrorText,
     '--w-rjv-type-number-color': token.colorPrimaryText,
-    '--w-rjv-type-string-color': token.colorInfoText,
+    // colorInfoText is 3.5:1 on the dark background; these greens clear AA in both themes.
+    '--w-rjv-type-string-color': isDark ? '#73d13d' : '#237804',
   } as React.CSSProperties;
 
   return (

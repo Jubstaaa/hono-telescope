@@ -10,7 +10,7 @@ const { Title } = Typography;
 
 export const LogList = () => {
   const { token } = theme.useToken();
-  const { data: entries, isLoading, refetch } = useList<LogResponse>('logs');
+  const { data: entries, isLoading, isRefreshing, refetch } = useList<LogResponse>('logs');
 
   return (
     <Flex vertical gap="large">
@@ -18,7 +18,7 @@ export const LogList = () => {
         <Title level={2} style={{ color: token.colorText, margin: 0 }}>
           Logs
         </Title>
-        <Button icon={<ReloadOutlined />} loading={isLoading} onClick={refetch}>
+        <Button icon={<ReloadOutlined />} loading={isRefreshing} onClick={refetch}>
           Refresh
         </Button>
       </Flex>

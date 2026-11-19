@@ -25,7 +25,7 @@ import {
 } from 'antd';
 
 import { Sidebar } from '../components/sidebar/sidebar';
-import { refreshAllEntries, useClearData } from '../hooks/use-entries';
+import { useClearData, useRefreshAll } from '../hooks/use-entries';
 import TelescopeIcon from '../telescope-icon.svg';
 import { useTheme } from '../theme-context';
 
@@ -40,6 +40,7 @@ export const MainLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { clearData, isLoading: isClearLoading } = useClearData();
+  const refreshAll = useRefreshAll();
   const [liveMode, setLiveMode] = useState(false);
   const [clearError, setClearError] = useState<string | null>(null);
 
@@ -49,19 +50,16 @@ export const MainLayout = () => {
   useEffect(() => {
     if (!liveMode) return;
 
-    const interval = setInterval(() => {
-      refreshAllEntries();
-    }, 1000);
+    const interval = setInterval(refreshAll, 1000);
 
     return () => clearInterval(interval);
-  }, [liveMode]);
+  }, [liveMode, refreshAll]);
 
   const handleClearData = async () => {
     setClearError(null);
 
     try {
       await clearData();
-      window.location.reload();
     } catch {
       setClearError('Failed to clear data');
     }
@@ -90,7 +88,7 @@ export const MainLayout = () => {
             padding: '16px',
           }}
         >
-          <Image height={32} preview={false} src={TelescopeIcon} width={32} />
+          <Image alt="" height={32} preview={false} src={TelescopeIcon} width={32} />
           {!screens.xs && (
             <Title level={4} style={{ color: token.colorText, margin: 0 }}>
               Hono Telescope
