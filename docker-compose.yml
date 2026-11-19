@@ -10,7 +10,9 @@ services:
     # previous manifest, so `up -d` found nothing to change, left the old
     # container running and still reported a successful deploy. A digest cannot
     # go stale. Rollback is editing .env to an earlier one.
-    image: ${TELESCOPE_IMAGE}
+    # The deploy job sets IMAGE_TAG to the commit SHA it releases; :latest moves
+    # only after a healthy deploy, so the fallback is the last good release.
+    image: ghcr.io/jubstaaa/hono-telescope:${IMAGE_TAG:-latest}
     container_name: hono-telescope
     restart: unless-stopped
     # One bundled Bun process holding at most 500 entries in memory; measured
@@ -28,6 +30,9 @@ services:
       timeout: 5s
       retries: 3
       start_period: 20s
+      # Probe quickly while starting so a deploy's `compose up --wait` returns as
+      # soon as the app answers instead of after the first 30s interval.
+      start_interval: 2s
     environment:
       NODE_ENV: production
     # No volume on purpose. Telescope's entries live in memoryStorage and are
