@@ -75,7 +75,7 @@ export function fetchCollector(options: FetchCollectorOptions = {}): Collector {
 
         const requestHeaders = headersOf(input, init, redactKeys);
 
-        let payload: Record<string, unknown> = {};
+        let payload: Record<string, unknown>;
         try {
           payload = captureOutgoingPayload(
             input instanceof Request ? undefined : init?.body,
