@@ -149,7 +149,7 @@ export function createMiddleware(recorder: Recorder, config: ResolvedConfig): Mi
 
         const response = c.res;
 
-        let capturedResponse: Record<string, unknown> = {};
+        let capturedResponse: Record<string, unknown>;
         try {
           capturedResponse =
             (await captureResponseBody(response, config.capture, config.redact.bodyKeys)) ?? {};
