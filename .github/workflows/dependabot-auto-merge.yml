@@ -5,12 +5,14 @@ on: pull_request
 permissions:
   contents: write
   pull-requests: write
+  # Dispatches the deploy after merging.
+  actions: write
 
 jobs:
   auto-merge:
     if: github.event.pull_request.user.login == 'dependabot[bot]'
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 40
     steps:
       - id: metadata
         uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
@@ -18,14 +20,23 @@ jobs:
       # the required check passes. Majors, unknown update types, GitHub Actions and
       # the Docker base image wait for a human: those run inside the deploy, next
       # to its secrets.
-      # Merges made with GITHUB_TOKEN start no workflows, so these ship with the
-      # next deploy.
+      # A merge made with GITHUB_TOKEN starts no workflows, so instead of --auto
+      # this waits for the required checks, merges, then dispatches the deploy
+      # (workflow_dispatch is the one event GITHUB_TOKEN may start). If the
+      # branch is behind main the merge is refused, and the rebase Dependabot
+      # pushes runs this again.
       - if: >-
-          (steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
-           steps.metadata.outputs.update-type == 'version-update:semver-minor') &&
-          steps.metadata.outputs.package-ecosystem != 'github_actions' &&
-          steps.metadata.outputs.package-ecosystem != 'docker'
+            (steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
+             steps.metadata.outputs.update-type == 'version-update:semver-minor') &&
+            steps.metadata.outputs.package-ecosystem != 'github_actions' &&
+            steps.metadata.outputs.package-ecosystem != 'docker'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_URL: ${{ github.event.pull_request.html_url }}
-        run: gh pr merge --auto --merge "$PR_URL"
+            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            PR_URL: ${{ github.event.pull_request.html_url }}
+            BASE: ${{ github.event.pull_request.base.ref }}
+        run: |
+            # Let the required checks register before watching them.
+            sleep 30
+            gh pr checks "$PR_URL" --required --watch --fail-fast --interval 20
+            gh pr merge --merge "$PR_URL"
+            gh workflow run deploy.yml --ref "$BASE"
