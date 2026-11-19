@@ -8,6 +8,16 @@ updates:
     # usually caught and pulled within days.
     cooldown:
       default-days: 7
+    groups:
+      # react and react-dom refuse to run at different versions.
+      react:
+        patterns: ['react', 'react-dom', '@types/react', '@types/react-dom']
+      vite:
+        patterns: ['vite', '@vitejs/*']
+      eslint:
+        patterns: ['eslint', '@eslint/*']
+      typescript-eslint:
+        patterns: ['typescript-eslint', '@typescript-eslint/*']
   - package-ecosystem: github-actions
     directory: /
     schedule:
