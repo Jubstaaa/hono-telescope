@@ -1,7 +1,7 @@
 import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import globals from 'globals';
-import importPlugin from 'eslint-plugin-import';
+import importPlugin from 'eslint-plugin-import-x';
 import perfectionistPlugin from 'eslint-plugin-perfectionist';
 import prettierPlugin from 'eslint-plugin-prettier';
 import reactPlugin from 'eslint-plugin-react';
@@ -24,7 +24,7 @@ const sharedRules = {
   '@typescript-eslint/no-empty-object-type': 'off',
   '@typescript-eslint/no-unused-expressions': 'off',
   '@typescript-eslint/no-explicit-any': 'error',
-  'import/order': [
+  'import-x/order': [
     'error',
     {
       groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
@@ -75,7 +75,7 @@ const sharedRules = {
 };
 
 const sharedPlugins = {
-  import: importPlugin,
+  'import-x': importPlugin,
   perfectionist: perfectionistPlugin,
   prettier: prettierPlugin,
   react: reactPlugin,

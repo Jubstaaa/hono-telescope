@@ -34,7 +34,7 @@ Error message or stack trace here
 ## 📦 Environment
 
 - **OS**: [e.g., macOS 13.0, Ubuntu 22.04, Windows 11]
-- **Runtime**: [e.g., Node.js 18.0.0, Bun 1.0.0]
+- **Runtime**: [e.g., Node.js 22.0.0, Bun 1.0.0]
 - **Hono Version**: [e.g., 4.0.0]
 - **Hono Telescope Version**: [e.g., 0.1.11]
 - **Package Manager**: [npm, yarn, pnpm, bun]
@@ -52,5 +52,5 @@ Add any other context about the problem here:
 
 - [ ] I've checked that this issue hasn't been reported already
 - [ ] I've tried to reproduce it with the latest version
-- [ ] I'm using a supported environment (Node.js 18+ or Bun 1+)
+- [ ] I'm using a supported environment (Node.js 22+ or Bun 1+)
 - [ ] I've included all relevant details and error messages
