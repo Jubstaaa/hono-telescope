@@ -19,10 +19,12 @@ updates:
       typescript-eslint:
         patterns: ['typescript-eslint', '@typescript-eslint/*']
     ignore:
-      # typescript-eslint does not support TypeScript 7 yet.
+      # The `typescript` key is the TypeScript 6 API alias that
+      # typescript-eslint needs; TypeScript 7 arrives through
+      # @typescript/native, which is not ignored.
       - dependency-name: typescript
-        versions: ['>=7']
-      # Must match the Node.js major the code runs on, not the newest one.
+        update-types: ['version-update:semver-major']
+      # Tracks engines.node (the oldest supported LTS), not the newest Node.
       - dependency-name: '@types/node'
         update-types: ['version-update:semver-major']
   - package-ecosystem: github-actions

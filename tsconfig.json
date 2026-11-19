@@ -11,7 +11,7 @@
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./",
+    "rootDir": "./src",
     "incremental": true,
     "skipLibCheck": true,
     "strict": true,
@@ -19,12 +19,12 @@
     "resolveJsonModule": true,
     "types": ["bun"],
     "paths": {
-      "@/*": ["src/*"],
-      "@types/*": ["src/types/*"],
-      "@core/*": ["src/core/*"],
-      "@dashboard/*": ["src/dashboard/*"]
+      "@/*": ["./src/*"],
+      "@types/*": ["./src/types/*"],
+      "@core/*": ["./src/core/*"],
+      "@dashboard/*": ["./src/dashboard/*"]
     }
   },
-  "include": ["src/**/*"],
+  "include": ["./src/**/*"],
   "exclude": ["node_modules", "dist", "src/dashboard"]
 }
