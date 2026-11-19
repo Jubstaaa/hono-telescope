@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router';
+import { Link } from 'react-router';
 
 import {
   DatabaseOutlined,
@@ -9,6 +9,7 @@ import {
 } from '@ant-design/icons';
 import { Alert, Button, Card, Col, Flex, Grid, Row, Statistic, Typography } from 'antd';
 
+import { TAG_COLORS } from '../../format';
 import { useStats } from '../../hooks/use-entries';
 
 const { Title } = Typography;
@@ -16,35 +17,35 @@ const { useBreakpoint } = Grid;
 
 const statsCards = [
   {
-    color: '#1890ff',
+    color: TAG_COLORS.blue,
     icon: <DownloadOutlined />,
     key: 'incomingRequests' as const,
     path: '/incoming-requests',
     title: 'Incoming Requests',
   },
   {
-    color: '#13c2c2',
+    color: TAG_COLORS.cyan,
     icon: <UploadOutlined />,
     key: 'outgoingRequests' as const,
     path: '/outgoing-requests',
     title: 'Outgoing Requests',
   },
   {
-    color: '#ff4d4f',
+    color: TAG_COLORS.error,
     icon: <ExclamationCircleOutlined />,
     key: 'exceptions' as const,
     path: '/exceptions',
     title: 'Exceptions',
   },
   {
-    color: '#52c41a',
+    color: TAG_COLORS.success,
     icon: <DatabaseOutlined />,
     key: 'queries' as const,
     path: '/queries',
     title: 'Queries',
   },
   {
-    color: '#fa8c16',
+    color: TAG_COLORS.warning,
     icon: <FileTextOutlined />,
     key: 'logs' as const,
     path: '/logs',
@@ -53,7 +54,6 @@ const statsCards = [
 ];
 
 export const Dashboard = () => {
-  const navigate = useNavigate();
   const screens = useBreakpoint();
   const { data: stats, error, isLoading, refetch } = useStats();
 
@@ -78,19 +78,16 @@ export const Dashboard = () => {
       <Row gutter={[16, 16]}>
         {statsCards.map((stat) => (
           <Col key={stat.title} flex="20%" lg={4} md={8} sm={12} xl={4} xs={12}>
-            <Card
-              hoverable
-              loading={isLoading}
-              style={{ cursor: 'pointer', height: '100%' }}
-              onClick={() => navigate(stat.path)}
-            >
-              <Statistic
-                prefix={<span style={{ color: stat.color }}>{stat.icon}</span>}
-                title={stat.title}
-                value={stats?.[stat.key].total ?? 0}
-                valueStyle={{ color: stat.color, fontSize: screens.xs ? '18px' : '24px' }}
-              />
-            </Card>
+            <Link style={{ display: 'block', height: '100%' }} to={stat.path}>
+              <Card hoverable loading={isLoading} style={{ height: '100%' }}>
+                <Statistic
+                  prefix={<span style={{ color: stat.color }}>{stat.icon}</span>}
+                  title={stat.title}
+                  value={stats?.[stat.key].total ?? 0}
+                  valueStyle={{ color: stat.color, fontSize: screens.xs ? '18px' : '24px' }}
+                />
+              </Card>
+            </Link>
           </Col>
         ))}
       </Row>

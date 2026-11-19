@@ -3,38 +3,48 @@ import prettyMs from 'pretty-ms';
 
 import { LogLevel } from '@/core/entries';
 
+// antd's preset tag colours put light text on a tinted background at 2.2-3.4:1. A hex colour
+// renders a solid tag with white text; these shades (antd palette step 7-8) clear WCAG AA.
+export const TAG_COLORS = {
+  blue: '#0958d9',
+  cyan: '#006d75',
+  error: '#a8071a',
+  purple: '#531dab',
+  success: '#237804',
+  warning: '#ad4e00',
+} as const;
+
 export const getStatusColor = (status?: number): string => {
   if (!status) return 'default';
-  if (status >= 200 && status < 300) return 'success';
-  if (status >= 400) return 'error';
-  if (status >= 300) return 'warning';
+  if (status >= 200 && status < 300) return TAG_COLORS.success;
+  if (status >= 400) return TAG_COLORS.error;
+  if (status >= 300) return TAG_COLORS.warning;
   return 'default';
 };
 
-export const getMethodColor = (method: string): string => {
-  const colors: Record<string, string> = {
-    DELETE: 'red',
-    GET: 'blue',
-    PATCH: 'purple',
-    POST: 'green',
-    PUT: 'orange',
-  };
-  return colors[method] || 'default';
+const METHOD_COLORS: Record<string, string> = {
+  DELETE: TAG_COLORS.error,
+  GET: TAG_COLORS.blue,
+  PATCH: TAG_COLORS.purple,
+  POST: TAG_COLORS.success,
+  PUT: TAG_COLORS.warning,
 };
 
-export const getLevelColor = (level: number): string => {
-  const colors: Record<number, string> = {
-    0: 'gray',
-    1: 'blue',
-    2: 'cyan',
-    3: 'orange',
-    4: 'red',
-    5: 'red',
-    6: 'red',
-    7: 'red',
-  };
-  return colors[level] || 'default';
+export const getMethodColor = (method: string): string => METHOD_COLORS[method] ?? 'default';
+
+const LEVEL_COLORS: Record<number, string> = {
+  1: TAG_COLORS.blue,
+  2: TAG_COLORS.cyan,
+  3: TAG_COLORS.warning,
 };
+
+export const getLevelColor = (level: number): string =>
+  LEVEL_COLORS[level] ?? (level >= 4 ? TAG_COLORS.error : 'default');
+
+// A single red threshold made 120ms look as alarming as 2s, so red stopped meaning anything.
+// Queries live on a different scale than requests, hence the overridable bounds.
+export const getDurationColor = (value: number, warnAt = 300, slowAt = 1000): string =>
+  value >= slowAt ? TAG_COLORS.error : value >= warnAt ? TAG_COLORS.warning : TAG_COLORS.success;
 
 export const formatDuration = (duration: number): string => {
   return prettyMs(duration);

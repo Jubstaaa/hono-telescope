@@ -2,7 +2,7 @@ import { Tag } from 'antd';
 
 import type { QueryResponse } from '@/core/hono/dashboard-api';
 
-import { formatDate } from '../../format';
+import { formatDate, TAG_COLORS } from '../../format';
 import DurationTag from '../duration-tag/duration-tag';
 import Table from '../entry-table/entry-table';
 
@@ -22,7 +22,7 @@ export const QueryTable = ({ entries, loading }: QueryTableProps) => {
     {
       dataIndex: 'failed',
       key: 'failed',
-      render: (failed?: boolean) => (failed ? <Tag color="red">failed</Tag> : null),
+      render: (failed?: boolean) => (failed ? <Tag color={TAG_COLORS.error}>failed</Tag> : null),
       title: 'Status',
     },
     {

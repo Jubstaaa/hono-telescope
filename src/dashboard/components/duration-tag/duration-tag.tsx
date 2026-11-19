@@ -1,6 +1,6 @@
 import { Tag } from 'antd';
 
-import { formatDuration } from '../../format';
+import { formatDuration, getDurationColor } from '../../format';
 
 interface DurationTagProps {
   slowAt?: number;
@@ -8,12 +8,8 @@ interface DurationTagProps {
   warnAt?: number;
 }
 
-// A single red threshold made 120ms look as alarming as 2s, so red stopped meaning anything.
-// Queries live on a different scale than requests, hence the overridable bounds.
 function DurationTag({ slowAt = 1000, value, warnAt = 300 }: DurationTagProps) {
-  const color = value >= slowAt ? 'red' : value >= warnAt ? 'orange' : 'green';
-
-  return <Tag color={color}>{formatDuration(value)}</Tag>;
+  return <Tag color={getDurationColor(value, warnAt, slowAt)}>{formatDuration(value)}</Tag>;
 }
 
 export default DurationTag;
