@@ -57,6 +57,9 @@ jobs:
           cache-to: type=gha,mode=max
 
   deploy:
+    # Deploy secrets live in this environment, which only accepts main,
+    # so a workflow on another branch cannot read them.
+    environment: production
     needs: build
     if: ${{ !cancelled() && (inputs.image_tag || needs.build.result == 'success') }}
     runs-on: ubuntu-latest
