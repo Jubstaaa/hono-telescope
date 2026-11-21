@@ -8,9 +8,14 @@ on:
 
 jobs:
   publish:
+    # Trusted publishing: npm accepts this job's OIDC token for this workflow and
+    # environment only, so no long-lived npm token exists. The environment only
+    # admits release tags, which only an admin can create.
+    environment: release
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      id-token: write
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -22,7 +27,6 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
-          registry-url: https://registry.npmjs.org
 
       - run: bun install --frozen-lockfile
       # The dashboard bundle is inlined into a generated module the library imports; it is
@@ -58,8 +62,6 @@ jobs:
             exit 0
           fi
           npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish the GitHub release
         env:
