@@ -7,7 +7,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/jubstaaa/hono-telescope.git"
+        "url": "https://github.com/Jubstaaa/hono-telescope.git"
     },
     "main": "./dist/index.js",
     "exports": {
@@ -67,7 +67,7 @@
         "hono-telescope": "./dist/cli/index.js"
     },
     "bugs": {
-        "url": "https://github.com/jubstaaa/hono-telescope/issues"
+        "url": "https://github.com/Jubstaaa/hono-telescope/issues"
     },
     "description": "Laravel Telescope-style debugging for Hono, with an MCP server so AI coding agents can read your app's live requests, exceptions and queries. Zero runtime dependencies.",
     "engines": {
@@ -90,7 +90,7 @@
             "url": "https://buymeacoffee.com/jubstaa"
         }
     ],
-    "homepage": "https://github.com/jubstaaa/hono-telescope#readme",
+    "homepage": "https://github.com/Jubstaaa/hono-telescope#readme",
     "keywords": [
         "hono",
         "mcp",
