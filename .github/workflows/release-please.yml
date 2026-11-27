@@ -1,0 +1,25 @@
+name: Release please
+
+on:
+    push:
+        branches: [main]
+
+permissions:
+    contents: read
+
+jobs:
+    release-please:
+        runs-on: ubuntu-latest
+        timeout-minutes: 10
+        permissions:
+            contents: write
+            pull-requests: write
+        steps:
+            # RELEASE_TOKEN, not GITHUB_TOKEN: a pull request opened with the
+            # built-in token does not start workflows, so its required checks
+            # would never report and the release would sit blocked.
+            - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+              with:
+                  release-type: node
+                  token: ${{ secrets.RELEASE_TOKEN }}
+                  include-v-in-tag: false
