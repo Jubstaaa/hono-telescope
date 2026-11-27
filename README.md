@@ -96,16 +96,18 @@ bun add hono-telescope
 ## Quick Start
 
 ```typescript
-import { Hono } from 'hono';
-import { createTelescope, memoryStorage } from 'hono-telescope';
+import { Hono } from 'hono'
+import { createTelescope, memoryStorage } from 'hono-telescope'
 
-const app = new Hono();
-const telescope = createTelescope({ storage: memoryStorage({ maxEntries: 1000 }) });
+const app = new Hono()
+const telescope = createTelescope({
+    storage: memoryStorage({ maxEntries: 1000 }),
+})
 
-app.use('*', telescope.middleware());
-app.route('/telescope', telescope.dashboard());
+app.use('*', telescope.middleware())
+app.route('/telescope', telescope.dashboard())
 
-export default app;
+export default app
 ```
 
 Visit `/telescope`. Telescope is on by default outside production and off inside it.
@@ -119,7 +121,7 @@ coding agent can read the running application's telemetry instead of being hande
 traces. There is nothing extra to mount — it is served from the dashboard you already mounted:
 
 ```typescript
-app.route('/telescope', telescope.dashboard()); // MCP is at /telescope/mcp
+app.route('/telescope', telescope.dashboard()) // MCP is at /telescope/mcp
 ```
 
 ```bash
@@ -155,13 +157,13 @@ claude mcp add telescope -- npx -y hono-telescope mcp-stdio \
 
 ```json
 {
-  "mcpServers": {
-    "telescope": {
-      "command": "npx",
-      "args": ["-y", "hono-telescope", "mcp-stdio"],
-      "env": { "TELESCOPE_URL": "http://localhost:3000/telescope/mcp" }
+    "mcpServers": {
+        "telescope": {
+            "command": "npx",
+            "args": ["-y", "hono-telescope", "mcp-stdio"],
+            "env": { "TELESCOPE_URL": "http://localhost:3000/telescope/mcp" }
+        }
     }
-  }
 }
 ```
 
@@ -186,29 +188,40 @@ and it needs the app to already be running.
 ## Configuration
 
 ```typescript
-import { createTelescope, memoryStorage, alsContext, consoleCollector } from 'hono-telescope';
+import {
+    createTelescope,
+    memoryStorage,
+    alsContext,
+    consoleCollector,
+} from 'hono-telescope'
 
 const telescope = createTelescope({
-  enabled: process.env.NODE_ENV !== 'production',
-  storage: memoryStorage({ maxEntries: 1000 }),
-  context: alsContext(),
-  collectors: [consoleCollector()],
-  dashboardPath: '/telescope',
-  ignorePaths: ['/health'],
-  ignoreStaticAssets: true,
-  capture: {
-    requestBody: true,
-    responseBody: true,
-    maxBodySize: 65536,
-  },
-  redact: {
-    headers: ['authorization', 'cookie', 'set-cookie', 'x-api-key', 'proxy-authorization'],
-    bodyKeys: ['password', 'token', 'secret', 'apikey', 'authorization'],
-  },
-  dashboard: {
-    auth: { username: 'admin', password: 'telescope' },
-  },
-});
+    enabled: process.env.NODE_ENV !== 'production',
+    storage: memoryStorage({ maxEntries: 1000 }),
+    context: alsContext(),
+    collectors: [consoleCollector()],
+    dashboardPath: '/telescope',
+    ignorePaths: ['/health'],
+    ignoreStaticAssets: true,
+    capture: {
+        requestBody: true,
+        responseBody: true,
+        maxBodySize: 65536,
+    },
+    redact: {
+        headers: [
+            'authorization',
+            'cookie',
+            'set-cookie',
+            'x-api-key',
+            'proxy-authorization',
+        ],
+        bodyKeys: ['password', 'token', 'secret', 'apikey', 'authorization'],
+    },
+    dashboard: {
+        auth: { username: 'admin', password: 'telescope' },
+    },
+})
 ```
 
 All options are optional — `createTelescope()` works with the defaults.
@@ -234,8 +247,8 @@ All options are optional — `createTelescope()` works with the defaults.
 If you mount the dashboard at a path other than `/telescope`, you **must** set `dashboardPath` to the same value:
 
 ```typescript
-const telescope = createTelescope({ dashboardPath: '/admin/debug' });
-app.route('/admin/debug', telescope.dashboard());
+const telescope = createTelescope({ dashboardPath: '/admin/debug' })
+app.route('/admin/debug', telescope.dashboard())
 ```
 
 The middleware uses `dashboardPath` to avoid recording the dashboard's own traffic, and the dashboard uses it to construct its base URL.
@@ -245,22 +258,22 @@ The middleware uses `dashboardPath` to avoid recording the dashboard's own traff
 Pass your database client to Telescope for query instrumentation. Prisma returns a new client—use the returned one:
 
 ```typescript
-import { createTelescope } from 'hono-telescope';
-import { PrismaClient } from '@prisma/client';
+import { createTelescope } from 'hono-telescope'
+import { PrismaClient } from '@prisma/client'
 
-const telescope = createTelescope();
-const prisma = telescope.instrumentPrisma(new PrismaClient());
+const telescope = createTelescope()
+const prisma = telescope.instrumentPrisma(new PrismaClient())
 // Use the returned `prisma` client, not the original
 ```
 
 Supported databases:
 
 ```typescript
-const prisma = telescope.instrumentPrisma(new PrismaClient());
-telescope.instrumentSequelize(sequelize);
-const mongoClient = new MongoClient(url, { monitorCommands: true });
-telescope.instrumentMongo(mongoClient);
-telescope.instrumentBunSqlite(db);
+const prisma = telescope.instrumentPrisma(new PrismaClient())
+telescope.instrumentSequelize(sequelize)
+const mongoClient = new MongoClient(url, { monitorCommands: true })
+telescope.instrumentMongo(mongoClient)
+telescope.instrumentBunSqlite(db)
 ```
 
 > **Note**: Automatic database interception was removed in 1.0 because it never worked under Node ESM and captured only raw SQL where it did run. Explicit per-client instrumentation is now required.
@@ -289,18 +302,18 @@ You have two options for production:
 
 ```typescript
 createTelescope({
-  enabled: true,
-  dashboard: { auth: { username: 'admin', password: 'secret' } },
-});
+    enabled: true,
+    dashboard: { auth: { username: 'admin', password: 'secret' } },
+})
 ```
 
 2. **Explicitly opt out of auth** to acknowledge full exposure (no auth, dashboard fully open):
 
 ```typescript
 createTelescope({
-  enabled: true,
-  dashboard: { auth: false },
-});
+    enabled: true,
+    dashboard: { auth: false },
+})
 ```
 
 Sensitive headers (`authorization`, `cookie`, `set-cookie`, `x-api-key`, `proxy-authorization`) and body keys (`password`, `token`, `secret`, `apikey`, `authorization`) are redacted by default, at any nesting depth. Redaction is recursive through nested objects and arrays, case-insensitive, and replaces values with `[REDACTED]` rather than deleting them.
@@ -331,10 +344,10 @@ Implement `StorageAdapter` and verify it against the contract suite that ships w
 package:
 
 ```typescript
-import { runStorageContract } from 'hono-telescope/testing';
-import { myStorage } from './my-storage';
+import { runStorageContract } from 'hono-telescope/testing'
+import { myStorage } from './my-storage'
 
-runStorageContract('myStorage', () => myStorage());
+runStorageContract('myStorage', () => myStorage())
 ```
 
 The suite (a Vitest suite; run it with your own test runner installed) pins the two ordering
@@ -348,26 +361,26 @@ The 1.0 release introduces a new API centered on `createTelescope()`:
 **0.x (Old API)**
 
 ```typescript
-import { setupTelescope } from 'hono-telescope';
+import { setupTelescope } from 'hono-telescope'
 
 setupTelescope(app, {
-  enabled: true,
-  max_entries: 1000,
-  sanitize_headers: ['authorization'],
-});
+    enabled: true,
+    max_entries: 1000,
+    sanitize_headers: ['authorization'],
+})
 ```
 
 **1.0 (New API)**
 
 ```typescript
-import { createTelescope, memoryStorage } from 'hono-telescope';
+import { createTelescope, memoryStorage } from 'hono-telescope'
 
 const telescope = createTelescope({
-  storage: memoryStorage({ maxEntries: 1000 }),
-  redact: { headers: ['authorization'] },
-});
-app.use('*', telescope.middleware());
-app.route('/telescope', telescope.dashboard());
+    storage: memoryStorage({ maxEntries: 1000 }),
+    redact: { headers: ['authorization'] },
+})
+app.use('*', telescope.middleware())
+app.route('/telescope', telescope.dashboard())
 ```
 
 **Key changes:**

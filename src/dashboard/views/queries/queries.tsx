@@ -1,28 +1,36 @@
-import { ReloadOutlined } from '@ant-design/icons';
-import { Button, Flex, theme, Typography } from 'antd';
+import { ReloadOutlined } from '@ant-design/icons'
+import { Button, Flex, theme, Typography } from 'antd'
 
-import type { QueryResponse } from '@/core/hono/dashboard-api';
+import type { QueryResponse } from '@/core/hono/dashboard-api'
 
-import { QueryTable } from '../../components/query-table/query-table';
-import { useList } from '../../hooks/use-entries';
+import { QueryTable } from '../../components/query-table/query-table'
+import { useList } from '../../hooks/use-entries'
 
-const { Title } = Typography;
+const { Title } = Typography
 
 export const QueryList = () => {
-  const { token } = theme.useToken();
-  const { data: entries, isLoading, isRefreshing, refetch } = useList<QueryResponse>('queries');
+    const { token } = theme.useToken()
+    const {
+        data: entries,
+        isLoading,
+        isRefreshing,
+        refetch,
+    } = useList<QueryResponse>('queries')
 
-  return (
-    <Flex vertical gap="large">
-      <Flex align="center" justify="space-between">
-        <Title level={2} style={{ color: token.colorText, margin: 0 }}>
-          Queries
-        </Title>
-        <Button icon={<ReloadOutlined />} loading={isRefreshing} onClick={refetch}>
-          Refresh
-        </Button>
-      </Flex>
-      <QueryTable entries={entries} loading={isLoading} />
-    </Flex>
-  );
-};
+    return (
+        <Flex gap="large" vertical>
+            <Flex align="center" justify="space-between">
+                <Title level={2} style={{ color: token.colorText, margin: 0 }}>
+                    Queries
+                </Title>
+                <Button
+                    icon={<ReloadOutlined />}
+                    loading={isRefreshing}
+                    onClick={refetch}>
+                    Refresh
+                </Button>
+            </Flex>
+            <QueryTable entries={entries} loading={isLoading} />
+        </Flex>
+    )
+}

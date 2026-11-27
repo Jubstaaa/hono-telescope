@@ -1,140 +1,141 @@
 body {
-  margin: 0;
-  padding: 0;
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    font-family:
+        -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+        Arial, sans-serif;
 }
 
 * {
-  box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 /* Mobile Responsive Styles */
 @media (max-width: 768px) {
-  body {
-    font-size: 14px;
-  }
+    body {
+        font-size: 14px;
+    }
 
-  h1 {
-    font-size: 24px !important;
-  }
+    h1 {
+        font-size: 24px !important;
+    }
 
-  h2 {
-    font-size: 20px !important;
-  }
+    h2 {
+        font-size: 20px !important;
+    }
 
-  h3 {
-    font-size: 18px !important;
-  }
+    h3 {
+        font-size: 18px !important;
+    }
 
-  h4 {
-    font-size: 16px !important;
-  }
+    h4 {
+        font-size: 16px !important;
+    }
 }
 
 @media (max-width: 576px) {
-  body {
-    font-size: 13px;
-  }
+    body {
+        font-size: 13px;
+    }
 
-  h1 {
-    font-size: 20px !important;
-  }
+    h1 {
+        font-size: 20px !important;
+    }
 
-  h2 {
-    font-size: 18px !important;
-  }
+    h2 {
+        font-size: 18px !important;
+    }
 
-  h3 {
-    font-size: 16px !important;
-  }
+    h3 {
+        font-size: 16px !important;
+    }
 
-  h4 {
-    font-size: 14px !important;
-  }
+    h4 {
+        font-size: 14px !important;
+    }
 }
 
 /* Ant Design overrides for mobile */
 .ant-layout-sider {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 @media (max-width: 768px) {
-  .ant-card {
-    border-radius: 6px;
-  }
+    .ant-card {
+        border-radius: 6px;
+    }
 
-  .ant-statistic-title {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+    .ant-statistic-title {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
 
-  .ant-table {
-    font-size: 12px;
-  }
+    .ant-table {
+        font-size: 12px;
+    }
 
-  .ant-table-thead > tr > th {
-    padding: 8px 12px !important;
-  }
+    .ant-table-thead > tr > th {
+        padding: 8px 12px !important;
+    }
 
-  .ant-table-tbody > tr > td {
-    padding: 8px 12px !important;
-  }
+    .ant-table-tbody > tr > td {
+        padding: 8px 12px !important;
+    }
 }
 
 @media (max-width: 576px) {
-  .ant-btn {
-    height: 32px;
-    padding: 0 12px;
-  }
+    .ant-btn {
+        height: 32px;
+        padding: 0 12px;
+    }
 
-  .ant-btn-icon-only {
-    width: 32px;
-  }
+    .ant-btn-icon-only {
+        width: 32px;
+    }
 
-  .ant-switch {
-    min-width: 44px;
-    min-height: 24px;
-  }
+    .ant-switch {
+        min-width: 44px;
+        min-height: 24px;
+    }
 
-  .ant-menu {
-    font-size: 13px;
-  }
+    .ant-menu {
+        font-size: 13px;
+    }
 
-  .ant-table {
-    font-size: 11px;
-  }
+    .ant-table {
+        font-size: 11px;
+    }
 
-  .ant-table-thead > tr > th {
-    padding: 6px 8px !important;
-  }
+    .ant-table-thead > tr > th {
+        padding: 6px 8px !important;
+    }
 
-  .ant-table-tbody > tr > td {
-    padding: 6px 8px !important;
-  }
+    .ant-table-tbody > tr > td {
+        padding: 6px 8px !important;
+    }
 }
 
 /* Live Mode Pulse Animation */
 @keyframes pulse {
-  0% {
-    opacity: 1;
-    box-shadow: 0 0 0 0 var(--live-color);
-  }
-  50% {
-    opacity: 0.8;
-  }
-  70% {
-    box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
-  }
-  100% {
-    opacity: 1;
-    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
-  }
+    0% {
+        opacity: 1;
+        box-shadow: 0 0 0 0 var(--live-color);
+    }
+    50% {
+        opacity: 0.8;
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+    }
+    100% {
+        opacity: 1;
+        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+    }
 }
 
 .live-mode-pulse {
-  animation: pulse 2s infinite;
-  border-radius: 50%;
-  display: inline-block;
+    animation: pulse 2s infinite;
+    border-radius: 50%;
+    display: inline-block;
 }

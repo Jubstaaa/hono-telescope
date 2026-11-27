@@ -1,33 +1,36 @@
-import { ReloadOutlined } from '@ant-design/icons';
-import { Button, Flex, theme, Typography } from 'antd';
+import { ReloadOutlined } from '@ant-design/icons'
+import { Button, Flex, theme, Typography } from 'antd'
 
-import type { IncomingRequestResponse } from '@/core/hono/dashboard-api';
+import type { IncomingRequestResponse } from '@/core/hono/dashboard-api'
 
-import { IncomingRequestTable } from '../../components/incoming-request-table/incoming-request-table';
-import { useList } from '../../hooks/use-entries';
+import { IncomingRequestTable } from '../../components/incoming-request-table/incoming-request-table'
+import { useList } from '../../hooks/use-entries'
 
-const { Title } = Typography;
+const { Title } = Typography
 
 export const IncomingRequestList = () => {
-  const { token } = theme.useToken();
-  const {
-    data: entries,
-    isLoading,
-    isRefreshing,
-    refetch,
-  } = useList<IncomingRequestResponse>('incoming-requests');
+    const { token } = theme.useToken()
+    const {
+        data: entries,
+        isLoading,
+        isRefreshing,
+        refetch,
+    } = useList<IncomingRequestResponse>('incoming-requests')
 
-  return (
-    <Flex vertical gap="large">
-      <Flex align="center" justify="space-between">
-        <Title level={2} style={{ color: token.colorText, margin: 0 }}>
-          Incoming Requests
-        </Title>
-        <Button icon={<ReloadOutlined />} loading={isRefreshing} onClick={refetch}>
-          Refresh
-        </Button>
-      </Flex>
-      <IncomingRequestTable entries={entries} loading={isLoading} />
-    </Flex>
-  );
-};
+    return (
+        <Flex gap="large" vertical>
+            <Flex align="center" justify="space-between">
+                <Title level={2} style={{ color: token.colorText, margin: 0 }}>
+                    Incoming Requests
+                </Title>
+                <Button
+                    icon={<ReloadOutlined />}
+                    loading={isRefreshing}
+                    onClick={refetch}>
+                    Refresh
+                </Button>
+            </Flex>
+            <IncomingRequestTable entries={entries} loading={isLoading} />
+        </Flex>
+    )
+}

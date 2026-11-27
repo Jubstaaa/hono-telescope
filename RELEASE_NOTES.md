@@ -32,21 +32,21 @@ pnpm add hono-telescope
 ## 🚀 Quick Start
 
 ```typescript
-import { Hono } from 'hono';
-import { setupTelescope } from 'hono-telescope';
+import { Hono } from 'hono'
+import { setupTelescope } from 'hono-telescope'
 
-const app = new Hono();
+const app = new Hono()
 
 // One line setup
-setupTelescope(app);
+setupTelescope(app)
 
 // Your routes work normally
-app.get('/api/users', (c) => {
-  console.log('Fetching users');
-  return c.json({ users: [] });
-});
+app.get('/api/users', c => {
+    console.log('Fetching users')
+    return c.json({ users: [] })
+})
 
-export default app;
+export default app
 ```
 
 Visit `http://localhost:3000/telescope` to open your dashboard.
@@ -91,17 +91,17 @@ Then check the dashboard to see all activity!
 
 ```typescript
 setupTelescope(app, {
-  enabled: true, // Enable/disable Telescope
-  path: '/telescope', // Dashboard URL path
-  max_entries: 1000, // Max entries to keep in memory
-  ignored_paths: ['/health'], // Paths to ignore
-  watchers: {
-    requests: true, // Monitor HTTP requests
-    exceptions: true, // Monitor exceptions
-    logs: true, // Monitor console logs
-    queries: true, // Monitor database queries
-  },
-});
+    enabled: true, // Enable/disable Telescope
+    path: '/telescope', // Dashboard URL path
+    max_entries: 1000, // Max entries to keep in memory
+    ignored_paths: ['/health'], // Paths to ignore
+    watchers: {
+        requests: true, // Monitor HTTP requests
+        exceptions: true, // Monitor exceptions
+        logs: true, // Monitor console logs
+        queries: true, // Monitor database queries
+    },
+})
 ```
 
 ## 🗺️ Roadmap

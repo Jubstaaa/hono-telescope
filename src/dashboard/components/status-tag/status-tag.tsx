@@ -1,9 +1,9 @@
-import { Tag } from 'antd';
+import { Tag } from 'antd'
 
-import { getStatusColor } from '../../format';
+import { getStatusColor } from '../../format'
 
 function StatusTag({ status }: { status: number }) {
-  return <Tag color={getStatusColor(status)}>{status}</Tag>;
+    return <Tag color={getStatusColor(status)}>{status}</Tag>
 }
 
-export default StatusTag;
+export default StatusTag

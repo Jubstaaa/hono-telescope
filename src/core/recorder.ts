@@ -1,57 +1,73 @@
-import { randomUUID } from 'node:crypto';
+import { randomUUID } from 'node:crypto'
 
-import type { ContextStrategy } from './context/context-strategy.js';
-import type { CreateInputMap, EntryMap, EntryType, QueryCreateInput } from './entries.js';
-import type { ListOptions, StorageAdapter } from './storage/storage-adapter.js';
+import type { ContextStrategy } from './context/context-strategy.js'
+import type {
+    CreateInputMap,
+    EntryMap,
+    EntryType,
+    QueryCreateInput,
+} from './entries.js'
+import type { ListOptions, StorageAdapter } from './storage/storage-adapter.js'
 
 export class Recorder {
-  constructor(
-    private readonly storage: StorageAdapter,
-    private readonly context: ContextStrategy
-  ) {}
+    constructor(
+        private readonly storage: StorageAdapter,
+        private readonly context: ContextStrategy
+    ) {}
 
-  async record<T extends EntryType>(
-    type: T,
-    input: CreateInputMap[T],
-    id?: string
-  ): Promise<string> {
-    const explicitParent = (input as { parent_id?: string }).parent_id;
-    const inheritedParent =
-      type === 'incoming_request' ? undefined : this.context.current()?.requestId;
+    clear(): Promise<void> {
+        return this.storage.clear()
+    }
 
-    const entry = {
-      ...input,
-      created_at: new Date().toISOString(),
-      id: id ?? randomUUID(),
-      parent_id: explicitParent ?? inheritedParent,
-      timestamp: Date.now(),
-    } as EntryMap[T];
+    count(type: EntryType): Promise<number> {
+        return this.storage.count(type)
+    }
 
-    await this.storage.record(type, entry);
-    return entry.id;
-  }
+    find<T extends EntryType>(
+        type: T,
+        id: string
+    ): Promise<EntryMap[T] | null> {
+        return this.storage.find(type, id)
+    }
 
-  recordQuery(input: QueryCreateInput): Promise<string> {
-    return this.record('query', input);
-  }
+    findByParent<T extends EntryType>(
+        type: T,
+        parentId: string
+    ): Promise<EntryMap[T][]> {
+        return this.storage.findByParent(type, parentId)
+    }
 
-  list<T extends EntryType>(type: T, opts?: ListOptions): Promise<EntryMap[T][]> {
-    return this.storage.list(type, opts);
-  }
+    list<T extends EntryType>(
+        type: T,
+        opts?: ListOptions
+    ): Promise<EntryMap[T][]> {
+        return this.storage.list(type, opts)
+    }
 
-  find<T extends EntryType>(type: T, id: string): Promise<EntryMap[T] | null> {
-    return this.storage.find(type, id);
-  }
+    async record<T extends EntryType>(
+        type: T,
+        input: CreateInputMap[T],
+        id?: string
+    ): Promise<string> {
+        const explicitParent = (input as { parent_id?: string }).parent_id
+        const inheritedParent =
+            type === 'incoming_request'
+                ? undefined
+                : this.context.current()?.requestId
 
-  findByParent<T extends EntryType>(type: T, parentId: string): Promise<EntryMap[T][]> {
-    return this.storage.findByParent(type, parentId);
-  }
+        const entry = {
+            ...input,
+            created_at: new Date().toISOString(),
+            id: id ?? randomUUID(),
+            parent_id: explicitParent ?? inheritedParent,
+            timestamp: Date.now(),
+        } as EntryMap[T]
 
-  count(type: EntryType): Promise<number> {
-    return this.storage.count(type);
-  }
+        await this.storage.record(type, entry)
+        return entry.id
+    }
 
-  clear(): Promise<void> {
-    return this.storage.clear();
-  }
+    recordQuery(input: QueryCreateInput): Promise<string> {
+        return this.record('query', input)
+    }
 }

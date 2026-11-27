@@ -1,104 +1,104 @@
 name: Deploy
 
 on:
-  push:
-    branches: [main]
-  workflow_dispatch:
-    inputs:
-      image_tag:
-        description: 'Rollback: redeploy an existing image by its full 40-char commit SHA. Empty builds and deploys HEAD.'
-        required: false
-        default: ''
-        type: string
+    push:
+        branches: [main]
+    workflow_dispatch:
+        inputs:
+            image_tag:
+                description: 'Rollback: redeploy an existing image by its full 40-char commit SHA. Empty builds and deploys HEAD.'
+                required: false
+                default: ''
+                type: string
 
 permissions:
-  contents: read
+    contents: read
 
 env:
-  IMAGE: ghcr.io/jubstaaa/hono-telescope
+    IMAGE: ghcr.io/jubstaaa/hono-telescope
 
 jobs:
-  ci:
-    # A rollback skips the gate: that SHA passed it when it was built.
-    if: ${{ !inputs.image_tag }}
-    uses: ./.github/workflows/ci.yml
+    ci:
+        # A rollback skips the gate: that SHA passed it when it was built.
+        if: ${{ !inputs.image_tag }}
+        uses: ./.github/workflows/ci.yml
 
-  build:
-    needs: ci
-    if: ${{ !inputs.image_tag }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - id: meta
-        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
-        with:
-          images: ${{ env.IMAGE }}
-          # Only the commit SHA: :latest moves after production reports healthy.
-          tags: type=sha,format=long,prefix=
-      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
-      - uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+    build:
+        needs: ci
+        if: ${{ !inputs.image_tag }}
+        runs-on: ubuntu-latest
+        timeout-minutes: 20
+        permissions:
+            contents: read
+            packages: write
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  persist-credentials: false
+            - id: meta
+              uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+              with:
+                  images: ${{ env.IMAGE }}
+                  # Only the commit SHA: :latest moves after production reports healthy.
+                  tags: type=sha,format=long,prefix=
+            - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+            - uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
+              with:
+                  registry: ghcr.io
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+            - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+              with:
+                  context: .
+                  push: true
+                  tags: ${{ steps.meta.outputs.tags }}
+                  labels: ${{ steps.meta.outputs.labels }}
+                  cache-from: type=gha
+                  cache-to: type=gha,mode=max
 
-  deploy:
-    # Deploy secrets live in this environment, which only accepts main,
-    # so a workflow on another branch cannot read them.
-    environment: production
-    needs: build
-    if: ${{ !cancelled() && (inputs.image_tag || needs.build.result == 'success') }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    # Never cancel a deploy halfway through `compose up`.
-    concurrency:
-      group: production-deploy
-      cancel-in-progress: false
-    permissions:
-      contents: read
-      packages: write
-    env:
-      IMAGE_TAG: ${{ inputs.image_tag || github.sha }}
-    steps:
-      - name: Validate the tag
-        run: '[[ "$IMAGE_TAG" =~ ^[0-9a-f]{40}$ ]] || { echo "::error::image_tag must be a full 40-char commit SHA"; exit 1; }'
-      # The compose file comes from the repository, so the server never drifts from git.
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-          sparse-checkout: docker-compose.yml
-          sparse-checkout-cone-mode: false
-      # For promoting :latest once the release is healthy.
-      - uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: Jubstaaa/deploy-actions/ssh@1d9b582d7547aa6f02352b655c0721dd5a88071f # v1.3.0
-        with:
-          host: ${{ secrets.DO_HOST }}
-          user: ${{ secrets.DO_USER }}
-          key: ${{ secrets.DO_SSH_KEY }}
-          known-hosts: ${{ secrets.DO_KNOWN_HOSTS }}
-      # Retries the pull while GHCR propagates the freshly pushed tag.
-      - uses: Jubstaaa/deploy-actions/compose@1d9b582d7547aa6f02352b655c0721dd5a88071f # v1.3.0
-        with:
-          app-dir: /opt/hono-telescope
-          container: hono-telescope
-          image: ${{ env.IMAGE }}
-          tag: ${{ env.IMAGE_TAG }}
-          health-url: http://127.0.0.1:3006/
+    deploy:
+        # Deploy secrets live in this environment, which only accepts main,
+        # so a workflow on another branch cannot read them.
+        environment: production
+        needs: build
+        if: ${{ !cancelled() && (inputs.image_tag || needs.build.result == 'success') }}
+        runs-on: ubuntu-latest
+        timeout-minutes: 15
+        # Never cancel a deploy halfway through `compose up`.
+        concurrency:
+            group: production-deploy
+            cancel-in-progress: false
+        permissions:
+            contents: read
+            packages: write
+        env:
+            IMAGE_TAG: ${{ inputs.image_tag || github.sha }}
+        steps:
+            - name: Validate the tag
+              run: '[[ "$IMAGE_TAG" =~ ^[0-9a-f]{40}$ ]] || { echo "::error::image_tag must be a full 40-char commit SHA"; exit 1; }'
+            # The compose file comes from the repository, so the server never drifts from git.
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  persist-credentials: false
+                  sparse-checkout: docker-compose.yml
+                  sparse-checkout-cone-mode: false
+            # For promoting :latest once the release is healthy.
+            - uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
+              with:
+                  registry: ghcr.io
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+            - uses: Jubstaaa/deploy-actions/ssh@1d9b582d7547aa6f02352b655c0721dd5a88071f # v1.3.0
+              with:
+                  host: ${{ secrets.DO_HOST }}
+                  user: ${{ secrets.DO_USER }}
+                  key: ${{ secrets.DO_SSH_KEY }}
+                  known-hosts: ${{ secrets.DO_KNOWN_HOSTS }}
+            # Retries the pull while GHCR propagates the freshly pushed tag.
+            - uses: Jubstaaa/deploy-actions/compose@1d9b582d7547aa6f02352b655c0721dd5a88071f # v1.3.0
+              with:
+                  app-dir: /opt/hono-telescope
+                  container: hono-telescope
+                  image: ${{ env.IMAGE }}
+                  tag: ${{ env.IMAGE_TAG }}
+                  health-url: http://127.0.0.1:3006/

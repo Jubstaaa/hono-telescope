@@ -1,9 +1,9 @@
-import { Tag } from 'antd';
+import { Tag } from 'antd'
 
-import { getLevelColor, getLevelName } from '../../format';
+import { getLevelColor, getLevelName } from '../../format'
 
 function LevelTag({ level }: { level: number }) {
-  return <Tag color={getLevelColor(level)}>{getLevelName(level)}</Tag>;
+    return <Tag color={getLevelColor(level)}>{getLevelName(level)}</Tag>
 }
 
-export default LevelTag;
+export default LevelTag
