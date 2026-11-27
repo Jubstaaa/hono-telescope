@@ -1,43 +1,51 @@
-import { Tag } from 'antd';
+import { Tag } from 'antd'
 
-import type { QueryResponse } from '@/core/hono/dashboard-api';
+import type { QueryResponse } from '@/core/hono/dashboard-api'
 
-import { formatDate, TAG_COLORS } from '../../format';
-import DurationTag from '../duration-tag/duration-tag';
-import Table from '../entry-table/entry-table';
+import { formatDate, TAG_COLORS } from '../../format'
+import DurationTag from '../duration-tag/duration-tag'
+import Table from '../entry-table/entry-table'
 
 interface QueryTableProps {
-  entries: QueryResponse[];
-  loading?: boolean;
+    entries: QueryResponse[]
+    loading?: boolean
 }
 
 export const QueryTable = ({ entries, loading }: QueryTableProps) => {
-  const columns = [
-    {
-      dataIndex: 'query',
-      key: 'query',
-      render: (query: string) => query,
-      title: 'Query',
-    },
-    {
-      dataIndex: 'failed',
-      key: 'failed',
-      render: (failed?: boolean) => (failed ? <Tag color={TAG_COLORS.error}>failed</Tag> : null),
-      title: 'Status',
-    },
-    {
-      dataIndex: 'time',
-      key: 'duration',
-      render: (time: number) => <DurationTag value={time} />,
-      title: 'Duration',
-    },
-    {
-      dataIndex: 'created_at',
-      key: 'created_at',
-      render: (created_at: string) => formatDate(created_at),
-      title: 'Time',
-    },
-  ];
+    const columns = [
+        {
+            dataIndex: 'query',
+            key: 'query',
+            render: (query: string) => query,
+            title: 'Query',
+        },
+        {
+            dataIndex: 'failed',
+            key: 'failed',
+            render: (failed?: boolean) =>
+                failed ? <Tag color={TAG_COLORS.error}>failed</Tag> : null,
+            title: 'Status',
+        },
+        {
+            dataIndex: 'time',
+            key: 'duration',
+            render: (time: number) => <DurationTag value={time} />,
+            title: 'Duration',
+        },
+        {
+            dataIndex: 'created_at',
+            key: 'created_at',
+            render: (created_at: string) => formatDate(created_at),
+            title: 'Time',
+        },
+    ]
 
-  return <Table columns={columns} dataSource={entries} loading={loading} path="queries" />;
-};
+    return (
+        <Table
+            columns={columns}
+            dataSource={entries}
+            loading={loading}
+            path="queries"
+        />
+    )
+}

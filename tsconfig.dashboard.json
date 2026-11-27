@@ -1,10 +1,11 @@
 {
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "noEmit": true
-  },
-  "include": ["src/dashboard/**/*"],
-  "exclude": ["node_modules", "dist"]
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "noEmit": true,
+        "types": ["vite/client"]
+    },
+    "include": ["src/dashboard/**/*"],
+    "exclude": ["node_modules", "dist"]
 }

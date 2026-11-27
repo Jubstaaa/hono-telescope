@@ -1,24 +1,18 @@
 {
-  "compilerOptions": {
-    "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "jsx": "react-jsx",
-    "declaration": true,
-    "removeComments": true,
-    "allowSyntheticDefaultImports": true,
-    "sourceMap": true,
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "skipLibCheck": true,
-    "strict": true,
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "types": ["bun"],
-    "paths": {
-      "@/*": ["./src/*"]
-    }
-  },
-  "include": ["./src/**/*"],
-  "exclude": ["node_modules", "dist", "src/dashboard"]
+    "extends": "@jubstaaa/config/tsconfig/library",
+    "compilerOptions": {
+        "allowSyntheticDefaultImports": true,
+        "jsx": "react-jsx",
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "removeComments": true,
+        "types": ["bun"],
+        "paths": {
+            "@/*": ["./src/*"]
+        },
+        "lib": ["ESNext", "DOM", "DOM.Iterable"],
+        "noEmit": true
+    },
+    "include": ["./src/**/*", "./scripts/**/*", "*.ts", "*.mts"],
+    "exclude": ["node_modules", "dist", "src/dashboard"]
 }
