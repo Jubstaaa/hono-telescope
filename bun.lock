@@ -7,7 +7,7 @@
       "devDependencies": {
         "@ant-design/fast-color": "^3.0.1",
         "@ant-design/icons": "^6.3.4",
-        "@jubstaaa/config": "github:Jubstaaa/configs#779a6cbc51dbf2da1b29981d2da2501803d8e5ea",
+        "@jubstaaa/config": "github:Jubstaaa/configs#80d67f7e1374bd492a10ffdc5409d8ca51cdc723",
         "@tanstack/react-query": "^5.107.1",
         "@testing-library/dom": "^10.4.2",
         "@testing-library/react": "^16.3.3",
@@ -140,7 +140,7 @@
 
     "@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.31", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.1.0", "@jridgewell/sourcemap-codec": "^1.4.14" } }, "sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw=="],
 
-    "@jubstaaa/config": ["@jubstaaa/config@github:Jubstaaa/configs#779a6cb", { "dependencies": { "@eslint/compat": "^2.1.1", "eslint-config-prettier": "^10.1.9", "eslint-plugin-no-comments": "^1.2.1", "eslint-plugin-perfectionist": "^5.14.0", "typescript-eslint": "^8.74.0" }, "peerDependencies": { "eslint": "^9.0.0 || ^10.0.0", "eslint-config-next": ">=15", "eslint-plugin-jsx-a11y": "^6.0.0", "eslint-plugin-react-hooks": "^5.0.0 || ^6.0.0", "eslint-plugin-react-refresh": "^0.4.0", "prettier": "^3.0.0", "typescript": "^5.0.0" }, "optionalPeers": ["eslint-config-next", "eslint-plugin-jsx-a11y", "eslint-plugin-react-hooks", "eslint-plugin-react-refresh"] }, "Jubstaaa-configs-779a6cb", "sha512-J6EUnn8Z2C96Sxq077r9e3IMEKxnNE8fqYus4JbxAeGUPu7jRlZdIA4AFCuxvFvyGJs5SWaTKMaJ5GYLA6PQ1Q=="],
+    "@jubstaaa/config": ["@jubstaaa/config@github:Jubstaaa/configs#80d67f7", { "dependencies": { "@eslint/compat": "^2.1.1", "eslint-config-prettier": "^10.1.9", "eslint-plugin-no-comments": "^1.2.1", "eslint-plugin-perfectionist": "^5.14.0", "typescript-eslint": "^8.74.0" }, "peerDependencies": { "eslint": "^9.0.0 || ^10.0.0", "eslint-config-next": ">=15", "eslint-plugin-jsx-a11y": "^6.0.0", "eslint-plugin-react-hooks": "^5.0.0 || ^6.0.0", "eslint-plugin-react-refresh": "^0.4.0", "prettier": "^3.0.0", "typescript": "^5.0.0" }, "optionalPeers": ["eslint-config-next", "eslint-plugin-jsx-a11y", "eslint-plugin-react-hooks", "eslint-plugin-react-refresh"] }, "Jubstaaa-configs-80d67f7", "sha512-T7/jN4lHWDAS/g8GGkxO1q+zMpB+Be/HAIFbHeJNfwSAs0JvrejFiOaEorrYieL7T+xkWKZkCCS7gMhy9QYFuQ=="],
 
     "@keyv/bigmap": ["@keyv/bigmap@1.3.1", "", { "dependencies": { "hashery": "^1.4.0", "hookified": "^1.15.0" }, "peerDependencies": { "keyv": "^5.6.0" } }, "sha512-WbzE9sdmQtKy8vrNPa9BRnwZh5UF4s1KTmSK0KUVLo3eff5BlQNNWDnFOouNpKfPKDnms9xynJjsMYjMaT/aFQ=="],
 

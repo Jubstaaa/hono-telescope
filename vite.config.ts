@@ -39,6 +39,8 @@ export default defineConfig({
                     ) {
                         return 'utils'
                     }
+
+                    return undefined
                 },
             },
         },

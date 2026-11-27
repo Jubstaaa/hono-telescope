@@ -2,19 +2,17 @@
     "extends": "@jubstaaa/config/tsconfig/library",
     "compilerOptions": {
         "allowSyntheticDefaultImports": true,
-        "declarationMap": false,
         "jsx": "react-jsx",
         "module": "NodeNext",
         "moduleResolution": "NodeNext",
-        "outDir": "./dist",
         "removeComments": true,
-        "rootDir": "./src",
         "types": ["bun"],
         "paths": {
             "@/*": ["./src/*"]
         },
-        "lib": ["ESNext", "DOM", "DOM.Iterable"]
+        "lib": ["ESNext", "DOM", "DOM.Iterable"],
+        "noEmit": true
     },
-    "include": ["./src/**/*"],
+    "include": ["./src/**/*", "./scripts/**/*", "*.ts", "*.mts"],
     "exclude": ["node_modules", "dist", "src/dashboard"]
 }
