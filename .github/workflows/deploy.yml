@@ -95,7 +95,7 @@ jobs:
                   key: ${{ secrets.DO_SSH_KEY }}
                   known-hosts: ${{ secrets.DO_KNOWN_HOSTS }}
             # Retries the pull while GHCR propagates the freshly pushed tag.
-            - uses: Jubstaaa/deploy-actions/compose@1d9b582d7547aa6f02352b655c0721dd5a88071f # v1.3.0
+            - uses: Jubstaaa/deploy-actions/compose@233419e4b4936a17bf710cb7038f7dbc23a8a5f5 # v1.4.0
               with:
                   app-dir: /opt/hono-telescope
                   container: hono-telescope
