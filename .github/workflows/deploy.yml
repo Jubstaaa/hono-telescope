@@ -88,7 +88,7 @@ jobs:
                   registry: ghcr.io
                   username: ${{ github.actor }}
                   password: ${{ secrets.GITHUB_TOKEN }}
-            - uses: Jubstaaa/deploy-actions/ssh@1d9b582d7547aa6f02352b655c0721dd5a88071f # v1.3.0
+            - uses: Jubstaaa/deploy-actions/ssh@233419e4b4936a17bf710cb7038f7dbc23a8a5f5 # v1.4.0
               with:
                   host: ${{ secrets.DO_HOST }}
                   user: ${{ secrets.DO_USER }}
