@@ -11,7 +11,7 @@ interface Entry {
 interface EntryTableProps<T extends Entry> {
     columns: TableColumnsType<T>
     dataSource: T[]
-    loading?: boolean
+    loading?: boolean | undefined
     path: string
 }
 
@@ -48,7 +48,7 @@ function Table<T extends Entry>({
         <AntTable<T>
             columns={linked}
             dataSource={dataSource}
-            loading={loading}
+            loading={loading ?? false}
             onRow={record => ({
                 onClick: event => {
                     if ((event.target as HTMLElement).closest('a')) return

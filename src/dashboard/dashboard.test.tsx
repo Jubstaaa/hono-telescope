@@ -54,10 +54,10 @@ describe('dashboard accessibility', { timeout: 30_000 }, () => {
 
         const rows = screen.getAllByRole('row').slice(1)
         expect(rows).toHaveLength(2)
-        expect(within(rows[0]).getByRole('link').getAttribute('href')).toBe(
+        expect(within(rows[0]!).getByRole('link').getAttribute('href')).toBe(
             '/incoming-requests/a'
         )
-        expect(within(rows[1]).getByRole('link').getAttribute('href')).toBe(
+        expect(within(rows[1]!).getByRole('link').getAttribute('href')).toBe(
             '/incoming-requests/b'
         )
     })

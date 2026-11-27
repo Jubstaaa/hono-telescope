@@ -3,7 +3,8 @@
     "compilerOptions": {
         "module": "ESNext",
         "moduleResolution": "bundler",
-        "noEmit": true
+        "noEmit": true,
+        "types": ["vite/client"]
     },
     "include": ["src/dashboard/**/*"],
     "exclude": ["node_modules", "dist"]

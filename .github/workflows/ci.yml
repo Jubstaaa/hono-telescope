@@ -29,11 +29,11 @@ jobs:
                   node-version: 22
             - run: bun install --frozen-lockfile
             # The dashboard bundle is inlined into a generated module the library imports; it is
-            # not committed, so type-check and the tests need it built first.
+            # not committed, so typecheck and the tests need it built first.
             - run: bun run build:dashboard
             - run: bun run format:check
             - run: bun run lint
-            - run: bun run type-check
+            - run: bun run typecheck
             - run: bun run test
             - run: bun run audit
             # Gates the published artifact: dist has to import under both Node and Bun.

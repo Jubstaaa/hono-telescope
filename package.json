@@ -125,12 +125,12 @@
         "test:watch": "vitest",
         "clean": "rm -rf node_modules dist",
         "prepublishOnly": "bun run publishBuild",
-        "type-check": "tsc --noEmit && tsc -p tsconfig.dashboard.json",
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
         "format": "prettier --write .",
         "format:check": "prettier --check .",
-        "audit": "bun audit --audit-level=high"
+        "audit": "bun audit --audit-level=high",
+        "typecheck": "tsc --noEmit && tsc -p tsconfig.dashboard.json"
     },
     "type": "module",
     "types": "./dist/index.d.ts"
