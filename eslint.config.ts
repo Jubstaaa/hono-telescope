@@ -1,4 +1,4 @@
-import { library } from '@jubstaaa/config/eslint/library'
+import { library } from '@jubstaa/config/eslint/library'
 import jsxA11y from 'eslint-plugin-jsx-a11y'
 import reactHooks from 'eslint-plugin-react-hooks'
 import { defineConfig } from 'eslint/config'
