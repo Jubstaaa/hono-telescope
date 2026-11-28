@@ -2,7 +2,7 @@ import type { Hono } from 'hono'
 
 import type { Recorder } from '../recorder.js'
 
-import { TELESCOPE_VERSION } from '../version.js'
+import { version as TELESCOPE_VERSION } from '../version.js'
 import {
     negotiate,
     parseRpc,
