@@ -1,5 +1,5 @@
 {
-    "extends": "@jubstaaa/config/tsconfig/library",
+    "extends": "@jubstaa/config/tsconfig/library",
     "compilerOptions": {
         "allowSyntheticDefaultImports": true,
         "jsx": "react-jsx",
@@ -13,6 +13,14 @@
         "lib": ["ESNext", "DOM", "DOM.Iterable"],
         "noEmit": true
     },
-    "include": ["./src/**/*", "./scripts/**/*", "*.ts", "*.mts"],
+    "include": [
+        "types",
+        "eslint.config.ts",
+        "prettier.config.ts",
+        "./src/**/*",
+        "./scripts/**/*",
+        "*.ts",
+        "*.mts"
+    ],
     "exclude": ["node_modules", "dist", "src/dashboard"]
 }

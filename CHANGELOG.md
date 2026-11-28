@@ -1,3 +1,25 @@
+## [1.2.3](https://github.com/jubstaaa/hono-telescope/compare/1.2.2...1.2.3) (2026-11-27)
+
+### 🐛 Bug Fixes
+
+* **dashboard:** `renderHtml` called `.toString()` on the result of `hono/html`, which is typed
+  `HtmlEscapedString | Promise<HtmlEscapedString>`. On the promise branch that writes the literal
+  string `[object Promise]` into the dashboard's `<meta>` tag and asset base path. The values passed
+  are plain strings today, so it does not fire, but nothing prevented it.
+* **dashboard:** header, payload and response cards rendered behind `{entry.headers && ...}`, where
+  the field is a required object and so always truthy. An entry with no headers rendered an empty
+  card; the cards now check for content.
+* **dashboard:** migrate off antd 6 deprecations — `Alert`'s `message` is now `title`, its `onClose`
+  moved under `closable`, and `Statistic`'s `valueStyle` is now `styles.content`.
+* **core:** `getExceptionClassCode` returned `number` rather than `ExceptionClass`, so every call
+  site assigned a bare number into an enum-typed field.
+* **cli:** navigation promises from the dashboard sidebar and back button were dropped unhandled.
+
+### 🏗️ Maintenance
+
+* Adopt the shared ESLint, TypeScript and Prettier presets, and split `tsconfig.build.json` from the
+  lint configuration so tooling files are type-checked without reaching `dist`.
+
 ## [1.2.2](https://github.com/jubstaaa/hono-telescope/compare/1.2.1...1.2.2) (2026-11-20)
 
 ### 🐛 Bug Fixes
