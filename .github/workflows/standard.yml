@@ -1,0 +1,16 @@
+name: Standard
+
+on:
+    pull_request:
+        types: [opened, edited, synchronize, reopened]
+
+permissions: {}
+
+jobs:
+    doctor:
+        permissions:
+            contents: read
+        uses: Jubstaaa/deploy-actions/.github/workflows/doctor.yml@a32b5001ae0415eb9c79815a2ee6b2437ab6e52a # v2.2.0
+    title:
+        permissions: {}
+        uses: Jubstaaa/deploy-actions/.github/workflows/pr-title.yml@a32b5001ae0415eb9c79815a2ee6b2437ab6e52a # v2.2.0
