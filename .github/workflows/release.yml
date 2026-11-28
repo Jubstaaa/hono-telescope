@@ -1,16 +1,11 @@
 name: Release
 
-# Tags in this repo are bare semver (1.1.1), not v-prefixed: 1.0.0 onwards were cut that way
-# and switching now would fragment an already mixed tag history.
 on:
     push:
-        tags: ['[0-9]+.[0-9]+.[0-9]+']
+        tags: ['v*']
 
 jobs:
     publish:
-        # Trusted publishing: npm accepts this job's OIDC token for this workflow and
-        # environment only, so no long-lived npm token exists. The environment only
-        # admits release tags, which only an admin can create.
         environment: release
         runs-on: ubuntu-latest
         permissions:
@@ -29,8 +24,6 @@ jobs:
                   node-version: 24
 
             - run: bun install --frozen-lockfile
-            # The dashboard bundle is inlined into a generated module the library imports; it is
-            # not committed, so typecheck and the tests need it built first.
             - run: bun run build:dashboard
             - run: bun run lint
             - run: bun run typecheck
@@ -38,10 +31,6 @@ jobs:
             - run: bun run format:check
             - run: bun run audit
 
-            # Releasing from a clean checkout is the point of this workflow. Publishing from a laptop
-            # once shipped a stale `dist/` that still imported cleanly, so 1.1.0 went out without the
-            # changes its own changelog advertised. publishBuild now removes dist first and refuses a
-            # duplicated `dist/src/` tree.
             - run: bun run publishBuild
 
             - name: Verify the tag matches package.json
