@@ -20,6 +20,13 @@
 * Adopt the shared ESLint, TypeScript and Prettier presets, and split `tsconfig.build.json` from the
   lint configuration so tooling files are type-checked without reaching `dist`.
 
+## [1.2.5](https://github.com/Jubstaaa/hono-telescope/compare/v1.2.4...v1.2.5) (2026-11-28)
+
+
+### Bug Fixes
+
+* drop the stale v0.1.11 RELEASE_NOTES.md ([#75](https://github.com/Jubstaaa/hono-telescope/issues/75)) ([c72b6b1](https://github.com/Jubstaaa/hono-telescope/commit/c72b6b1ce41deca7cebd34d930c46bb3ab596ff4))
+
 ## [1.2.4](https://github.com/Jubstaaa/hono-telescope/compare/1.2.3...v1.2.4) (2026-11-28)
 
 
